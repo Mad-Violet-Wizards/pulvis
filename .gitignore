@@ -1,0 +1,10 @@
+.vs
+.vscode
+obj
+build
+*.sln
+*.user
+*.vcxproj
+*.vcxproj.filters
+imgui.ini
+.DS_Store
