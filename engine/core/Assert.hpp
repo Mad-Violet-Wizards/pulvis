@@ -5,7 +5,7 @@
 #define ASSERT(expr) \
   if (!(expr)) \
 	{ \
-		core::AssertManager::GetInstance().Assert(#expr, __FILE__, __LINE__); \
+		engine::core::AssertManager::GetInstance().Assert(#expr, __FILE__, __LINE__); \
 	}
 
 namespace engine
@@ -42,8 +42,9 @@ namespace engine
 
       AssertWindows(const std::string& asserting_filename, int line_of_code);
 
+#ifdef _WIN32
       void PrintCallstack() const;
-
+#endif
       const std::string& GetAssertingFilename() const { return m_AssertingFilename; }
       int GetCodeLine() const { return m_CodeLine; }
 

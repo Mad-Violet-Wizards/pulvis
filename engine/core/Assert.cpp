@@ -10,6 +10,7 @@
 #include <DbgHelp.h>
 #pragma comment(lib, "Dbghelp.lib")
 #endif
+#include <execinfo.h>
 
 namespace engine
 {
@@ -25,7 +26,18 @@ namespace engine
 
     void AssertUnix::PrintCallstack() const
     {
-      std::cout << "[AssertUnix] TODO Implement PrintCallstack.\n";
+      const int MAX_CALLSTACK_DEPTH = 100;
+      void* callstack[MAX_CALLSTACK_DEPTH];
+      const int callstack_size = backtrace(callstack, MAX_CALLSTACK_DEPTH);
+      char** callstack_symbols_strings = backtrace_symbols(callstack, callstack_size);
+
+      std::cout << "Callstack:\n";
+      for (auto i = 0; i < callstack_size; ++i)
+      {
+        std::cout << i << ": " << callstack_symbols_strings[i] << " - 0x" << callstack[i] << "\n";
+      }
+
+      free(callstack_symbols_strings);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +47,7 @@ namespace engine
     {
 
     }
-
+#ifdef _WIN32
     void AssertWindows::PrintCallstack() const
     {
       const int MAX_CALLSTACK_DEPTH = 64;
@@ -61,7 +73,7 @@ namespace engine
         }
       }
     }
-
+#endif
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     AssertIgnoreList::AssertIgnoreList()
     {

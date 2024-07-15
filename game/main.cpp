@@ -9,6 +9,8 @@ int main(int argc, const char* argv[])
     
     Singleton<engine::core::AssertManager>::Init();
 
+    ASSERT(true == false);
+
 #ifdef _WIN32
     engine::fs::InitializeAppdataPath();
 #endif

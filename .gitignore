@@ -8,3 +8,5 @@ build
 *.vcxproj.filters
 imgui.ini
 .DS_Store
+*.make
+Makefile
