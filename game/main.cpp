@@ -1,16 +1,17 @@
 #include <iostream>
+#include "engine/engine_pch.hpp"
 #include "engine/core/Assert.hpp"
+#include "engine/filesystem/Utils.hpp"
 
 int main(int argc, const char* argv[])
 {
-    printf("[Main] Hello world.\n");
+    printf("[Main] Zebys kurwo miala szczesliwe zycie, tego Ci zycze z calego serduszka.\n");
+    
+    Singleton<engine::core::AssertManager>::Init();
 
-    core::AssertUnix unix_assert("this", 1);
-    core::AssertWindows win_assert("this", 1);
+#ifdef _WIN32
+    engine::fs::InitializeAppdataPath();
+#endif
 
-    unix_assert.PrintCallstack();
-    win_assert.PrintCallstack();
-
-    std::cout << "T" << "\n";
     return 0;
 }

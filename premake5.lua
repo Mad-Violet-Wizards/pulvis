@@ -3,7 +3,8 @@ workspace "Pelvis"
     platforms { "Windows", "MacOS-ARM", "MacOS-Intel" }
 
     filter { "system:Windows"}
-        buildmessage("No supported yet.")
+        defaultplatform "Windows"
+        include "./scripts/build/windows/premake5_windows.lua"
 
     filter("system:MacOSX", "architecture:ARM")
         defaultplatform "MacOS-ARM"
