@@ -10,6 +10,11 @@ project "Engine"
     files { RootDir .. "/engine/**.hpp", RootDir .. "/engine/**.cpp" }
     includedirs(RootDir)
 
+    filter "configurations:*"
+        includedirs { "$(VULKAN_SDK)/Include/", RootDir .. "/vendor/windows/include/" }
+        libdirs{ "$(VULKAN_SDK)/Lib/", RootDir .. "/vendor/windows/lib/" }
+        links { "vulkan-1", "glfw3", "opengl32", "User32" }
+
     filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"
@@ -29,8 +34,8 @@ project "Game"
     includedirs(RootDir)
 
     filter "configurations:*"
-        -- includedirs { "vendor/include/", "." }
-        -- libdirs { "vendor/lib/" }
+        includedirs { "$(VULKAN_SDK)/Include/", RootDir .. "/vendor/windows/include/" }
+        libdirs{ "$(VULKAN_SDK)/Lib/", RootDir .. "/vendor/windows/lib/" }
         links { "Engine" }
 
     filter "configurations:Debug"

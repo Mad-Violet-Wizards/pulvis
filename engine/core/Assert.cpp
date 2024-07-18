@@ -9,147 +9,107 @@
 #include <Windows.h>
 #include <DbgHelp.h>
 #pragma comment(lib, "Dbghelp.lib")
-#endif
+#else
 #include <execinfo.h>
+#endif
 
 namespace engine
 {
   namespace core
   {
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    AssertUnix::AssertUnix(const std::string& asserting_filename, int line_of_code)
-      : m_AssertingFilename(asserting_filename),
-      m_CodeLine(line_of_code)
-    {
+		Assertion::Assertion(const std::string& _asserting_filename, int _line_of_code)
+			: m_AssertingFilename(_asserting_filename)
+			, m_CodeLine(_line_of_code)
+		{
+		}
 
-    }
-
-    void AssertUnix::PrintCallstack() const
-    {
-      const int MAX_CALLSTACK_DEPTH = 100;
-      void* callstack[MAX_CALLSTACK_DEPTH];
-      const int callstack_size = backtrace(callstack, MAX_CALLSTACK_DEPTH);
-      char** callstack_symbols_strings = backtrace_symbols(callstack, callstack_size);
-
-      std::cout << "Callstack:\n";
-      for (auto i = 0; i < callstack_size; ++i)
-      {
-        std::cout << i << ": " << callstack_symbols_strings[i] << " - 0x" << callstack[i] << "\n";
-      }
-
-      free(callstack_symbols_strings);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////
-    AssertWindows::AssertWindows(const std::string& asserting_filename, int line_of_code)
-      : m_AssertingFilename(asserting_filename)
-      , m_CodeLine(line_of_code)
-    {
-
-    }
+		void Assertion::PrintCallstack() const
+		{
 #ifdef _WIN32
-    void AssertWindows::PrintCallstack() const
-    {
-      const int MAX_CALLSTACK_DEPTH = 64;
-      void* callstack[MAX_CALLSTACK_DEPTH];
-      unsigned short frames = CaptureStackBackTrace(0, MAX_CALLSTACK_DEPTH, callstack, nullptr);
+			const int MAX_CALLSTACK_DEPTH = 64;
+			void* callstack[MAX_CALLSTACK_DEPTH];
+			unsigned short frames = CaptureStackBackTrace(0, MAX_CALLSTACK_DEPTH, callstack, nullptr);
 
-      SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
+			SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
 
-      if (symbol)
-      {
-        symbol->MaxNameLen = 255;
-        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+			if (symbol)
+			{
+				symbol->MaxNameLen = 255;
+				symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
-        std::cout << "Callstack:\n";
+				std::cout << "Callstack:\n";
 
-        HANDLE process = GetCurrentProcess();
-        SymInitialize(process, NULL, TRUE);
+				HANDLE process = GetCurrentProcess();
+				SymInitialize(process, NULL, TRUE);
 
-        for (unsigned int i = 0; i < frames; i++)
-        {
-          SymFromAddr(process, (DWORD64)(callstack[i]), 0, symbol);
-          std::cerr << i << ": " << symbol->Name << " - 0x" << symbol->Address << "\n";
-        }
-      }
-    }
+				for (unsigned int i = 0; i < frames; i++)
+				{
+					SymFromAddr(process, (DWORD64)(callstack[i]), 0, symbol);
+					std::cerr << i << ": " << symbol->Name << " - 0x" << symbol->Address << "\n";
+				}
+#else
+			const int MAX_CALLSTACK_DEPTH = 100;
+			void* callstack[MAX_CALLSTACK_DEPTH];
+			const int callstack_size = backtrace(callstack, MAX_CALLSTACK_DEPTH);
+			char** callstack_symbols_strings = backtrace_symbols(callstack, callstack_size);
+
+			std::cout << "Callstack:\n";
+			for (auto i = 0; i < callstack_size; ++i)
+			{
+				std::cout << i << ": " << callstack_symbols_strings[i] << " - 0x" << callstack[i] << "\n";
+			}
+
+			free(callstack_symbols_strings);
 #endif
+			}
+		}
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     AssertIgnoreList::AssertIgnoreList()
     {
       // Initialize should load .txt file and fill vector.
     }
 
-    bool AssertIgnoreList::IsIgnored(const AssertWindows& assert_windows) const
+    bool AssertIgnoreList::IsIgnored(const Assertion& _assertion) const
     {
-      return IsIgnoredInternal(assert_windows.GetAssertingFilename(), assert_windows.GetCodeLine());
-    }
-
-    bool AssertIgnoreList::IsIgnored(const AssertUnix& assert_unix) const
-    {
-      return IsIgnoredInternal(assert_unix.GetAssertingFilename(), assert_unix.GetCodeLine());
-    }
-
-#ifdef _WIN32
-    void AssertIgnoreList::AddToIgnoreList(const AssertWindows& assert_windows)
-    {
-      m_AssertionIgnoreList.push_back(assert_windows);
-    }
-#else
-    void AssertIgnoreList::AddToIgnoreList(const AssertUnix& assert_unix)
-    {
-      m_AssertionIgnoreList.push_back(assert_unix);
-    }
-#endif // _WIN32
-
-    bool AssertIgnoreList::IsIgnoredInternal(const std::string& file_name, int line_of_code) const
-    {
-      for (const auto& assert : m_AssertionIgnoreList)
-      {
-        if (assert.GetAssertingFilename() == file_name && assert.GetCodeLine() == line_of_code)
-        {
-          return true;
-        }
-      }
+      for (const Assertion& assert : m_AssertionIgnoreList)
+			{
+				if (assert.GetAssertingFilename() == _assertion.GetAssertingFilename() && assert.GetCodeLine() == _assertion.GetCodeLine())
+				{
+					return true;
+				}
+			}
 
       return false;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////
-    void AssertManager::Assert(const std::string& expression, const std::string& asserting_filename, int line_of_code)
+    void AssertIgnoreList::AddToIgnoreList(const Assertion& _assertion)
     {
-#ifdef _WIN32
-      AssertWindows assertWindows(asserting_filename, line_of_code);
+      m_AssertionIgnoreList.push_back(_assertion);
+    }
 
-      if (m_IgnoreList.IsIgnored(assertWindows))
-        return;
-#else
-      AssertUnix assertUnix(asserting_filename, line_of_code);
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    void AssertManager::Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code)
+    {
+      Assertion assertion(_asserting_filename, _line_of_code);
 
-      if (m_IgnoreList.IsIgnored(assertUnix))
-        return;
-#endif
+      if (m_IgnoreList.IsIgnored(assertion))
+				return;
 
-      std::cerr << "Assertion failed: " << expression << "\n";
-      std::cerr << "File: " << asserting_filename << "\n";
-      std::cerr << "Line: " << line_of_code << "\n";
+      std::cerr << "Assertion failed: " << _expression << "\n";
+      std::cerr << "Message: " << _message << "\n";
+      std::cerr << "File: " << _asserting_filename << "\n";
+      std::cerr << "Line: " << _line_of_code << "\n";
 
-#ifdef _WIN32
-      assertWindows.PrintCallstack();
-#else
-      assertUnix.PrintCallstack();
-#endif
+      assertion.PrintCallstack();
 
       const EAssertionAction user_action = GetUserAction();
 
       switch (user_action)
       {
       case EAssertionAction::Ignore:
-#ifdef _WIN32
-        m_IgnoreList.AddToIgnoreList(assertWindows);
-#else
-        m_IgnoreList.AddToIgnoreList(assertUnix);
-#endif
+        m_IgnoreList.AddToIgnoreList(assertion);
         break;
       case EAssertionAction::Abort:
         std::raise(SIGABRT);
@@ -180,6 +140,5 @@ namespace engine
       [[unlikely]] default:  return EAssertionAction::Abort;
       }
     }
-
-  }
+}
 }

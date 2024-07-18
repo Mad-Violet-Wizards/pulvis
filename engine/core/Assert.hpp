@@ -2,10 +2,10 @@
 
 #include "engine/patterns/Singleton.hpp"
 
-#define ASSERT(expr) \
+#define ASSERT(expr, message) \
   if (!(expr)) \
 	{ \
-		engine::core::AssertManager::GetInstance().Assert(#expr, __FILE__, __LINE__); \
+		engine::core::AssertManager::GetInstance().Assert(#expr, message, __FILE__, __LINE__); \
 	}
 
 namespace engine
@@ -19,38 +19,21 @@ namespace engine
       Ignore
     };
 
-    class AssertUnix
+    class Assertion
     {
-    public:
+		public:
 
-      AssertUnix(const std::string& asserting_filename, int line_of_code);
+			Assertion(const std::string& asserting_filename, int line_of_code);
 
-      void PrintCallstack() const;
+			void PrintCallstack() const;
 
-      const std::string& GetAssertingFilename() const { return m_AssertingFilename; }
-      int GetCodeLine() const { return m_CodeLine; }
+			const std::string& GetAssertingFilename() const { return m_AssertingFilename; }
+			int GetCodeLine() const { return m_CodeLine; }
 
-    private:
+		private:
 
-      std::string m_AssertingFilename;
-      int m_CodeLine;
-    };
-
-    class AssertWindows
-    {
-    public:
-
-      AssertWindows(const std::string& asserting_filename, int line_of_code);
-
-#ifdef _WIN32
-      void PrintCallstack() const;
-#endif
-      const std::string& GetAssertingFilename() const { return m_AssertingFilename; }
-      int GetCodeLine() const { return m_CodeLine; }
-
-    private:
-      std::string m_AssertingFilename;
-      int m_CodeLine;
+			std::string m_AssertingFilename;
+			int m_CodeLine;
     };
 
     class AssertIgnoreList
@@ -59,31 +42,19 @@ namespace engine
 
       AssertIgnoreList();
 
-      bool IsIgnored(const AssertWindows& assert_windows) const;
-      bool IsIgnored(const AssertUnix& assert_unix) const;
-
-#ifdef _WIN32
-      void AddToIgnoreList(const AssertWindows& assert_windows);
-#else
-      void AddToIgnoreList(const AssertUnix& assert_unix);
-#endif
+      bool IsIgnored(const Assertion& _assertion) const;
+      void AddToIgnoreList(const Assertion& _assertion);
 
     private:
 
-      bool IsIgnoredInternal(const std::string& file_name, int line_of_code) const;
-
-#ifdef _WIN32
-      std::vector<AssertWindows> m_AssertionIgnoreList;
-#else
-      std::vector<AssertUnix> m_AssertionIgnoreList;
-#endif
+      std::vector<Assertion> m_AssertionIgnoreList;
     };
 
     class AssertManager : public Singleton<AssertManager>
     {
     public:
 
-      void Assert(const std::string& expression, const std::string& asserting_filename, int line_of_code);
+      void Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code);
 
     private:
 

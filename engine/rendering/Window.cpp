@@ -1,0 +1,42 @@
+#include "engine/engine_pch.hpp"
+#include "Window.hpp"
+
+namespace engine
+{
+namespace render
+{
+	Window::Window(unsigned int _width, unsigned int _height, const char* _title)
+		: m_Width(_width)
+		, m_Height(_height)
+		, m_Title(_title)
+	{
+		glfwInit();
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+		m_Window = glfwCreateWindow(_width, _height, _title, nullptr, nullptr);
+
+		if (!m_Window)
+		{
+			ASSERT(false, "Failed to create window.")
+				glfwTerminate();
+		}
+
+		glfwSetWindowUserPointer(m_Window, this);
+
+		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* _window, int _width, int _height)
+			{
+				Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
+				window->m_Width = _width;
+				window->m_Height = _height;
+			});
+	}
+
+	Window::~Window()
+	{
+		glfwDestroyWindow(m_Window);
+		glfwTerminate();
+	}
+
+}
+}
