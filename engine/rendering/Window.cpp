@@ -1,9 +1,10 @@
 #include "engine/engine_pch.hpp"
 #include "Window.hpp"
+#include <format>
 
 namespace engine
 {
-namespace render
+namespace rendering
 {
 	Window::Window(unsigned int _width, unsigned int _height, const char* _title)
 		: m_Width(_width)
@@ -24,12 +25,17 @@ namespace render
 
 		glfwSetWindowUserPointer(m_Window, this);
 
+		glfwSetErrorCallback([](int error, const char* desc)
+		{
+				std::cout << std::format("GLFW Error {0}: {1}\n", error, desc);
+		});
+
 		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* _window, int _width, int _height)
-			{
+		{
 				Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
 				window->m_Width = _width;
 				window->m_Height = _height;
-			});
+		});
 	}
 
 	Window::~Window()

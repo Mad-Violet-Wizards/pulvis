@@ -43,10 +43,10 @@ namespace engine
 				HANDLE process = GetCurrentProcess();
 				SymInitialize(process, NULL, TRUE);
 
-				for (unsigned int i = 0; i < frames; i++)
+				for (unsigned int i = 2; i < frames; i++)
 				{
 					SymFromAddr(process, (DWORD64)(callstack[i]), 0, symbol);
-					std::cerr << i << ": " << symbol->Name << " - 0x" << symbol->Address << "\n";
+					std::cerr << i - 1 << ": " << symbol->Name << " - 0x" << symbol->Address << "\n";
 				}
 #else
 			const int MAX_CALLSTACK_DEPTH = 100;
@@ -55,9 +55,9 @@ namespace engine
 			char** callstack_symbols_strings = backtrace_symbols(callstack, callstack_size);
 
 			std::cout << "Callstack:\n";
-			for (auto i = 0; i < callstack_size; ++i)
+			for (auto i = 2; i < callstack_size; ++i)
 			{
-				std::cout << i << ": " << callstack_symbols_strings[i] << " - 0x" << callstack[i] << "\n";
+				std::cout << i - 1 << ": " << callstack_symbols_strings[i] << " - 0x" << callstack[i] << "\n";
 			}
 
 			free(callstack_symbols_strings);

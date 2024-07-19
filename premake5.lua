@@ -1,4 +1,4 @@
-workspace "Pelvis"
+workspace "Pulvis"
     configurations { "Debug", "Release" }
     platforms { "Windows", "MacOS-ARM", "MacOS-Intel" }
 

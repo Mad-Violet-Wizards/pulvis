@@ -5,7 +5,7 @@
 
 namespace engine
 {
-namespace render
+namespace rendering
 {
 	class Window
 	{

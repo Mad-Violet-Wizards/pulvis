@@ -3,6 +3,7 @@
 #include "engine/core/Assert.hpp"
 #include "engine/filesystem/Utils.hpp"
 #include "engine/rendering/Window.hpp"
+#include "engine/rendering/Context.hpp"
 
 int main(int argc, const char* argv[])
 {
@@ -14,7 +15,11 @@ int main(int argc, const char* argv[])
     engine::fs::InitializeAppdataPath();
 #endif
 
-		engine::render::Window window(800, 600, "Pulvis Engine Alpha (1.0.0)");
+    engine::rendering::Context vk_context;
+    std::vector<std::string> vk_instance_layers;
+    vk_context.FillInstanceLayers(vk_instance_layers, true);
+
+		engine::rendering::Window window(800, 600, "Pulvis Engine Alpha (1.0.0)");
      
     while (!window.ShouldClose())
     {

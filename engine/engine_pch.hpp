@@ -7,3 +7,4 @@
 
 // Engine
 #include "engine/core/Assert.hpp"
+#include "engine/rendering/Utility.hpp"

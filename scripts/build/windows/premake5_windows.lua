@@ -1,4 +1,6 @@
 local RootDir = "../../.."
+local VulkanSdkPath = os.getenv("VULKAN_SDK")
+print("VulkanSDK path: ", VulkanSdkPath)
 
 project "Engine"
     kind "StaticLib"
@@ -8,11 +10,10 @@ project "Engine"
     targetdir(RootDir .. "build/%{cfg.buildcfg}")
 
     files { RootDir .. "/engine/**.hpp", RootDir .. "/engine/**.cpp" }
-    includedirs(RootDir)
 
     filter "configurations:*"
-        includedirs { "$(VULKAN_SDK)/Include/", RootDir .. "/vendor/windows/include/" }
-        libdirs{ "$(VULKAN_SDK)/Lib/", RootDir .. "/vendor/windows/lib/" }
+        includedirs { VulkanSdkPath .. "/Include/", RootDir .. "/vendor/windows/include/", RootDir }
+        libdirs{ VulkanSdkPath .. "/Lib32/", RootDir .. "/vendor/windows/lib/" }
         links { "vulkan-1", "glfw3", "opengl32", "User32" }
 
     filter "configurations:Debug"
@@ -31,11 +32,10 @@ project "Game"
     targetdir(RootDir .. "build/%{cfg.buildcfg}")
 
     files { RootDir .. "/game/**.hpp", RootDir .. "/game/**.cpp" }
-    includedirs(RootDir)
 
     filter "configurations:*"
-        includedirs { "$(VULKAN_SDK)/Include/", RootDir .. "/vendor/windows/include/" }
-        libdirs{ "$(VULKAN_SDK)/Lib/", RootDir .. "/vendor/windows/lib/" }
+        includedirs { VulkanSdkPath .. "/Include/", RootDir .. "/vendor/windows/include/", RootDir }
+        libdirs{ VulkanSdkPath .. "/Lib32/", RootDir .. "/vendor/windows/lib/" }
         links { "Engine" }
 
     filter "configurations:Debug"
