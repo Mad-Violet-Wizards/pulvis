@@ -1,5 +1,6 @@
 #include "engine/engine_pch.hpp"
 #include "Context.hpp"
+#include "Utility.hpp"
 
 #include <iostream>
 
@@ -7,8 +8,19 @@ namespace engine
 {
 namespace rendering
 {
-	Context::Context()
+	Context::Context(const std::vector<std::string>& _requested_layers)
 	{
+		std::vector<std::string> vk_instance_layers;
+		FillInstanceLayers(vk_instance_layers, engine::rendering::s_DebugVerbose);
+		m_VkEnabledInstanceLayers = engine::core::Intersect(vk_instance_layers, _requested_layers);
+
+		if (engine::rendering::s_DebugVerbose)
+		{
+			std::cout << "Enabled instance layers: \n";
+			for (const auto& layer : m_VkEnabledInstanceLayers)
+				std::cout << layer << "\n";
+		}
+
 		CreateInstance();
 	}
 
@@ -17,10 +29,17 @@ namespace rendering
 			uint32_t layer_count{ 0 };
 			VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
 			vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
-			std::vector<VkLayerProperties> available_layers(layer_count);
+			std::vector<VkLayerProperties> available_layers;
+			available_layers.resize(layer_count);
+			VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data()));
 
-			if (_verbose)
-				std::cout << "Available instance layers:" << layer_count << "\n";
+			std::cout << "Layers count: " << layer_count << "\n";
+			for (const auto& layer : available_layers)
+			{
+				_instance_layers.push_back(layer.layerName);
+				if (_verbose)
+					std::cout << "Available instance layer: " << layer.layerName << "\n";
+			}
 		}
 
 		void Context::CreateInstance()

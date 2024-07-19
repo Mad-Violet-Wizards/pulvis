@@ -4,7 +4,15 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 // Engine
+//	Core
 #include "engine/core/Assert.hpp"
+#include "engine/core/Algorithm.hpp"
+//	Core
+
+//	Rendering
 #include "engine/rendering/Utility.hpp"
+//	Rendering
+// Engine
