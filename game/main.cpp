@@ -11,7 +11,7 @@ int main(int argc, const char* argv[])
 {
     printf("[Main] Zebys kurwo miala szczesliwe zycie, tego Ci zycze z calego serduszka.\n");
     
-    Singleton<engine::core::AssertManager>::Init();
+    Singleton<engine::core::CAssertManager>::Init();
 
 #ifdef _WIN32
     engine::fs::InitializeAppdataPath();
@@ -24,9 +24,9 @@ int main(int argc, const char* argv[])
       "VK_LAYER_KHRONOS_validation"
 #endif
     };
-    engine::rendering::Context vk_context(vk_requested_instance_layers);
+    engine::rendering::CContext vk_context(vk_requested_instance_layers);
 
-		engine::rendering::Window window(800, 600, "Pulvis Engine Alpha (1.0.0)");
+		engine::rendering::CWindow window(800, 600, "Pulvis Engine Alpha (1.0.0)");
      
     while (!window.ShouldClose())
     {

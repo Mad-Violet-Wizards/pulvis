@@ -6,7 +6,7 @@
 #define ASSERT(expr, message) \
   if (!(expr)) \
 	{ \
-		engine::core::AssertManager::GetInstance().Assert(#expr, message, __FILE__, __LINE__); \
+		engine::core::CAssertManager::GetInstance().Assert(#expr, message, __FILE__, __LINE__); \
 	}
 
 namespace engine
@@ -20,11 +20,11 @@ namespace engine
       Ignore
     };
 
-    class Assertion
+    class CAssertion
     {
 		public:
 
-			Assertion(const std::string& asserting_filename, int line_of_code);
+			CAssertion(const std::string& asserting_filename, int line_of_code);
 
 			void PrintCallstack() const;
 
@@ -37,21 +37,21 @@ namespace engine
 			int m_CodeLine;
     };
 
-    class AssertIgnoreList
+    class CAssertIgnoreList
     {
     public:
 
-      AssertIgnoreList();
+      CAssertIgnoreList();
 
-      bool IsIgnored(const Assertion& _assertion) const;
-      void AddToIgnoreList(const Assertion& _assertion);
+      bool IsIgnored(const CAssertion& _assertion) const;
+      void AddToIgnoreList(const CAssertion& _assertion);
 
     private:
 
-      std::vector<Assertion> m_AssertionIgnoreList;
+      std::vector<CAssertion> m_AssertionIgnoreList;
     };
 
-    class PULVIS_API AssertManager : public Singleton<AssertManager>
+    class PULVIS_API CAssertManager : public Singleton<CAssertManager>
     {
     public:
 
@@ -59,13 +59,13 @@ namespace engine
 
     private:
 
-      AssertManager() = default;
-      ~AssertManager() = default;
-      friend class Singleton<AssertManager>;
+      CAssertManager() = default;
+      ~CAssertManager() = default;
+      friend class Singleton<CAssertManager>;
 
       EAssertionAction GetUserAction() const;
 
-      AssertIgnoreList m_IgnoreList;
+      CAssertIgnoreList m_IgnoreList;
     };
   }
 }

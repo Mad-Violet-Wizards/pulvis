@@ -6,7 +6,7 @@ namespace engine
 {
 namespace rendering
 {
-	Window::Window(unsigned int _width, unsigned int _height, const char* _title)
+	CWindow::CWindow(unsigned int _width, unsigned int _height, const char* _title)
 		: m_Width(_width)
 		, m_Height(_height)
 		, m_Title(_title)
@@ -32,13 +32,13 @@ namespace rendering
 
 		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* _window, int _width, int _height)
 		{
-				Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(_window));
+				CWindow* window = reinterpret_cast<CWindow*>(glfwGetWindowUserPointer(_window));
 				window->m_Width = _width;
 				window->m_Height = _height;
 		});
 	}
 
-	Window::~Window()
+	CWindow::~CWindow()
 	{
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();

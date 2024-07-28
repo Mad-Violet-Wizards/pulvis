@@ -13,7 +13,4 @@
 #include "engine/core/Export.hpp"
 //	Core
 
-//	Rendering
-#include "engine/rendering/Utility.hpp"
-//	Rendering
 // Engine

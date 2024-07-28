@@ -50,6 +50,7 @@ project "Game"
         includedirs { 
             "$(VULKAN_SDK)/Include/", 
             "%{wks.location}/vendor/windows/include/", 
+            "%{wks.location}/vendor/common/include/",
             "%{wks.location}" 
         }
 
@@ -68,3 +69,31 @@ project "Game"
     filter "configurations:Release"
         defines { "RELEASE" }
         optimize "On"      
+
+project "Playground"
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++20"
+    targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+
+    files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp" }
+
+    filter "configurations:*"
+        includedirs {
+            "%{wks.location}",
+            "%{wks.location}/vendor/common/include/"
+        }
+
+        libdirs {
+            "%{cfg.targetdir}"
+        }
+
+        links { "Engine" }
+
+        filter "configurations:Debug"
+        defines { "DEBUG" }
+        symbols "On"
+
+    filter "configurations:Release"
+        defines { "RELEASE" }
+        optimize "On"  

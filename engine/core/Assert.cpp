@@ -18,13 +18,13 @@ namespace engine
   namespace core
   {
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-		Assertion::Assertion(const std::string& _asserting_filename, int _line_of_code)
+		CAssertion::CAssertion(const std::string& _asserting_filename, int _line_of_code)
 			: m_AssertingFilename(_asserting_filename)
 			, m_CodeLine(_line_of_code)
 		{
 		}
 
-		void Assertion::PrintCallstack() const
+		void CAssertion::PrintCallstack() const
 		{
 #ifdef _WIN32
 			const int MAX_CALLSTACK_DEPTH = 64;
@@ -66,14 +66,14 @@ namespace engine
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    AssertIgnoreList::AssertIgnoreList()
+    CAssertIgnoreList::CAssertIgnoreList()
     {
       // Initialize should load .txt file and fill vector.
     }
 
-    bool AssertIgnoreList::IsIgnored(const Assertion& _assertion) const
+    bool CAssertIgnoreList::IsIgnored(const CAssertion& _assertion) const
     {
-      for (const Assertion& assert : m_AssertionIgnoreList)
+      for (const CAssertion& assert : m_AssertionIgnoreList)
 			{
 				if (assert.GetAssertingFilename() == _assertion.GetAssertingFilename() && assert.GetCodeLine() == _assertion.GetCodeLine())
 				{
@@ -84,15 +84,15 @@ namespace engine
       return false;
     }
 
-    void AssertIgnoreList::AddToIgnoreList(const Assertion& _assertion)
+    void CAssertIgnoreList::AddToIgnoreList(const CAssertion& _assertion)
     {
       m_AssertionIgnoreList.push_back(_assertion);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    void AssertManager::Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code)
+    void CAssertManager::Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code)
     {
-      Assertion assertion(_asserting_filename, _line_of_code);
+      CAssertion assertion(_asserting_filename, _line_of_code);
 
       if (m_IgnoreList.IsIgnored(assertion))
 				return;
@@ -125,7 +125,7 @@ namespace engine
       }
     }
 
-    EAssertionAction AssertManager::GetUserAction() const
+    EAssertionAction CAssertManager::GetUserAction() const
     {
       std::cout << "Press 'i' to ignore, 'a' to abort, 'b' to break.\n";
 

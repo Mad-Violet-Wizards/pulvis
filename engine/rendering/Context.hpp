@@ -8,14 +8,14 @@ namespace engine
 {
 namespace rendering
 {
-	class PULVIS_API Context
+	class PULVIS_API CContext
 	{
 		public:
 
-		explicit Context(const std::vector <std::string>& _requested_layers);
+		explicit CContext(const std::vector <std::string>& _requested_layers);
 
-		Context(const Context&) = delete;
-		Context& operator=(const Context&) = delete;
+		CContext(const CContext&) = delete;
+		CContext& operator=(const CContext&) = delete;
 
 	private:
 

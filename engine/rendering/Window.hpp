@@ -7,15 +7,15 @@ namespace engine
 {
 namespace rendering
 {
-	class PULVIS_API Window
+	class PULVIS_API CWindow
 	{
 		public:
 
-			Window(unsigned int _width, unsigned int _height, const char* _title);
-			~Window();
+			CWindow(unsigned int _width, unsigned int _height, const char* _title);
+			~CWindow();
 
-			Window(const Window&) = delete;
-			Window &operator=(const Window&) = delete;
+			CWindow(const CWindow&) = delete;
+			CWindow &operator=(const CWindow&) = delete;
 
 			bool ShouldClose() const { return glfwWindowShouldClose(m_Window); }
 

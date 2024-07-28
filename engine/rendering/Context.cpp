@@ -8,7 +8,7 @@ namespace engine
 {
 namespace rendering
 {
-	Context::Context(const std::vector<std::string>& _requested_layers)
+	CContext::CContext(const std::vector<std::string>& _requested_layers)
 	{
 		std::vector<std::string> vk_instance_layers;
 		FillInstanceLayers(vk_instance_layers, engine::rendering::s_DebugVerbose);
@@ -24,7 +24,7 @@ namespace rendering
 		CreateInstance();
 	}
 
-	void Context::FillInstanceLayers(std::vector<std::string>& _instance_layers, bool _verbose)
+	void CContext::FillInstanceLayers(std::vector<std::string>& _instance_layers, bool _verbose)
 		{
 			uint32_t layer_count{ 0 };
 			VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
@@ -42,7 +42,7 @@ namespace rendering
 			}
 		}
 
-		void Context::CreateInstance()
+		void CContext::CreateInstance()
 		{
 			VkApplicationInfo app_info{};
 			app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
