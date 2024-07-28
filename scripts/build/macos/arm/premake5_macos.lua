@@ -8,7 +8,9 @@ project "Engine"
     targetdir(RootDir .. "build/%{cfg.buildcfg}")
 
     files { RootDir .. "/engine/**.hpp", RootDir .. "/engine/**.cpp" }
-    includedirs(RootDir)
+
+    filter "configurations:*"
+        includedirs{ "$(VULKAN_SDK)/macOS/Include/", RootDir .. "/vendor/macos/include/", RootDir .. "/vendor/common/include/", RootDir }
 
     filter "configurations:Debug"
         defines { "DEBUG" }
@@ -26,14 +28,14 @@ project "Game"
     targetdir(RootDir .. "build/%{cfg.buildcfg}")
 
     files { RootDir .. "/game/**.hpp", RootDir .. "/game/**.cpp" }
-    includedirs(RootDir)
 
     filter "configurations:*"
-        -- includedirs { "vendor/include/", "." }
-        -- libdirs { "vendor/lib/" }
-        links { "Engine" }
-
-    filter "configurations:Debug"
+        includedirs{ "$(VULKAN_SDK)/macOS/Include/", RootDir .. "/vendor/macos/include/", RootDir .. "/vendor/common/include/", RootDir }
+        libdirs{ "$(VULKAN_SDK)/macOS/lib/", RootDir .. "/vendor/macos/lib-arm/", RootDir .. "/vendor/common/lib/"}
+        links { "Engine", "vulkan", "MoltenVK" ,"glfw3", "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
+        linkoptions { "-Wl,-rpath,$(VULKAN_SDK)/macOS/lib/" }
+    
+        filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"
 

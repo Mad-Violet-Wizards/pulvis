@@ -1,14 +1,12 @@
 workspace "Pulvis"
     configurations { "Debug", "Release" }
-    platforms { "Windows", "MacOS-ARM", "MacOS-Intel" }
 
-    filter { "system:Windows"}
-        defaultplatform "Windows"
+    if os.target() == "windows" then
         include "./scripts/build/windows/premake5_windows.lua"
-
-    filter("system:MacOSX", "architecture:ARM")
-        defaultplatform "MacOS-ARM"
+        buildmessage("Including windows build.")
+    elseif os.target() == "macosx" then
         include "./scripts/build/macos/arm/premake5_macos.lua"
-
-    filter("system:MacOSX", "architecture:x86")
-        buildmessage("No supported yet.")
+        print("Including macos-arm build.")
+    else
+        buildmessage("Unsupported system.")
+    end

@@ -8,7 +8,7 @@ case "$(uname -s)" in
         if [[ "$(uname -m)" == "arm64" ]]
         then
             cd ../../../
-            make all config=debug_macos-arm
+            make all
             cd scripts/build/macos
             echo "[Compile] Done."
         else

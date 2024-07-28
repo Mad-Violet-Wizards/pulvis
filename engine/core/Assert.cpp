@@ -48,6 +48,7 @@ namespace engine
 					SymFromAddr(process, (DWORD64)(callstack[i]), 0, symbol);
 					std::cerr << i - 1 << ": " << symbol->Name << " - 0x" << symbol->Address << "\n";
 				}
+      }
 #else
 			const int MAX_CALLSTACK_DEPTH = 100;
 			void* callstack[MAX_CALLSTACK_DEPTH];
@@ -62,8 +63,7 @@ namespace engine
 
 			free(callstack_symbols_strings);
 #endif
-			}
-		}
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     AssertIgnoreList::AssertIgnoreList()
