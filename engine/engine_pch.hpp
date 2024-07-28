@@ -10,6 +10,7 @@
 //	Core
 #include "engine/core/Assert.hpp"
 #include "engine/core/Algorithm.hpp"
+#include "engine/core/Export.hpp"
 //	Core
 
 //	Rendering

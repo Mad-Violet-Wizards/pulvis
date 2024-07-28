@@ -1,6 +1,5 @@
 #include <iostream>
 #include "engine/engine_pch.hpp"
-#include "engine/core/Assert.hpp"
 #include "engine/filesystem/Utils.hpp"
 #include "engine/rendering/Window.hpp"
 #include "engine/rendering/Context.hpp"

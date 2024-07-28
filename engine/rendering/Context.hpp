@@ -1,12 +1,14 @@
 #pragma once
 
+#include "engine/Core/Export.hpp"
+
 #include <vulkan/vulkan.h>
 
 namespace engine
 {
 namespace rendering
 {
-	class Context
+	class PULVIS_API Context
 	{
 		public:
 

@@ -7,7 +7,7 @@ namespace engine
 {
 namespace rendering
 {
-	class Window
+	class PULVIS_API Window
 	{
 		public:
 

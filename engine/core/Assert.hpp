@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/core/Export.hpp"
 #include "engine/patterns/Singleton.hpp"
 
 #define ASSERT(expr, message) \
@@ -50,7 +51,7 @@ namespace engine
       std::vector<Assertion> m_AssertionIgnoreList;
     };
 
-    class AssertManager : public Singleton<AssertManager>
+    class PULVIS_API AssertManager : public Singleton<AssertManager>
     {
     public:
 

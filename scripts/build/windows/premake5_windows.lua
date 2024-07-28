@@ -1,40 +1,65 @@
-local RootDir = "../../.."
 
 project "Engine"
-    kind "StaticLib"
-    basedir(RootDir)
+    kind "SharedLib"
     language "C++"
     cppdialect "C++20"
-    targetdir(RootDir .. "build/%{cfg.buildcfg}")
+    targetdir("%{wks.location}/build/%{cfg.buildcfg}")
 
-    files { RootDir .. "/engine/**.hpp", RootDir .. "/engine/**.cpp" }
+    defines { "GLFW_DLL", "PULVIS_EXPORTS" }
+    pchheader("engine/engine_pch.hpp")
+    pchsource("%{wks.location}/engine/engine_pch.cpp")
+    files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
+
 
     filter "configurations:*"
-        includedirs { "$(VULKAN_SDK)/Include/", RootDir .. "/vendor/common/include/", RootDir .. "/vendor/windows/include/", RootDir }
-        libdirs{ "$(VULKAN_SDK)/Lib32/", RootDir .. "/vendor/common/lib/", RootDir .. "/vendor/windows/lib/" }
-        links { "vulkan-1", "glfw3" }
+        includedirs { 
+            "$(VULKAN_SDK)/Include/", 
+            "%{wks.location}/vendor/common/include/", 
+            "%{wks.location}/vendor/windows/include/", 
+            "%{wks.location}"
+        }
+
+        libdirs { 
+            "$(VULKAN_SDK)/Lib32/", 
+            "%{wks.location}/vendor/common/lib/", 
+            "%{wks.location}/vendor/windows/lib/" 
+        }
+
+        links { "vulkan-1", "glfw3dll" }
+        postbuildcommands {
+            "{COPYFILE} %{wks.location}/vendor/windows/bin/glfw3.dll %{cfg.targetdir}"
+        }
 
     filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"
-    
+
     filter "configurations:Release"
         defines { "RELEASE" }
         optimize "On"
 
 project "Game"
     kind "ConsoleApp"
-    basedir(RootDir)
     language "C++"
     cppdialect "C++20"
-    targetdir(RootDir .. "build/%{cfg.buildcfg}")
+    targetdir("%{wks.location}/build/%{cfg.buildcfg}")
 
-    files { RootDir .. "/game/**.hpp", RootDir .. "/game/**.cpp" }
+    files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp" }
 
     filter "configurations:*"
-        includedirs { "$(VULKAN_SDK)/Include/", RootDir .. "/vendor/windows/include/", RootDir }
-        libdirs{  "$(VULKAN_SDK)/Lib32/", RootDir .. "/vendor/windows/lib/" }
-        links { "Engine" }
+        includedirs { 
+            "$(VULKAN_SDK)/Include/", 
+            "%{wks.location}/vendor/windows/include/", 
+            "%{wks.location}" 
+        }
+
+        libdirs { 
+            "$(VULKAN_SDK)/Lib32/", 
+            "%{wks.location}/vendor/windows/lib/",
+            "%{cfg.targetdir}"
+        }
+
+        links { "Engine", "glfw3dll" }
 
     filter "configurations:Debug"
         defines { "DEBUG" }
