@@ -1,16 +1,29 @@
-local RootDir = "../../../.."
-
 project "Engine"
-    kind "StaticLib"
-    basedir(RootDir)
+    kind "SharedLib"
     language "C++"
     cppdialect "C++20"
-    targetdir(RootDir .. "build/%{cfg.buildcfg}")
+    targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+    objdir("%{wks.location}/build/%{cfg.buildcfg}/obj/")
 
-    files { RootDir .. "/engine/**.hpp", RootDir .. "/engine/**.cpp" }
+    defines { "PULVIS_EXPORTS" }
+    pchheader("engine/engine_pch.hpp")
+    pchsource("%{wks.location}/engine/engine_pch.cpp")
+    files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
 
     filter "configurations:*"
-        includedirs{ "$(VULKAN_SDK)/macOS/Include/", RootDir .. "/vendor/macos/include/", RootDir .. "/vendor/common/include/", RootDir }
+        includedirs{ 
+            "$(VULKAN_SDK)/macOS/Include/", 
+            "%{wks.location}/vendor/macos/include/", 
+            "%{wks.location}/vendor/common/include/", 
+            "%{wks.location}"}
+
+        libdirs {
+            "$(VULKAN_SDK)/macOS/lib/",
+            "%{wks.location}/vendor/macos/lib-arm/"
+        }
+
+        links { "vulkan", "MoltenVK", "glfw3", "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
+        linkoptions { "-Wl,-rpath,$(VULKAN_SDK)/macOS/lib/" }
 
     filter "configurations:Debug"
         defines { "DEBUG" }
@@ -22,17 +35,27 @@ project "Engine"
 
 project "Game"
     kind "ConsoleApp"
-    basedir(RootDir)
     language "C++"
     cppdialect "C++20"
-    targetdir(RootDir .. "build/%{cfg.buildcfg}")
+    targetdir("%{wks.location}/build/%{cfg.buildcfg}")
 
-    files { RootDir .. "/game/**.hpp", RootDir .. "/game/**.cpp" }
+    files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp" }
 
     filter "configurations:*"
-        includedirs{ "$(VULKAN_SDK)/macOS/Include/", RootDir .. "/vendor/macos/include/", RootDir .. "/vendor/common/include/", RootDir }
-        libdirs{ "$(VULKAN_SDK)/macOS/lib/", RootDir .. "/vendor/macos/lib-arm/", RootDir .. "/vendor/common/lib/"}
-        links { "Engine", "vulkan", "MoltenVK" ,"glfw3", "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
+        includedirs { 
+            "$(VULKAN_SDK)/macOS/Include/", 
+            "%{wks.location}/vendor/macos/include/", 
+            "%{wks.location}/vendor/common/include/", 
+            "%{wks.location}" 
+        }
+
+        libdirs {
+            "$(VULKAN_SDK)/macOS/lib/",
+            "%{wks.location}/vendor/macos/lib-arm/",
+            "%{cfg.targetdir}"
+        }
+
+        links { "Engine", "vulkan", "MoltenVK", "glfw3", "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
         linkoptions { "-Wl,-rpath,$(VULKAN_SDK)/macOS/lib/" }
     
         filter "configurations:Debug"

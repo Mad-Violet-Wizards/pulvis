@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileDataModel.hpp"
+#include <fstream>
 
 namespace engine
 {

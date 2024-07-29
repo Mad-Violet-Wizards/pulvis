@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/Core/Export.hpp"
+#include "engine/core/Export.hpp"
 
 #include <vulkan/vulkan.h>
 
