@@ -33,10 +33,10 @@ namespace engine
 		public:
 
 			template<typename... Args>
-			CFileHandle(const std::string& absolute_path, Args&&... args)
+			CFileHandle(Args&&... args)
 				: m_ReadOnly(false)
 			{
-				m_FileDataModel = new CFileDataModel(absolute_path, std::forward<Args>(args)...);
+				m_FileDataModel = new CFileDataModel(std::forward<Args>(args)...);
 			}
 
 			bool Open(EFileMode _open_mode)

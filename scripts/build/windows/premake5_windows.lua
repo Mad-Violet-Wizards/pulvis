@@ -21,7 +21,6 @@ project "Engine"
 
         libdirs { 
             "$(VULKAN_SDK)/Lib32/", 
-            "%{wks.location}/vendor/common/lib/", 
             "%{wks.location}/vendor/windows/lib/" 
         }
 
@@ -90,7 +89,7 @@ project "Playground"
 
         links { "Engine" }
 
-        filter "configurations:Debug"
+    filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"
 

@@ -64,4 +64,34 @@ project "Game"
 
     filter "configurations:Release"
         defines { "RELEASE" }
-        optimize "On"      
+        optimize "On"
+
+project "Playground"
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++20"
+    targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+
+    files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp" }
+
+    filter "configurations:*"
+        includedirs {
+            "%{wks.location}",
+            "%{wks.location}/vendor/common/include/"
+        }
+
+        libdirs {
+            "%{cfg.targetdir}"
+        }
+
+        links { "Engine" }
+        linkoptions { "-Wl,-rpath,$(VULKAN_SDK)/macOS/lib/" }
+
+    filter "configurations:Debug"
+        defines { "DEBUG" }
+        symbols "On"
+
+    filter "configurations:Release"
+        defines { "RELEASE" }
+        optimize "On"  
+

@@ -7,7 +7,7 @@
 int main()
 {
 	std::cout << "[Playground] Hello world.\n";
-	engine::fs::CFileHandle<Foo> foo_file_handle("test.dat", 1, 2, 3, 4);
+	engine::fs::CFileHandle<engine::fs::Foo> foo_file_handle("test.json", 1, 2, 3, 4);
 	foo_file_handle.Open(engine::fs::EFileMode::Write | engine::fs::EFileMode::Binary);
 	foo_file_handle.Serialize();
 	foo_file_handle.Close();
