@@ -1,33 +1,43 @@
 #pragma once
 
-#include "Serializable.hpp"
-
 namespace engine
 {
 namespace fs
 {
-	class PULVIS_API IFileDataModel : public ISerializable
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	enum class EFileDataModelType
+	{
+		JSON,
+		Binary,
+		Text, // Unimplemented yet
+		Unknown
+	};
+
+	inline static std::string ToString(EFileDataModelType _file_data_model_type)
+	{
+		switch(_file_data_model_type)
+		{
+			case EFileDataModelType::JSON: return "JSON";
+			case EFileDataModelType::Binary: return "Binary";
+			case EFileDataModelType::Text: return "Text";
+			case EFileDataModelType::Unknown: return "???";
+			default: return "???";
+		}
+	}
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
+	class PULVIS_API IFileDataModel
 	{
 		public:
 
-			IFileDataModel(const std::string& _absolute_path);
+			IFileDataModel() = default;
 			virtual ~IFileDataModel() = default;
 
 			IFileDataModel(const IFileDataModel&) = delete;
 			IFileDataModel&operator=(const IFileDataModel&) = delete;
 
-			virtual void Serialize(std::fstream& _file_stream) = 0;
-			virtual void Deserialize(std::fstream& _file_stream) = 0;
-
-			const std::string& GetAbsolutePath() const;
-			const std::string& GetRelativePath() const;
-			const std::string& GetFilename() const;
-
-		private:
-
-			std::string m_AbsolutePath;
-			std::string m_RelativePath;
-			std::string m_Filename;
+			virtual EFileDataModelType GetFileDataModelType() const = 0; 
 	};
 }
 }

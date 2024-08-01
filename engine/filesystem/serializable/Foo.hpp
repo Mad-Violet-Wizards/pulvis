@@ -14,16 +14,25 @@ namespace fs
 		public:
 
 			Foo();
-			Foo(const std::string& _absolute_path, int _x1, int _x2, int _x3, int _x4);
-
-			void Serialize(std::fstream& _file_stream) override;
-			void Deserialize(std::fstream& _file_stream) override;
+			Foo(int _x1, int _x2, int _x3, int _x4);
 
 			template<class Archive>
 			void serialize(Archive& ar)
 			{
 				ar(m_X1, m_X2, m_X3, m_X4);
 			}
+
+			void SetX1(int _x1)
+			{
+				m_X1 = _x1;
+			}
+
+			int GetX1() const
+			{
+				return m_X1;
+			}
+
+			EFileDataModelType GetFileDataModelType() const override final { return EFileDataModelType::JSON; }  
 
 		private:
 

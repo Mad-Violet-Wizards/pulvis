@@ -1,7 +1,8 @@
 #pragma once
 
-#include "FileDataModel.hpp"
 #include <fstream>
+#include "FileDataModel.hpp"
+#include "Serializable.hpp"
 
 namespace engine
 {
@@ -9,9 +10,9 @@ namespace engine
 	{
 		enum class EFileMode
 		{
-			None = 0x00,
-			Read = 0x01,
-			Write = 0x02,
+			Read = 0x00,
+			Write = 0x01,
+			ReadWrite = 0x02,
 			Append = 0x04,
 			Truncate = 0x08,
 			Binary = 0x10
@@ -27,52 +28,61 @@ namespace engine
 			return static_cast<int>(_lhs) & static_cast<int>(_rhs);
 		}
 
-		template<class CFileDataModel>
 		class CFileHandle
 		{
 		public:
 
-			template<typename... Args>
-			CFileHandle(Args&&... args)
+			CFileHandle(const std::string& _relative_path)
 				: m_ReadOnly(false)
+				, m_RelativePath(_relative_path)
 			{
-				m_FileDataModel = new CFileDataModel(std::forward<Args>(args)...);
 			}
 
 			bool Open(EFileMode _open_mode)
 			{
-				std::ios_base::openmode stream_open_mode = (std::ios_base::openmode)0x00;
+				std::ios::openmode stream_open_mode = (std::ios_base::openmode)0x00;
 				
 				if (_open_mode & EFileMode::Read)
 				{
 					m_ReadOnly = true;
-					stream_open_mode |= std::ios_base::in;
+					stream_open_mode |= std::ios::in;
 				}
 
 				if (_open_mode & EFileMode::Write)
 				{
 					m_ReadOnly = false;
-					stream_open_mode |= std::ios_base::out;
+					stream_open_mode |= std::ios::out;
+				}
+
+				if (_open_mode & EFileMode::ReadWrite)
+				{
+					m_ReadOnly = false;
+					stream_open_mode |= std::ios::out | std::ios::in;
 				}
 
 				if (_open_mode & EFileMode::Append)
 				{
 					m_ReadOnly = false;
-					stream_open_mode |= std::ios_base::app;
+					stream_open_mode |= std::ios::app;
 				}
 
 				if (_open_mode & EFileMode::Truncate)
 				{
 					m_ReadOnly = false;
-					stream_open_mode |= std::ios_base::trunc;
+					stream_open_mode |= std::ios::trunc;
 				}
 
 				if (_open_mode & EFileMode::Binary)
 				{
-					stream_open_mode |= std::ios_base::binary;
+					stream_open_mode |= std::ios::binary;
 				}
 
-				m_FileStream.open(m_FileDataModel->GetAbsolutePath(), stream_open_mode);
+				m_FileStream.open(m_RelativePath, stream_open_mode);
+				
+				if (!IsOpen())
+				{
+					std::cout << "Error opening file: " << strerror(errno) << "\n";
+				}
 
 				return IsOpen();
 			}
@@ -91,18 +101,76 @@ namespace engine
 			void Serialize()
 			{
 				ASSERT(m_FileDataModel != nullptr, "FileDataModel instance is nullptr.");
-				m_FileDataModel->Serialize(m_FileStream);
+				m_FileStream.seekg(0, std::ios::beg);
+				Serialize_Internal();
 			}
 
 			void Deserialize()
 			{
 				ASSERT(m_FileDataModel != nullptr, "FileDataModel instance is nullptr.");
-				m_FileDataModel->Deserialize(m_FileStream);
+				m_FileStream.seekg(0, std::ios::beg);
+				Deserialize_Internal();
+			}
+
+			void SetFileDataModel(std::shared_ptr<IFileDataModel>* _file_data_model)
+			{
+				m_FileDataModel = _file_data_model;
 			}
 
 		private:
+
+			void Serialize_Internal()
+			{
+				const EFileDataModelType data_model_type = (*m_FileDataModel)->GetFileDataModelType();
+
+				switch(data_model_type)
+				{
+					case EFileDataModelType::Binary:
+					{
+						SerializeBinary(m_FileStream, *m_FileDataModel);
+						break;
+					}
+					case EFileDataModelType::JSON:
+					{
+						SerializeJSON(m_FileStream, *m_FileDataModel);
+						break;
+					}
+					default:
+						ASSERT(true, "Unsupported data type.");
+						break;
+				}
+			}
+
+			void Deserialize_Internal()
+			{
+				const EFileDataModelType data_model_type = (*m_FileDataModel)->GetFileDataModelType();
+
+				switch(data_model_type)
+				{
+					case EFileDataModelType::Binary:
+					{
+						DeserializeBinary(m_FileStream, *m_FileDataModel);
+						break;
+					}
+					case EFileDataModelType::JSON:
+					{
+						DeserializeJSON(m_FileStream, *m_FileDataModel);
+						break;
+					}
+					default:
+						ASSERT(true, "Unsupported data type.");
+						break;
+				}
+			}
+
+
+		private:
 			
-			IFileDataModel* m_FileDataModel;
+			std::shared_ptr<IFileDataModel> *m_FileDataModel;
+
+			std::string m_AbsolutePath;
+			std::string m_RelativePath;
+
 			std::fstream m_FileStream;
 
 			bool m_ReadOnly;
