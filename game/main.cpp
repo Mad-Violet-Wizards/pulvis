@@ -4,6 +4,8 @@
 #include "engine/rendering/Window.hpp"
 #include "engine/rendering/Context.hpp"
 #include "engine/rendering/Utility.hpp"
+#include "engine/core/Setup.hpp"
+#include "engine/core/Application.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -11,7 +13,8 @@ int main(int argc, const char* argv[])
 {
     printf("[Main] Zebys kurwo miala szczesliwe zycie, tego Ci zycze z calego serduszka.\n");
     
-    Singleton<engine::core::CAssertManager>::Init();
+    engine::core::ApplicationSetup app_setup;
+    engine::core::Application app(app_setup);
 
 #ifdef _WIN32
     engine::fs::InitializeAppdataPath();

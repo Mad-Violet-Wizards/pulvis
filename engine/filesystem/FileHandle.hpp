@@ -1,6 +1,11 @@
 #pragma once
 
 #include <fstream>
+#include <format>
+#include <string.h>
+#include <errno.h>
+
+
 #include "FileDataModel.hpp"
 #include "Serializable.hpp"
 
@@ -32,9 +37,18 @@ namespace engine
 		{
 		public:
 
+			// Not sure if this cstor is needed (If FileHandle always needs a FileDataModel?)
 			CFileHandle(const std::string& _relative_path)
 				: m_ReadOnly(false)
 				, m_RelativePath(_relative_path)
+				, m_FileDataModel(nullptr)
+			{
+			}
+
+			CFileHandle(const std::string& _relative_path, std::shared_ptr<IFileDataModel>* _file_data_model)
+				: m_ReadOnly(false)
+				, m_RelativePath(_relative_path)
+				, m_FileDataModel(_file_data_model)
 			{
 			}
 
@@ -81,7 +95,10 @@ namespace engine
 				
 				if (!IsOpen())
 				{
-					std::cout << "Error opening file: " << strerror(errno) << "\n";
+					char error_message_buffer[256];
+					strerror_s(error_message_buffer, errno);
+					const std::string error_message = std::format("Failed to open file: {} ({})", m_RelativePath, error_message_buffer);
+					ASSERT(IsOpen(), error_message);
 				}
 
 				return IsOpen();

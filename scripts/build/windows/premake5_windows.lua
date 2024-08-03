@@ -4,6 +4,7 @@ project "Engine"
     language "C++"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+    basedir("../../../")
 
     defines { "GLFW_DLL", "PULVIS_EXPORTS" }
     pchheader("engine/engine_pch.hpp")
@@ -42,6 +43,7 @@ project "Game"
     language "C++"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+    basedir("../../../")
 
     files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp" }
 
@@ -74,6 +76,7 @@ project "Playground"
     language "C++"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+    basedir("../../../")
 
     files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp" }
 
