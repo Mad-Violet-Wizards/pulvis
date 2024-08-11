@@ -3,11 +3,15 @@
 #include "engine/core/Export.hpp"
 #include "engine/patterns/Singleton.hpp"
 
+#ifdef DEBUG
 #define ASSERT(expr, message) \
   if (!(expr)) \
 	{ \
 		engine::core::CAssertManager::GetInstance().Assert(#expr, message, __FILE__, __LINE__); \
 	}
+#else
+#define ASSERT
+#endif
 
 namespace engine
 {

@@ -4,8 +4,9 @@ project "Engine"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     objdir("%{wks.location}/build/%{cfg.buildcfg}/obj/")
+    basedir("../../../../")
 
-    defines { "PULVIS_EXPORTS" }
+    defines { "PULVIS_EXPORTS", "FMT_HEADER_ONLY", "MAC_OS" }
     pchheader("engine/engine_pch.hpp")
     pchsource("%{wks.location}/engine/engine_pch.cpp")
     files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
@@ -38,6 +39,7 @@ project "Game"
     language "C++"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+    basedir("../../../../")
 
     files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp" }
 
@@ -71,20 +73,25 @@ project "Playground"
     language "C++"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+    basedir("../../../../")
 
     files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp" }
 
     filter "configurations:*"
         includedirs {
-            "%{wks.location}",
-            "%{wks.location}/vendor/common/include/"
+            "$(VULKAN_SDK)/macOS/Include/", 
+            "%{wks.location}/vendor/macos/include/", 
+            "%{wks.location}/vendor/common/include/",
+            "%{wks.location}"
         }
 
         libdirs {
+            "$(VULKAN_SDK)/macOS/lib/",
+            "%{wks.location}/vendor/macos/lib-arm/",
             "%{cfg.targetdir}"
         }
 
-        links { "Engine" }
+        links { "Engine", "vulkan", "MoltenVK", "glfw3", "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
         linkoptions { "-Wl,-rpath,$(VULKAN_SDK)/macOS/lib/" }
 
     filter "configurations:Debug"

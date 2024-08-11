@@ -4,7 +4,7 @@
 #include <format>
 #include <string.h>
 #include <errno.h>
-
+#include <fmt/format.h>
 
 #include "FileDataModel.hpp"
 #include "Serializable.hpp"
@@ -96,8 +96,12 @@ namespace engine
 				if (!IsOpen())
 				{
 					char error_message_buffer[256];
+					#if defined(_WIN32) || defined(_WIN64)
 					strerror_s(error_message_buffer, errno);
-					const std::string error_message = std::format("Failed to open file: {} ({})", m_RelativePath, error_message_buffer);
+					#else
+					strcpy(error_message_buffer, strerror(errno));
+					#endif
+					const std::string error_message = fmt::format("Failed to open file: {} ({})", m_RelativePath, error_message_buffer);
 					ASSERT(IsOpen(), error_message);
 				}
 

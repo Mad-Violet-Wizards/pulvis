@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file_extensions=("*.make" "Makefile")
+file_extensions=("*.make" "Makefile", "*.pcm")
 
 echo "[Clean] Running clean script."
 

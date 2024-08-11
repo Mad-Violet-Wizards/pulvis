@@ -11,6 +11,7 @@
 int main()
 {
 	engine::core::ApplicationSetup app_setup;
+    app_setup.m_ClientApp = engine::core::EClientApp::Playground;
 	engine::core::Application app(app_setup);
 
 	std::shared_ptr<engine::fs::IFileDataModel> data_model_foo = std::make_shared<engine::fs::Foo>(1, 2, 3, 4);
@@ -34,8 +35,14 @@ int main()
 	std::string engine_path = engine::fs::GetEnginePath() + "/pulvis/";
 	std::cout << "[Playground] engine appdata path: " << engine_path << "\n";
 	engine::fs::Filesystem fs("engine", engine_path);
-	std::cout << "[Playground] engine filesystem mounted: " << fs.GetIsMounted() << "\n";
 	fs.Mount();
+	std::cout << "[Playground] engine filesystem mounted: " << fs.GetIsMounted() << "\n";
+
+	PULVIS_FATAL_LOG("Hello FATAL COUNT ({}): {}", 0, "world");
+	PULVIS_ERROR_LOG("Hello ERROR COUNT ({}): {}", 1, "world");
+	PULVIS_WARNING_LOG("Hello WARNING COUNT ({}): {}", 2, "world");
+	PULVIS_INFO_LOG("Hello INFO COUNT ({}): {}", 3, "world");
+	PULVIS_DEBUG_LOG("Hello DEBUG COUNT ({}): {}", 4, "world");
 
 	return 0;
 }

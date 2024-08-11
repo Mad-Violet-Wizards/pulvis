@@ -1,6 +1,7 @@
 #include "engine/engine_pch.hpp"
 #include "Window.hpp"
 #include <format>
+#include <fmt/format.h>
 
 namespace engine
 {
@@ -19,15 +20,15 @@ namespace rendering
 
 		if (!m_Window)
 		{
-			ASSERT(false, "Failed to create window.")
-				glfwTerminate();
+			ASSERT(false, "Failed to create window.");
+			glfwTerminate();
 		}
 
 		glfwSetWindowUserPointer(m_Window, this);
 
 		glfwSetErrorCallback([](int error, const char* desc)
 		{
-				std::cout << std::format("GLFW Error {0}: {1}\n", error, desc);
+				std::cout << fmt::format("GLFW Error {0}: {1}\n", error, desc);
 		});
 
 		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* _window, int _width, int _height)

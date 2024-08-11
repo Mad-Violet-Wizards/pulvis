@@ -1,6 +1,6 @@
-#pragma once
 #include "engine/engine_pch.hpp"
 
+#include <fmt/format.h>
 
 #include "Filesystem.hpp"
 
@@ -51,7 +51,7 @@ namespace engine
 
 			if (!create_if_no_exists)
 			{
-				const std::string file_not_exists_error_msg = std::format("[Filesystem] File not found: {0}", file_path.string());
+				const std::string file_not_exists_error_msg = fmt::format("[Filesystem] File not found: {0}", file_path.string());
 				ASSERT(std::filesystem::exists(file_path), file_not_exists_error_msg);
 			}
 

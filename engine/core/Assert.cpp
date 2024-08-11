@@ -5,7 +5,7 @@
 #include <csignal>
 #include <signal.h>
 
-#ifdef _WIN32
+#ifdef WINDOWS_OS
 #include <Windows.h>
 #include <DbgHelp.h>
 #pragma comment(lib, "Dbghelp.lib")
@@ -26,7 +26,7 @@ namespace engine
 
 		void CAssertion::PrintCallstack() const
 		{
-#ifdef _WIN32
+#ifdef WINDOWS_OS
 			const int MAX_CALLSTACK_DEPTH = 64;
 			void* callstack[MAX_CALLSTACK_DEPTH];
 			unsigned short frames = CaptureStackBackTrace(0, MAX_CALLSTACK_DEPTH, callstack, nullptr);
@@ -115,7 +115,7 @@ namespace engine
         std::raise(SIGABRT);
         break;
       case EAssertionAction::Debug:
-#ifdef _WIN32
+#ifdef WINDOWS_OS
         __debugbreak();
 #else
         std::raise(SIGTRAP);

@@ -6,7 +6,7 @@ project "Engine"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
 
-    defines { "GLFW_DLL", "PULVIS_EXPORTS" }
+    defines { "GLFW_DLL", "PULVIS_EXPORTS", "WINDOWS_OS" }
     pchheader("engine/engine_pch.hpp")
     pchsource("%{wks.location}/engine/engine_pch.cpp")
     files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
