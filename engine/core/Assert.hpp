@@ -15,6 +15,14 @@
 
 namespace engine
 {
+namespace fs
+{
+  class Filesystem;
+}
+}
+
+namespace engine
+{
   namespace core
   {
     enum class EAssertionAction
@@ -50,8 +58,11 @@ namespace engine
       bool IsIgnored(const CAssertion& _assertion) const;
       void AddToIgnoreList(const CAssertion& _assertion);
 
+      void OnFilesystemMounted(engine::fs::Filesystem* _engine_fs);
+
     private:
 
+      engine::fs::Filesystem* m_EngineFs;
       std::vector<CAssertion> m_AssertionIgnoreList;
     };
 
@@ -60,6 +71,7 @@ namespace engine
     public:
 
       void Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code);
+      void OnFilesystemMounted(engine::fs::Filesystem* _engine_fs);
 
     private:
 

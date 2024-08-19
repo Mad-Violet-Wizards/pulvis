@@ -13,6 +13,9 @@
 #include <execinfo.h>
 #endif
 
+#include "engine/filesystem/Filesystem.hpp"
+#include "engine/filesystem/FileHandle.hpp"
+
 namespace engine
 {
   namespace core
@@ -89,6 +92,17 @@ namespace engine
       m_AssertionIgnoreList.push_back(_assertion);
     }
 
+    void CAssertIgnoreList::OnFilesystemMounted(engine::fs::Filesystem* _engine_fs)
+    {
+      m_EngineFs = _engine_fs;
+
+      std::optional<engine::fs::CFileHandle> assert_text_file = m_EngineFs->OpenFile("assertions.txt", engine::fs::EFileMode::ReadWrite | engine::fs::EFileMode::Append);
+
+      
+
+      assert_text_file->Close();
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     void CAssertManager::Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code)
     {
@@ -139,6 +153,11 @@ namespace engine
       case 'b': return EAssertionAction::Debug;
       [[unlikely]] default:  return EAssertionAction::Abort;
       }
+    }
+
+    void CAssertManager::OnFilesystemMounted(engine::fs::Filesystem* _engine_fs)
+    {
+      m_IgnoreList.OnFilesystemMounted(_engine_fs);
     }
 }
 }

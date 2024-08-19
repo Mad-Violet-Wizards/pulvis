@@ -2,6 +2,7 @@
 #pragma once
 
 #include "engine/rendering/Window.hpp"
+#include "engine/filesystem/Filesystem.hpp"
 #include "engine/time/Timer.hpp"
 
 namespace engine
@@ -25,6 +26,8 @@ namespace engine
 				void Frame_UpdateSceneStateMachine();
 				void FinishFrame();
 
+				const engine::fs::Filesystem& GetEngineFs() const;
+
 			private:
 
 				void InitializeCoreSystems();
@@ -37,6 +40,8 @@ namespace engine
 				bool m_bCoreSystemsInitialized;
 				
 				engine::rendering::CWindow m_Window;
+
+				engine::fs::Filesystem m_EngineFilesystem;
 		};
 	}
 }
