@@ -1,17 +1,23 @@
 #pragma once
 
-// STL
+// +STL
 #include <string>
 #include <vector>
 #include <set>
+#include <queue>
 #include <algorithm>
+// -SLT
 
-// Engine
-//	Core
+// +FMT
+#include <fmt/format.h>
+// -FMT
+
+// +Engine
+//	 +Core
 #include "engine/core/Assert.hpp"
 #include "engine/core/Algorithm.hpp"
 #include "engine/core/Export.hpp"
 #include "engine/core/Logger.hpp"
-//	Core
+//	-Core
 
-// Engine
+// -Engine

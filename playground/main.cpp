@@ -11,7 +11,10 @@
 int main()
 {
 	engine::core::ApplicationSetup app_setup;
-    app_setup.m_ClientApp = engine::core::EClientApp::Playground;
+	app_setup.m_WindowWidth = 800;
+	app_setup.m_WindowHeight = 600;
+	app_setup.m_WindowName = "Pulvis Playground (1.0.0)";
+	app_setup.m_ClientApp = engine::core::EClientApp::Playground;
 	engine::core::Application app(app_setup);
 
 	// std::shared_ptr<engine::fs::IFileDataModel> data_model_foo = std::make_shared<engine::fs::Foo>(1, 2, 3, 4);

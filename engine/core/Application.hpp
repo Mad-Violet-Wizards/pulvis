@@ -16,7 +16,7 @@ namespace engine
 			public:
 
 				Application(const ApplicationSetup& _app_setup);
-				~Application() = default;
+				~Application();
 				
 				bool IsCloseRequested() const;
 				void Run();
@@ -30,7 +30,8 @@ namespace engine
 
 			private:
 
-				void InitializeCoreSystems();
+				void InitializeCoreSystems(const ApplicationSetup& _app_setup);
+				void InitializeWindow(const ApplicationSetup& _app_setup);
 				void UpdateFrameTime();
 
 			private:
@@ -39,7 +40,7 @@ namespace engine
 				float m_FrameTime;
 				bool m_bCoreSystemsInitialized;
 				
-				engine::rendering::CWindow m_Window;
+				engine::rendering::CWindow* m_Window;
 
 				engine::fs::Filesystem m_EngineFilesystem;
 		};

@@ -6,10 +6,11 @@ project "Engine"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
 
-    defines { "GLFW_DLL", "PULVIS_EXPORTS", "WINDOWS_OS" }
+    defines { "GLFW_DLL", "PULVIS_EXPORTS", "WINDOWS_OS", "FMT_HEADER_ONLY" }
     pchheader("engine/engine_pch.hpp")
     pchsource("%{wks.location}/engine/engine_pch.cpp")
     files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
+    buildoptions{ "/utf-8" }
 
 
     filter "configurations:*"
@@ -39,11 +40,13 @@ project "Engine"
         optimize "On"
 
 project "Game"
+    defines { "FMT_HEADER_ONLY" }
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
+    buildoptions{ "/utf-8" }
 
     files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp" }
 
@@ -61,7 +64,7 @@ project "Game"
             "%{cfg.targetdir}"
         }
 
-        links { "Engine", "glfw3dll" }
+        links { "Engine", "vulkan-1", "glfw3dll" }
 
     filter "configurations:Debug"
         defines { "DEBUG" }
@@ -72,25 +75,31 @@ project "Game"
         optimize "On"      
 
 project "Playground"
+    defines { "FMT_HEADER_ONLY" }
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
+    buildoptions{ "/utf-8" }
 
     files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp" }
 
     filter "configurations:*"
         includedirs {
-            "%{wks.location}",
-            "%{wks.location}/vendor/common/include/"
+            "$(VULKAN_SDK)/Include/", 
+            "%{wks.location}/vendor/windows/include/", 
+            "%{wks.location}/vendor/common/include/",
+            "%{wks.location}" 
         }
 
         libdirs {
-            "%{cfg.targetdir}"
+            "$(VULKAN_SDK)/Lib32/", 
+            "%{wks.location}/vendor/windows/lib/",
+            "%{cfg.targetdir}"        
         }
 
-        links { "Engine" }
+        links { "Engine", "vulkan-1", "glfw3dll" }
 
     filter "configurations:Debug"
         defines { "DEBUG" }

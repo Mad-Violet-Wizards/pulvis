@@ -9,8 +9,6 @@
     #define PULVIS_DEBUG_ENABLED 1
 #endif
 
-#include <string>
-#include <fmt/core.h>
 #include <fmt/color.h>
 #include <cstdarg> // dla va_list, va_start, va_end
 #include <cstdio>
@@ -30,7 +28,7 @@ namespace core
         Debug
     };
 
- inline static std::string ToString(ELogLevel _log_level)
+  inline static std::string ToString(ELogLevel _log_level)
     {
         switch(_log_level)
         {
@@ -60,21 +58,39 @@ namespace core
 
     struct SLogInfo
     {
-        SLogInfo(ELogLevel _log_level, const std::string& _msg);
+        SLogInfo(ELogLevel _log_level, const std::string& _msg)
+					: m_LogLevel(_log_level)
+					, m_Message(_msg)
+				{
+
+				}
 
         ELogLevel m_LogLevel;
         std::string m_Message;
 
-        std::string ConsoleDump();
-        std::string FileDump();
+        std::string ConsoleDump() const
+        {
+					return ToANSIColoured(m_LogLevel) + ToString(m_LogLevel) + m_Message + "\033[0m\n";
+        }
+
+        std::string FileDump() const
+        {
+          return "";
+        }
     };
 
-    class Logger : public Singleton<Logger>
+    class PULVIS_API Logger : public Singleton<Logger>
     {
         public:
 
             Logger() = default;
             ~Logger() = default;
+             
+						Logger(const Logger&) = delete;
+						Logger& operator=(const Logger&) = delete;
+						Logger(Logger&&) = delete;
+						Logger& operator=(Logger&&) = delete;
+
             friend class Singleton<Logger>;
 
             template<typename... Args>

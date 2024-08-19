@@ -9,18 +9,20 @@ namespace engine
 	namespace core
 	{
 		Application::Application(const ApplicationSetup& _app_setup)
-			: m_Window(_app_setup.m_WindowWidth, _app_setup.m_WindowHeight, _app_setup.m_WindowName.c_str())
-			, m_EngineFilesystem("engine", engine::fs::GetEnginePath() + "/pulvis/")
+			: m_EngineFilesystem("engine", engine::fs::GetEnginePath() + "/pulvis/")
 			, m_bCoreSystemsInitialized(false)
 			, m_FrameTime(0.f)
 		{
-			// Initialize assertions
-			// Initialize filesystems
-			// Initialize logging
-			InitializeCoreSystems();
+			InitializeCoreSystems(_app_setup);
 		}
 
-		void Application::InitializeCoreSystems()
+		Application::~Application()
+		{
+			delete m_Window;
+		}
+
+
+		void Application::InitializeCoreSystems(const ApplicationSetup& _app_setup)
 		{
 			Singleton<CAssertManager>::Init();
 			Singleton<Logger>::Init();
@@ -29,12 +31,19 @@ namespace engine
 
 			CAssertManager::GetInstance().OnFilesystemMounted(&m_EngineFilesystem);
 
+			InitializeWindow(_app_setup);
+
 			m_bCoreSystemsInitialized = true;
+		}
+
+		void Application::InitializeWindow(const ApplicationSetup& _app_setup)
+		{
+			m_Window = new rendering::CWindow(_app_setup.m_WindowWidth, _app_setup.m_WindowHeight, _app_setup.m_WindowName.c_str());
 		}
 
 		bool Application::IsCloseRequested() const
 		{
-			return m_Window.ShouldClose();
+			return m_Window->ShouldClose();
 		}
 
 		void Application::Run()

@@ -47,5 +47,5 @@ protected:
 
 	Singleton() = default;
 
-	~Singleton() noexcept { Destroy(); }
+	~Singleton() noexcept = default;
 };
