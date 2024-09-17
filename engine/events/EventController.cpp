@@ -22,8 +22,8 @@ namespace engine::events
 				{
 					if (event->m_DeleteOnUse)
 					{
-						it = m_DelayedEvents.erase(it);
 						m_EventsToDelete.insert(event);
+						it = m_DelayedEvents.erase(it);
 					}
 				}
 			}
