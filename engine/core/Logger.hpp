@@ -79,19 +79,21 @@ namespace core
         }
     };
 
-    class PULVIS_API Logger : public Singleton<Logger>
+    class PULVIS_API CLogger : public Singleton<CLogger>, public events::IEventListener
     {
         public:
 
-            Logger() = default;
-            ~Logger() = default;
+            CLogger();
+            ~CLogger() = default;
              
-						Logger(const Logger&) = delete;
-						Logger& operator=(const Logger&) = delete;
-						Logger(Logger&&) = delete;
-						Logger& operator=(Logger&&) = delete;
+						CLogger(const CLogger&) = delete;
+						CLogger& operator=(const CLogger&) = delete;
+						CLogger(CLogger&&) = delete;
+						CLogger& operator=(CLogger&&) = delete;
 
-            friend class Singleton<Logger>;
+            friend class Singleton<CLogger>;
+
+            bool OnEvent(events::IEvent* _event) override;
 
             template<typename... Args>
             void LOG(ELogLevel _log_level, fmt::format_string<Args...> _msg, Args&&... _args)
@@ -105,32 +107,34 @@ namespace core
         private:
 
             std::queue<SLogInfo> m_LogFileDumpQueue;
+
+            engine::fs::Filesystem* m_EngineFs;
     };
 }
 }
 
 #ifndef PULVIS_FATAL_LOG
-    #define PULVIS_FATAL_LOG(msg, ...) engine::core::Logger::GetInstance().LOG(engine::core::ELogLevel::Fatal, msg, __VA_ARGS__);
+    #define PULVIS_FATAL_LOG(msg, ...) engine::core::CLogger::GetInstance().LOG(engine::core::ELogLevel::Fatal, msg, __VA_ARGS__);
 #endif
 
 #ifndef PULVIS_ERROR_LOG
-    #define PULVIS_ERROR_LOG(msg, ...) engine::core::Logger::GetInstance().LOG(engine::core::ELogLevel::Error, msg, __VA_ARGS__);
+    #define PULVIS_ERROR_LOG(msg, ...) engine::core::CLogger::GetInstance().LOG(engine::core::ELogLevel::Error, msg, __VA_ARGS__);
 #endif
 
 #ifdef PULVIS_WARNING_LOG_ENABLED
     #ifndef PULVIS_WARNING_LOG
-        #define PULVIS_WARNING_LOG(msg, ...) engine::core::Logger::GetInstance().LOG(engine::core::ELogLevel::Warning, msg, __VA_ARGS__);
+        #define PULVIS_WARNING_LOG(msg, ...) engine::core::CLogger::GetInstance().LOG(engine::core::ELogLevel::Warning, msg, __VA_ARGS__);
     #endif
 #endif
 
 #ifdef PULVIS_INFO_LOG_ENABLED
     #ifndef PULVIS_INFO_LOG
-        #define PULVIS_INFO_LOG(msg, ...) engine::core::Logger::GetInstance().LOG(engine::core::ELogLevel::Info, msg, __VA_ARGS__);
+        #define PULVIS_INFO_LOG(msg, ...) engine::core::CLogger::GetInstance().LOG(engine::core::ELogLevel::Info, msg, __VA_ARGS__);
     #endif
 #endif
 
 #ifdef PULVIS_DEBUG_ENABLED
     #ifndef PULVIS_DEBUG_LOG
-        #define PULVIS_DEBUG_LOG(msg, ...) engine::core::Logger::GetInstance().LOG(engine::core::ELogLevel::Debug, msg, __VA_ARGS__);
+        #define PULVIS_DEBUG_LOG(msg, ...) engine::core::CLogger::GetInstance().LOG(engine::core::ELogLevel::Debug, msg, __VA_ARGS__);
     #endif
 #endif
