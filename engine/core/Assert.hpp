@@ -2,6 +2,7 @@
 
 #include "engine/core/Export.hpp"
 #include "engine/patterns/Singleton.hpp"
+#include "engine/events/EventListener.hpp"
 
 #ifdef DEBUG
 #define ASSERT(expr, message) \
@@ -66,16 +67,17 @@ namespace engine
       std::vector<CAssertion> m_AssertionIgnoreList;
     };
 
-    class PULVIS_API CAssertManager : public Singleton<CAssertManager>
+    class PULVIS_API CAssertManager : public Singleton<CAssertManager>, public engine::events::IEventListener
     {
     public:
 
       void Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code);
-      void OnFilesystemMounted(engine::fs::Filesystem* _engine_fs);
+
+      bool OnEvent(engine::events::IEvent* _event) override;
 
     private:
 
-      CAssertManager() = default;
+      CAssertManager();
       ~CAssertManager() = default;
       friend class Singleton<CAssertManager>;
 

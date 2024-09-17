@@ -5,7 +5,7 @@
 
 int main(int argc, const char* argv[])
 {
-    printf("[Main] Zebys kurwo miala szczesliwe zycie, tego Ci zycze z calego serduszka.\n");
+    printf("[Main] :)\n");
     
     engine::core::ApplicationSetup app_setup;
     app_setup.m_ClientApp = engine::core::EClientApp::Game;

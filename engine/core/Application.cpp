@@ -3,6 +3,7 @@
 #include "Application.hpp"
 #include "Setup.hpp"
 #include "engine/filesystem/Utils.hpp"
+#include "engine/events/EventController.hpp"
 
 namespace engine
 {
@@ -24,12 +25,11 @@ namespace engine
 
 		void Application::InitializeCoreSystems(const ApplicationSetup& _app_setup)
 		{
-			Singleton<CAssertManager>::Init();
-			Singleton<Logger>::Init();
+			engine::events::CEventController::Init();
+			CAssertManager::Init();
+			CLogger::Init();
 
 			m_EngineFilesystem.Mount();
-
-			CAssertManager::GetInstance().OnFilesystemMounted(&m_EngineFilesystem);
 
 			InitializeWindow(_app_setup);
 
@@ -48,33 +48,29 @@ namespace engine
 
 		void Application::Run()
 		{
-			while(!IsCloseRequested() && m_bCoreSystemsInitialized)
+			while(!IsCloseRequested())
 			{
-				StartFrame();
-				FinishFrame();
+				PreFrame();
+				Frame();
+				PostFrame();
 				glfwPollEvents();
 			}
 		}
 
-		void Application::StartFrame()
+		void Application::PreFrame()
 		{
 			m_FrameTimer.Start();
-			Frame_InputUpdate();
-			Frame_UpdateSceneStateMachine();
+			engine::events::CEventController::GetInstance().PreFrame();
 		}
 
-		void Application::Frame_InputUpdate()
+		void Application::Frame()
 		{
-
+			engine::events::CEventController::GetInstance().ProcessEvents();
 		}
 
-		void Application::Frame_UpdateSceneStateMachine()
+		void Application::PostFrame()
 		{
-
-		}
-
-		void Application::FinishFrame()
-		{
+			engine::events::CEventController::GetInstance().PostFrame();
 			UpdateFrameTime();
 		}
 		

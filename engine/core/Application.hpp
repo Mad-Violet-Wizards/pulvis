@@ -21,10 +21,9 @@ namespace engine
 				bool IsCloseRequested() const;
 				void Run();
 
-				void StartFrame();
-				void Frame_InputUpdate();
-				void Frame_UpdateSceneStateMachine();
-				void FinishFrame();
+				void PreFrame();
+				void Frame();
+				void PostFrame();
 
 				const engine::fs::Filesystem& GetEngineFs() const;
 

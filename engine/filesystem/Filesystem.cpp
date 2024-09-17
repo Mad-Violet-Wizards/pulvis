@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 
 #include "Filesystem.hpp"
+#include "engine/events/events/FilesystemMountedEvent.hpp"
 
 namespace engine
 {
@@ -34,6 +35,9 @@ namespace engine
 			}
 
 			m_Mounted = true;
+
+			engine::events::IEvent* event = new engine::events::CFilesystemMountedEvent(this);
+			engine::events::CEventController::GetInstance().SendEvent(event);
 		}
 
 		void Filesystem::Unmount()
