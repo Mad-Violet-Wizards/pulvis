@@ -14,6 +14,7 @@ namespace engine::threads
 		if (m_Running.load())
 		{
 			Stop();
+			JoinThread();
 		}
 	}
 

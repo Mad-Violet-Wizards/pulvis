@@ -141,14 +141,6 @@ namespace engine::threads
 
 	private:
 
-		template<typename T>
-		bool PushLock(std::list<T>& _tmp_node)
-		{
-			return false;
-		}
-
-	private:
-
 		concurrency_t m_MaxQueueSize;
 		concurrency_t m_CurrentQueueSize;
 		bool m_QueueOpen;

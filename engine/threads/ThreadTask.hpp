@@ -3,8 +3,10 @@
 #include "ThreadFunctionWrapper.hpp"
 #include <future>
 
+/* engine::threads::detail */
 namespace engine::threads::detail
 {
+//////////////////////////////////////////////////////////////////////////
 	class IThreadTask
 	{
 		public:
@@ -13,6 +15,7 @@ namespace engine::threads::detail
 			virtual void Execute() = 0;
 	};
 
+//////////////////////////////////////////////////////////////////////////
 	template<typename Ret_Val>
 	class IThreadTaskReturn : public IThreadTask
 	{
@@ -21,15 +24,15 @@ namespace engine::threads::detail
 		virtual std::future<Ret_Val> GetFuture() = 0;
 	};
 
+//////////////////////////////////////////////////////////////////////////
 	template<typename Func, typename Ret_Val = void, typename... Args>
-	class CTaskImpl : public IThreadTaskReturn<Ret_Val>
+	class CThreadTaskImpl : public IThreadTaskReturn<Ret_Val>
 	{
 	public:
 
-		CTaskImpl(Func&& _func, Args&&... _args)
+		CThreadTaskImpl(Func&& _func, Args&&... _args)
 			: m_Function(std::forward<Func>(_func))
 			, m_Args(std::forward<Args>(_args)...)
-			, m_Promise()
 		{
 		}
 
@@ -55,7 +58,8 @@ namespace engine::threads::detail
 		std::tuple<Args...> m_Args;
 		std::promise<std::decay_t<Ret_Val>> m_Promise;
 	};
-}
+//////////////////////////////////////////////////////////////////////////
+} /* engine::threads::detail */
 
 namespace engine::threads
 {
@@ -88,7 +92,7 @@ namespace engine::threads
 		CThreadTask(Func&& _func, Args&&... _args)
 		{
 			using Ret_Val = std::decay_t<decltype(std::declval<Func>())>;
-			m_Impl = std::make_unique<detail::CTaskImpl<Func, Ret_Val, Args...>>
+			m_Impl = std::make_unique<detail::CThreadTaskImpl<Func, Ret_Val, Args...>>
 			(
 				std::forward<Func>(_func),
 				std::forward<Args>(_args)...
