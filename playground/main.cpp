@@ -1,12 +1,32 @@
 #include <iostream>
 
 #include "engine/engine_pch.hpp"
+#include "engine/threads/ThreadPoolSettings.hpp"
+#include "engine/threads/ThreadPool.hpp"
 #include "engine/filesystem/FileHandle.hpp"
 #include "engine/filesystem/serializable/Foo.hpp"
 #include "engine/core/Setup.hpp"
 #include "engine/core/Application.hpp"
 #include "engine/filesystem/Utils.hpp"
 #include "engine/filesystem/Filesystem.hpp"
+
+int Test_Thread_Function_A()
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(256));
+	return 111;
+}
+
+void Test_Thread_Function_B(int& _val)
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(128));
+	_val = 111;
+}
+
+int Test_Thread_Function_C(int&& _a, int&& _b)
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(64));
+	return _a + _b;
+}
 
 int main()
 {
@@ -42,6 +62,41 @@ int main()
 	PULVIS_WARNING_LOG("Hello WARNING COUNT ({}): {}", 2, "world");
 	PULVIS_INFO_LOG("Hello INFO COUNT ({}): {}", 3, "world");
 	PULVIS_DEBUG_LOG("Hello DEBUG COUNT ({}): {}", 4, "world");
+
+	engine::threads::SThreadPoolSettings settings; 
+	settings.m_NumThreads = 2;
+	engine::threads::CThreadPool tp(settings);
+
+	engine::threads::CThreadTask task1(Test_Thread_Function_A);
+	tp.EnqueueTask(&task1);
+	int future1 = task1.GetFuture<int>().get();
+
+	int t = 2;
+	engine::threads::CThreadTask task2(Test_Thread_Function_B, t);
+	tp.EnqueueTask(&task2);
+
+	std::future<void> future2 = task2.GetFuture<void>();
+
+	while (future2.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready)
+	{
+		std::cout << "Waiting for T.\n";
+	}
+	std::cout << "T ready!\n";
+
+	engine::threads::CThreadTask task3(Test_Thread_Function_C, future1, t);
+	tp.EnqueueTask(&task3);
+	std::future<int> future3 = task3.GetFuture<int>();
+
+	while (future3.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready)
+	{
+		std::cout << "Waiting for Future3.\n";
+	}
+
+	int future3_ret = future3.get();
+
+	std::cout << "Future3: " << future3_ret << "\n";
+
+	tp.Stop();
 
 	return 0;
 }
