@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <utility>
 #include <array>
+#include <memory>
 // -SLT
 
 // +FMT
