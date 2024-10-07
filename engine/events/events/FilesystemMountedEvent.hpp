@@ -6,12 +6,11 @@ namespace engine::events
 {
 	class CFilesystemMountedEvent : public IEvent
 	{
+		EVENT_CLASS_API(Engine);
+
 	public:
 
 		CFilesystemMountedEvent(engine::fs::Filesystem* _filesystem);
-
-		EEventType GetType() const override { return EEventType::FilesystemMounted; }
-		engine::fs::Filesystem* GetFilesystem() const { return m_Filesystem; }
 
 	private:
 

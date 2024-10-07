@@ -59,11 +59,8 @@ namespace engine
       bool IsIgnored(const CAssertion& _assertion) const;
       void AddToIgnoreList(const CAssertion& _assertion);
 
-      void OnFilesystemMounted(engine::fs::Filesystem* _engine_fs);
-
     private:
 
-      engine::fs::Filesystem* m_EngineFs;
       std::vector<CAssertion> m_AssertionIgnoreList;
     };
 
@@ -73,7 +70,7 @@ namespace engine
 
       void Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code);
 
-      bool OnEvent(engine::events::IEvent* _event) override;
+      void OnEvent(engine::events::IEvent* _event) override;
 
     private:
 

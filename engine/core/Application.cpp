@@ -1,7 +1,6 @@
 #include "engine/engine_pch.hpp"
 
 #include "Application.hpp"
-#include "Setup.hpp"
 #include "engine/filesystem/Utils.hpp"
 #include "engine/events/EventController.hpp"
 
@@ -9,36 +8,50 @@ namespace engine
 {
 	namespace core
 	{
-		Application::Application(const ApplicationSetup& _app_setup)
+//////////////////////////////////////////////////////////////////////////
+		SFrameContext::SFrameContext()
+			: m_FrameNumber(0)
+			, m_DeltaTime(0.f)
+		{
+		}
+
+		extern PULVIS_API SFrameContext s_FrameContext = {};
+
+//////////////////////////////////////////////////////////////////////////
+		Application::Application(const SApplicationSetup& _app_setup)
 			: m_EngineFilesystem("engine", engine::fs::GetEnginePath() + "/pulvis/")
 			, m_bCoreSystemsInitialized(false)
 			, m_FrameTime(0.f)
 		{
-			InitializeCoreSystems(_app_setup);
+			ASSERT(_app_setup.m_ClientApp != EClientApp::Unknown, "Client application not set!");
+
+			s_AppContext.m_AppSetup = _app_setup;
+
+			InitializeCoreSystems();
 		}
 
 		Application::~Application()
 		{
-			delete m_Window;
+			if (s_AppContext.m_AppSetup.m_ClientApp != EClientApp::Playground)
+				delete m_Window;
+
+			CLogger::Destroy();
+			CAssertManager::Destroy();
+			engine::events::CEventController::Destroy();
 		}
 
 
-		void Application::InitializeCoreSystems(const ApplicationSetup& _app_setup)
+		void Application::InitializeCoreSystems()
 		{
-			engine::events::CEventController::Init();
-			CAssertManager::Init();
-			CLogger::Init();
-
 			m_EngineFilesystem.Mount();
 
-			InitializeWindow(_app_setup);
-
-			m_bCoreSystemsInitialized = true;
+			if (s_AppContext.m_AppSetup.m_ClientApp != EClientApp::Playground)
+				InitializeWindow();
 		}
 
-		void Application::InitializeWindow(const ApplicationSetup& _app_setup)
+		void Application::InitializeWindow()
 		{
-			m_Window = new rendering::CWindow(_app_setup.m_WindowWidth, _app_setup.m_WindowHeight, _app_setup.m_WindowName.c_str());
+			m_Window = new rendering::CWindow(s_AppContext.m_AppSetup.m_WindowWidth, s_AppContext.m_AppSetup.m_WindowHeight, s_AppContext.m_AppSetup.m_WindowName.c_str());
 		}
 
 		bool Application::IsCloseRequested() const
@@ -50,27 +63,33 @@ namespace engine
 		{
 			while(!IsCloseRequested())
 			{
-				PreFrame();
-				Frame();
-				PostFrame();
+				FrameCycle();
 				glfwPollEvents();
 			}
 		}
 
+		void Application::FrameCycle()
+		{
+			PreFrame();
+			Frame();
+			PostFrame();
+		}
+
 		void Application::PreFrame()
 		{
+			s_FrameContext.m_FrameNumber++;
+			s_FrameContext.m_DeltaTime = m_FrameTime;
+
 			m_FrameTimer.Start();
-			engine::events::CEventController::GetInstance().PreFrame();
 		}
 
 		void Application::Frame()
 		{
-			engine::events::CEventController::GetInstance().ProcessEvents();
+			engine::events::CEventController::GetInstance().Frame();
 		}
 
 		void Application::PostFrame()
 		{
-			engine::events::CEventController::GetInstance().PostFrame();
 			UpdateFrameTime();
 		}
 		

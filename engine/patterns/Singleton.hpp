@@ -9,22 +9,6 @@ class Singleton
 {
 
 public:
-	template <typename... Args>
-	static void Init(Args&&... args)
-	{
-		static_assert(!std::is_copy_constructible_v<C>);
-		static_assert(!std::is_move_constructible_v<C>);
-		static_assert(!std::is_copy_assignable_v<C>);
-		static_assert(!std::is_move_assignable_v<C>);
-
-		if (s_Instance)
-		{
-			std::cout << "[Singleton] " << std::type_index(typeid(s_Instance)).name() << "already initialized.\n";
-		}
-
-		s_Instance = new C(std::forward<Args>(args)...);
-	}
-
 	static void Destroy()
 	{
 		if (s_Instance)
@@ -36,6 +20,11 @@ public:
 
 	static C& GetInstance() noexcept 
 	{
+		if (!s_Instance)
+		{
+			s_Instance = new C();
+		}
+
 		return *s_Instance;
 	}
 
@@ -45,7 +34,9 @@ public:
 protected:
 	static inline C* s_Instance{ nullptr };
 
-	Singleton() = default;
+	Singleton()
+	{
+	}
 
 	~Singleton() noexcept = default;
 };

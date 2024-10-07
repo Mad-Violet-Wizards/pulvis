@@ -93,7 +93,7 @@ namespace core
 
             friend class Singleton<CLogger>;
 
-            bool OnEvent(events::IEvent* _event) override;
+            void OnEvent(events::IEvent* _event) override;
 
             template<typename... Args>
             void LOG(ELogLevel _log_level, fmt::format_string<Args...> _msg, Args&&... _args)
@@ -107,8 +107,6 @@ namespace core
         private:
 
             std::queue<SLogInfo> m_LogFileDumpQueue;
-
-            engine::fs::Filesystem* m_EngineFs;
     };
 }
 }
