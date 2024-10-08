@@ -5,83 +5,25 @@ namespace engine::events
 {
 	CEventController::CEventController()
 	{
-	}
-
-	CEventController::~CEventController()
-	{
-	}
-
-	void CEventController::PreFrame()
-	{
-		for (auto it = m_DelayedEvents.begin(); it != m_DelayedEvents.end();)
+		for (uint8_t i = 0; i < static_cast<uint8_t>(EEventBus::_COUNT); ++i)
 		{
-			IEvent* event = *it;
-			for (IEventListener* listener : m_EventListeners[(size_t)event->GetType()])
-			{
-				if (listener->OnEvent(event))
-				{
-					if (event->m_DeleteOnUse)
-					{
-						m_EventsToDelete.insert(event);
-						it = m_DelayedEvents.erase(it);
-					}
-				}
-			}
+			m_EventBuses[i].SetEventBusType((static_cast<EEventBus>(i)));
 		}
 	}
 
-	void CEventController::PostFrame()
-	{
-		for (IEvent* event : m_EventsToDelete)
-			delete event;
 
-		m_EventsToDelete.clear();
-	}
-
-	void CEventController::SubscribeEvent(EEventType _eventType, IEventListener* _listener)
+	void CEventController::Frame()
 	{
-		m_EventListeners[(size_t)_eventType].push_back(_listener);
-	}
-
-	void CEventController::UnsubscribeEvent(EEventType _eventType, IEventListener* _listener)
-	{
-		auto& listeners = m_EventListeners[(size_t)_eventType];
-		auto it = std::find(listeners.begin(), listeners.end(), _listener);
-		if (it != listeners.end())
+		for (CEventBus& bus : m_EventBuses)
 		{
-			it = listeners.erase(it);
+			bus.Frame();
 		}
 	}
 
 	void CEventController::SendEvent(IEvent* _event)
 	{
-		m_EventsQueue.push(_event);
-	}
-
-	void CEventController::ProcessEvents()
-	{
-		while (!m_EventsQueue.empty())
-		{
-			auto event = m_EventsQueue.front();
-			m_EventsQueue.pop();
-
-			for (auto listener : m_EventListeners[(size_t)event->GetType()])
-			{
-				if (!listener->OnEvent(event))
-				{
-					if (event->m_Delayed)
-					{
-						m_DelayedEvents.push_back(event);
-					}
-				}
-				else
-				{
-					if (event->m_DeleteOnUse)
-					{
-						m_EventsToDelete.insert(event);
-					}
-				}
-			}
-		}
+		const EEventBus bus = _event->GetBusType();
+		const event_t event_type = _event->GetEventType();
+		m_EventBuses[(uint8_t)bus].SendEvent(_event);
 	}
 }

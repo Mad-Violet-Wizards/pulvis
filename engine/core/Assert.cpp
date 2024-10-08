@@ -71,7 +71,6 @@ namespace engine
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     CAssertIgnoreList::CAssertIgnoreList()
-      : m_EngineFs(nullptr)
     {
       // Initialize should load .txt file and fill vector.
     }
@@ -94,22 +93,17 @@ namespace engine
       m_AssertionIgnoreList.push_back(_assertion);
     }
 
-    void CAssertIgnoreList::OnFilesystemMounted(engine::fs::Filesystem* _engine_fs)
-    {
-      m_EngineFs = _engine_fs;
-      PULVIS_DEBUG_LOG("Event: CAssertIgnoreList received filesystem mounted event.");
 
       //std::optional<engine::fs::CFileHandle> assert_text_file = m_EngineFs->OpenFile("assertions.txt", engine::fs::EFileMode::ReadWrite | engine::fs::EFileMode::Append);
 
       //
 
       //assert_text_file->Close();
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     CAssertManager::CAssertManager()
     {
-      engine::events::CEventController::GetInstance().SubscribeEvent(events::EEventType::FilesystemMounted, this);
+      //engine::events::CEventController::GetInstance().SubscribeEvent(CFi, this);
     }
 
     void CAssertManager::Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code)
@@ -147,20 +141,9 @@ namespace engine
       }
     }
 
-    bool CAssertManager::OnEvent(engine::events::IEvent* _event)
+    void CAssertManager::OnEvent(engine::events::IEvent* _event)
     {
-      switch (_event->GetType())
-      {
-        case engine::events::EEventType::FilesystemMounted:
-        {
-          m_IgnoreList.OnFilesystemMounted(static_cast<engine::events::CFilesystemMountedEvent*>(_event)->GetFilesystem());
-          return true;
-        }
-        default:
-          return false;
-      }
 
-      return false;
     }
 
     EAssertionAction CAssertManager::GetUserAction() const
