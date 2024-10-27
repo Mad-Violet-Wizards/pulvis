@@ -51,7 +51,9 @@ namespace engine::threads
 		for (auto& worker : m_Workers)
 		{
 			if (worker)
+			{
 				worker->Stop();
+			}
 		}
 
 		for (auto& worker : m_Workers)

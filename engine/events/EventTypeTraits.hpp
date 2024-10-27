@@ -10,7 +10,7 @@ namespace engine::events
 	//////////////////////////////////////////////////////////////////////////
 	enum class EEventBus : uint8_t
 	{
-		Invalid = -1,
+		Invalid = UINT8_MAX,
 		Engine = 0,
 		Renderer,
 		Window,

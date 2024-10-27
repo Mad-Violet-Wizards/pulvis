@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <list>
+#include <new>
 // -SLT
 
 // +FMT

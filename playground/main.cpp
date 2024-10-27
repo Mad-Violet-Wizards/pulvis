@@ -4,5 +4,7 @@
 
 int main(int argc, char* argv[])
 {
+	std::cout << "Press Enter to Continue...";
+	std::cin.ignore();
 	return Catch::Session().run(argc, argv);
 }
