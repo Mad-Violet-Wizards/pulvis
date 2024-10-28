@@ -48,7 +48,7 @@ namespace engine::threads
 
 	void CThreadWorker::Run()
 	{
-		while (m_Running.load())
+		while (m_Running.load() || !m_TaskQueue.Empty())
 		{
 			CThreadTask* task;
 			if (m_TaskQueue.Pop(task))
@@ -64,11 +64,6 @@ namespace engine::threads
 		
 	void CThreadWorker::Stop()
 	{
-		while (!m_TaskQueue.Empty())
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-
 		m_Running.store(false);
 		m_TaskQueue.Close();
 	}

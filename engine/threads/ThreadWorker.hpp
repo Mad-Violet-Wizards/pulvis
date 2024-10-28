@@ -17,7 +17,6 @@ namespace engine::threads
 			CThreadWorker& operator=(CThreadWorker&& _other) noexcept;
 
 			std::atomic<bool>& IsRunning() { return m_Running; }
-			bool HasTasks() { return !m_TaskQueue.Empty(); }
 
 			void Start(concurrency_t _thread_id);
 			void Stop();

@@ -119,11 +119,10 @@ namespace engine::threads
 	private:
 
 		static constexpr size_t s_BufferSize = 128;
+		typename std::aligned_storage<s_BufferSize, sizeof(size_t)>::type m_StorageBuffer;
 
 		using Invoker = R(*)(void*, Args...);
 		using Destructor = void(*)(void*);
-
-		typename std::aligned_storage<s_BufferSize, sizeof(size_t)>::type m_StorageBuffer;
 
 		Destructor m_Destructor;
 		Invoker m_Invoker;
