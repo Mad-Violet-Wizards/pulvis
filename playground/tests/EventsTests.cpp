@@ -76,6 +76,7 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		REQUIRE(event4->m_Handled2 == false);
 	}
 
+#if defined(BENCHMARKING)
 	SECTION("Benchmark")
 	{
 		BENCHMARK("Many events on one bus")
@@ -88,4 +89,5 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 			}
 		};
 	}
+#endif
 }
