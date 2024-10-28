@@ -54,7 +54,7 @@ namespace engine::threads
 			{
 				std::unique_lock<std::mutex> lock(m_Mutex);
 
-				while (m_CurrentQueueSize >= m_MaxQueueSize)
+				while (m_CurrentQueueSize >= m_MaxQueueSize && m_QueueOpen)
 				{
 					m_cv_Push.wait(lock);
 				}
@@ -79,7 +79,7 @@ namespace engine::threads
 			{
 				std::unique_lock<std::mutex> lock(m_Mutex);
 
-				while (m_CurrentQueueSize >= m_MaxQueueSize)
+				while (m_CurrentQueueSize >= m_MaxQueueSize && m_QueueOpen)
 				{
 					m_cv_Push.wait(lock);
 				}
@@ -129,11 +129,11 @@ namespace engine::threads
 		{
 			std::unique_lock<std::mutex> lock(m_Mutex);
 			m_QueueOpen = false;
-
 			m_cv_Pop.notify_all();
+			m_cv_Push.notify_all();
 		}
 		
-		bool Empty()
+		bool Empty() const
 		{
 			std::unique_lock<std::mutex> lock(m_Mutex);
 			return m_List.empty();
@@ -147,7 +147,7 @@ namespace engine::threads
 		std::list<T> m_List;
 		std::condition_variable m_cv_Push;
 		std::condition_variable m_cv_Pop;
-		std::mutex m_Mutex;
+		mutable std::mutex m_Mutex;
 
 	};
 }

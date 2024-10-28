@@ -76,16 +76,18 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		REQUIRE(event4->m_Handled2 == false);
 	}
 
-	//SECTION("Benchmark")
-	//{
-	//	BENCHMARK("Many events on one bus")
-	//	{
-	//		CEventController::GetInstance().SubscribeEvent<MocEventInt>(GetListener());
-	//		for (int i = 0; i < 3600; ++i)
-	//		{
-	//			std::unique_ptr<MocEventInt> event = CreateEvent<MocEventInt>();
-	//			CEventController::GetInstance().SendEvent(event.get());
-	//		}
-	//	};
-	//}
+#if defined(BENCHMARKING)
+	SECTION("Benchmark")
+	{
+		BENCHMARK("Many events on one bus")
+		{
+			CEventController::GetInstance().SubscribeEvent<MocEventInt>(GetListener());
+			for (int i = 0; i < 3600; ++i)
+			{
+				std::unique_ptr<MocEventInt> event = CreateEvent<MocEventInt>();
+				CEventController::GetInstance().SendEvent(event.get());
+			}
+		};
+	}
+#endif
 }

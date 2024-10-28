@@ -1,7 +1,10 @@
 #pragma once
 
-#include "ThreadFunctionWrapper.hpp"
 #include <future>
+#include <functional>
+#include <type_traits>
+
+#include "ThreadFunctionWrapper.hpp"
 
 /* engine::threads::detail */
 namespace engine::threads::detail
@@ -14,34 +17,93 @@ namespace engine::threads::detail
 			virtual ~IThreadTask() = default;
 			virtual void Execute() = 0;
 	};
-
 //////////////////////////////////////////////////////////////////////////
-	template<typename Ret_Val>
-	class IThreadTaskReturn : public IThreadTask
+	template<typename R>
+	class IThreadTaskFuture : public IThreadTask
 	{
-	public:
+		public:
 
-		virtual std::future<Ret_Val> GetFuture() = 0;
+			virtual ~IThreadTaskFuture() = default;
+			virtual std::future<R> GetFuture() = 0;
+	};
+
+	template<typename R, typename C, typename... Args>
+	class CThreadTaskClassMethodImpl : public IThreadTaskFuture<R>
+	{
+		public:
+
+			CThreadTaskClassMethodImpl(C* _instance, R(C::* _method)(Args...), Args&&... _args)
+				: m_Function(_instance, _method)
+				, m_Args(std::forward<Args>(_args)...)
+			{
+			}
+
+			void Execute() override final
+			{
+				if constexpr (std::is_void_v<R>)
+				{
+					ExecuteImpl(std::index_sequence_for<Args...>());
+					m_Promise.set_value();
+				}
+				else
+				{
+					m_Promise.set_value(ExecuteImpl(std::index_sequence_for<Args...>()));
+				}
+			}
+
+			std::future<R> GetFuture() override final
+			{
+				return m_Promise.get_future();
+			}
+
+		private:
+
+		template<size_t... Is>
+		R ExecuteImpl(std::index_sequence<Is...>)
+		{
+			if constexpr (std::is_void_v<R>)
+			{
+				m_Function(std::forward<Args>(std::get<Is>(m_Args))...);
+			}
+			else
+			{
+				return m_Function(std::forward<Args>(std::get<Is>(m_Args))...);
+			}
+		}
+
+		private:
+
+			CThreadFunctionWrapper<R, Args...> m_Function;
+			std::tuple<Args...> m_Args;
+			std::promise<std::decay_t<R>> m_Promise;
 	};
 
 //////////////////////////////////////////////////////////////////////////
-	template<typename Func, typename Ret_Val = void, typename... Args>
-	class CThreadTaskImpl : public IThreadTaskReturn<Ret_Val>
+	template<typename R, typename Func, typename... Args>
+	class CThreadTaskFunctionImpl : public IThreadTaskFuture<R>
 	{
 	public:
 
-		CThreadTaskImpl(Func&& _func, Args&&... _args)
+		CThreadTaskFunctionImpl(Func&& _func, Args&&... _args)
 			: m_Function(std::forward<Func>(_func))
-			, m_Args(std::forward<Args>(_args)...)
+			, m_Args(std::forward_as_tuple(_args...))
 		{
 		}
 
-		void Execute() override final
+		virtual void Execute() override final
 		{
-			m_Promise.set_value(ExecuteImpl(std::index_sequence_for<Args...>()));
+			if constexpr (std::is_void_v<R>)
+			{
+				ExecuteImpl(std::index_sequence_for<Args...>());
+				m_Promise.set_value();
+			}
+			else
+			{
+				m_Promise.set_value(ExecuteImpl(std::index_sequence_for<Args...>()));
+			}
 		}
 
-		std::future<Ret_Val> GetFuture() override final
+		std::future<R> GetFuture() override final
 		{
 			return m_Promise.get_future();
 		}
@@ -49,14 +111,23 @@ namespace engine::threads::detail
 	private:
 
 		template<size_t... Is>
-		Ret_Val ExecuteImpl(std::index_sequence<Is...>)
+		R ExecuteImpl(std::index_sequence<Is...>)
 		{
-			return m_Function(std::get<Is>(m_Args)...);
+			if constexpr (std::is_void_v<R>)
+			{
+				m_Function(std::forward<Args>(std::get<Is>(m_Args))...);
+			}
+			else
+			{
+				return m_Function(std::forward<Args>(std::get<Is>(m_Args))...);
+			}
 		}
 
-		CThreadFunctionWrapper<Ret_Val, Args...> m_Function;
+	private:
+
+		CThreadFunctionWrapper<R, Args...> m_Function;
 		std::tuple<Args...> m_Args;
-		std::promise<std::decay_t<Ret_Val>> m_Promise;
+		std::promise<std::decay_t<R>> m_Promise;
 	};
 //////////////////////////////////////////////////////////////////////////
 } /* engine::threads::detail */
@@ -65,11 +136,49 @@ namespace engine::threads
 {
 	class IThreadTaskImpl;
 
-	class CThreadTask
+	class PULVIS_API CThreadTask
 	{
 	public:
 
 		CThreadTask() : m_Impl(nullptr) {}
+
+		// Function pointer
+		template <typename R, typename... Args>
+		CThreadTask(R(*_func)(Args...), Args&&... _args)
+		{
+			using Func = R(*)(Args...);
+			m_Impl = std::make_unique<detail::CThreadTaskFunctionImpl<R, Func, Args...>>
+			(
+				std::forward<Func>(_func),
+				std::forward<Args>(_args)...
+			);
+		}
+
+		// Class method
+		template <typename R, typename C, typename... Args>
+		CThreadTask(C* _instance, R(C::* _method)(Args...), Args&&... _args)
+		{
+			using Func = R(C::*)(Args...);
+			m_Impl = std::make_unique<detail::CThreadTaskClassMethodImpl<R, C, Args...>>
+				(
+					_instance,
+					std::forward<Func>(_method),
+					std::forward<Args>(_args)...
+				);
+
+		}
+
+		// Function object or lambda
+		template <typename Func, typename... Args>
+			CThreadTask(Func&& _func, Args&&... _args)
+		{
+			using R = std::decay_t<decltype(_func(std::declval<Args>()...))>;
+			m_Impl = std::make_unique<detail::CThreadTaskFunctionImpl<R, Func, Args...>>
+			(
+				std::forward<Func>(_func),
+				std::forward<Args>(_args)...
+			);
+		}
 
 		CThreadTask(CThreadTask&& _other) noexcept
 			: m_Impl(std::move(_other.m_Impl))
@@ -88,21 +197,10 @@ namespace engine::threads
 			return *this;
 		}
 
-		template<typename Func, typename... Args>
-		CThreadTask(Func&& _func, Args&&... _args)
+		template<typename R>
+		std::future<R> GetFuture() 
 		{
-			using Ret_Val = std::decay_t<decltype(std::declval<Func>())>;
-			m_Impl = std::make_unique<detail::CThreadTaskImpl<Func, Ret_Val, Args...>>
-			(
-				std::forward<Func>(_func),
-				std::forward<Args>(_args)...
-			);
-		}
-
-		template<typename Ret_Val>
-		std::future<Ret_Val> GetFuture()
-		{
-			return static_cast<detail::IThreadTaskReturn<Ret_Val>*>(m_Impl.get())->GetFuture();
+			return static_cast<detail::IThreadTaskFuture<R>*>(m_Impl.get())->GetFuture();
 		}
 
 		void Execute()
