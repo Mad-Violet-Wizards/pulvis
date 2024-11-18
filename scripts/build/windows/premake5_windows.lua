@@ -2,7 +2,7 @@
 project "Engine"
     kind "SharedLib"
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++latest"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
 
@@ -10,8 +10,7 @@ project "Engine"
     pchheader("engine/engine_pch.hpp")
     pchsource("%{wks.location}/engine/engine_pch.cpp")
     files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
-    buildoptions{ "/utf-8" }
-
+    buildoptions{ "/utf-8", "/Zc:preprocessor" }
 
     filter "configurations:*"
         includedirs { 
@@ -43,10 +42,10 @@ project "Game"
     defines { "FMT_HEADER_ONLY" }
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++latest"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
-    buildoptions{ "/utf-8" }
+    buildoptions{ "/utf-8", "/Zc:preprocessor" }
 
     files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp" }
 
@@ -78,10 +77,10 @@ project "Playground"
     defines { "FMT_HEADER_ONLY" }
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++latest"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
-    buildoptions{ "/utf-8" }
+    buildoptions{ "/utf-8", "/Zc:preprocessor" }
 
     files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp" }
 

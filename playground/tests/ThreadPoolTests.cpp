@@ -1,5 +1,6 @@
 #include "engine/engine_pch.hpp"
 #include "ThreadPoolTests.hpp"
+#include "engine/pstd/FastFunction.hpp"
 
 #include <functional>
 
@@ -7,26 +8,27 @@
 
 using namespace engine::threads;
 using namespace engine::threads::tests;
+using namespace engine::pstd;
 
 TEST_CASE("Thread Function Wrapper", "[Threads]")
 {
 	SECTION("Simple functions wrapper")
 	{
-		CThreadFunctionWrapper<void> wrapper_void(MocVoid);
+		FastFunction<void> wrapper_void(MocVoid);
 		wrapper_void();
 
-		CThreadFunctionWrapper<int> wrapper(MocNoSleepReturn);
+		FastFunction<int> wrapper(MocNoSleepReturn);
 		const int result = wrapper();
 		REQUIRE(result == s_MocReturnValue);
 
-		CThreadFunctionWrapper<int, int, int> wrapper_add(MocAddTwoValues);
+		FastFunction<int, int, int> wrapper_add(MocAddTwoValues);
 		const int result_add = wrapper_add(1, 2);
 		REQUIRE(result_add == 3);
 
 		int a = 1;
 		int b = 2;
 		int res = 0;
-		CThreadFunctionWrapper<void, int&, int&, int&> wrapper_ref(RefAddTwoValues);
+		FastFunction<void, int&, int&, int&> wrapper_ref(RefAddTwoValues);
 		wrapper_ref(a, b, res);
 		REQUIRE(res == 3);
 	}
@@ -34,35 +36,35 @@ TEST_CASE("Thread Function Wrapper", "[Threads]")
 	SECTION("Class method wrapper")
 	{
 		MocThreadNotSharedClass instance;
-		CThreadFunctionWrapper<void> wrapper_void(&instance, &MocThreadNotSharedClass::MocVoid);
+		FastFunction<void> wrapper_void(&instance, &MocThreadNotSharedClass::MocVoid);
 		wrapper_void();
 
 		MocThreadNotSharedClass instance2;
-		CThreadFunctionWrapper<int, int, int> wrapper_add(&instance2, &MocThreadNotSharedClass::MocAddTwoValues);
+		FastFunction<int, int, int> wrapper_add(&instance2, &MocThreadNotSharedClass::MocAddTwoValues);
 		const int result_add = wrapper_add(1, 2);
 		REQUIRE(result_add == 3);
 
 		int a = 1;
 		int b = 2;
 		int res = 0;
-		CThreadFunctionWrapper<void, int&, int&, int&> wrapper_ref(&instance, &MocThreadNotSharedClass::RefAddTwoValues);
+		FastFunction<void, int&, int&, int&> wrapper_ref(&instance, &MocThreadNotSharedClass::RefAddTwoValues);
 		wrapper_ref(a, b, res);
 		REQUIRE(res == 3);
 	}
 
 	SECTION("Lambda wrapper")
 	{
-		CThreadFunctionWrapper<void> wrapper_void([]() { std::string hello = "hello world"; hello[0] = 'X'; });
+		FastFunction<void> wrapper_void([]() { std::string hello = "hello world"; hello[0] = 'X'; });
 		wrapper_void();
 
-		CThreadFunctionWrapper<int, int, int> wrapper_add([](int _a, int _b) { return _a + _b; });
+		FastFunction<int, int, int> wrapper_add([](int _a, int _b) { return _a + _b; });
 		const int result_add = wrapper_add(1, 2);
 		REQUIRE(result_add == 3);
 
 		int a = 1;
 		int b = 2;
 		int res = 0;
-		CThreadFunctionWrapper<void> wrapper_ref([&a, &b, &res]() { res = a + b; });
+		FastFunction<void> wrapper_ref([&a, &b, &res]() { res = a + b; });
 		wrapper_ref();
 		REQUIRE(res == 3);
 	}
@@ -70,13 +72,13 @@ TEST_CASE("Thread Function Wrapper", "[Threads]")
 #if defined(BENCHMARKING)
 	SECTION("Performance tests vs STD")
 	{
-		// Requirement: CThreadFunctionWrapper
+		// Requirement: FastFunction
 		// should be at least 3-4 times faster
 		// than standard library std::function.
 
 		BENCHMARK("Thread Function Wrapper")
 		{
-			CThreadFunctionWrapper<int, int, int> wrapper(MocAddTwoValues);
+			FastFunction<int, int, int> wrapper(MocAddTwoValues);
 			const int res = wrapper(100, 200);
 		};
 

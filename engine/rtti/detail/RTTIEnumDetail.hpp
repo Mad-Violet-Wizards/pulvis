@@ -1,10 +1,10 @@
 #pragma once
 
 #include "engine/rtti/RTTITypeName.hpp"
-#include "engine/rtti/RTTIMacros.hpp"
 
 namespace engine::rtti::detail
 {
+//////////////////////////////////////////////////////////////////////////
 	namespace enum_detail
 	{
 		static constexpr int s_CheckValuesLimit = 256;
@@ -30,9 +30,9 @@ namespace engine::rtti::detail
 				std::vector<SEnumData> m_EnumData;
 				bool m_Valid = false;
 			};
-
-			static inline std::array<SEnumDataBuffer, s_MapperBufferLimit> s_EnumDataStorage = {};
 		}
+		static inline std::array<SEnumDataBuffer, s_MapperBufferLimit> s_EnumDataStorage = {};
+//////////////////////////////////////////////////////////////////////////
 
 		template<typename E>
 		static int GetEnumCount()

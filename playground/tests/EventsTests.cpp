@@ -15,6 +15,7 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		REQUIRE(event->GetProcessTime() == EProcessTime::Immediate);
 		CEventController::GetInstance().SendEvent(event.get());
 		REQUIRE(event->m_Handled == true);
+		CEventController::GetInstance().ClearListeners();
 	}
 
 	SECTION("Is next frame event proccessed properly?")
@@ -26,6 +27,7 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		REQUIRE(event->m_Handled == false);
 		m_Application->FrameCycle();
 		REQUIRE(event->m_Handled == true);
+		CEventController::GetInstance().ClearListeners();
 	}
 
 	SECTION("Events on different buses?")
@@ -40,6 +42,7 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		CEventController::GetInstance().SendEvent(event2.get());
 		REQUIRE(event->m_Handled == true);
 		REQUIRE(event2->m_Handled == true);
+		CEventController::GetInstance().ClearListeners();
 	}
 
 	SECTION("Unsubscribed event is not proccesed?")
@@ -48,9 +51,10 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 
 		std::unique_ptr<MocEventBool> event3 = CreateEvent<MocEventBool>();
 		event3->m_Handled = false;
-		CEventController::GetInstance().UnsubscribeEvent<MocEventBool>(m_Listener.get());
+		CEventController::GetInstance().UnsubscribeEvent<MocEventBool>(GetListener());
 		CEventController::GetInstance().SendEvent(event3.get());
 		REQUIRE(event3->m_Handled == false);
+		CEventController::GetInstance().ClearListeners();
 	}
 
 	SECTION("Two event listeners on same event?")
@@ -62,6 +66,7 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		CEventController::GetInstance().SendEvent(event4.get());
 		REQUIRE(event4->m_Handled == true);
 		REQUIRE(event4->m_Handled2 == true);
+		CEventController::GetInstance().ClearListeners();
 	}
 
 	SECTION("Two event listeners but one unsubscribes?")
@@ -74,6 +79,7 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		CEventController::GetInstance().SendEvent(event4.get());
 		REQUIRE(event4->m_Handled == true);
 		REQUIRE(event4->m_Handled2 == false);
+		CEventController::GetInstance().ClearListeners();
 	}
 
 #if defined(BENCHMARKING)
@@ -88,6 +94,7 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 				CEventController::GetInstance().SendEvent(event.get());
 			}
 		};
+		CEventController::GetInstance().ClearListeners();
 	}
 #endif
 }

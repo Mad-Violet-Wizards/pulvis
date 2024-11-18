@@ -31,6 +31,7 @@ namespace engine::events
 			void SendEvent(IEvent* _event);
 
 			void Frame();
+			void ClearListeners();
 
 	private:
 

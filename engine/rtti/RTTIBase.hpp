@@ -20,5 +20,21 @@ namespace engine::rtti
 			{
 				return IsTypeOfId(CRTTITypeInfo<T>::GetTypeId());
 			}
+
+			template<typename T>
+			T* Cast() noexcept
+			{
+				return reinterpret_cast<T*>(const_cast<void*>(internal_cast(CRTTITypeInfo<T>::GetTypeId())));
+			}
+
+			template<typename T>
+			T const* Cast() const noexcept
+			{
+				return reinterpret_cast<T const*>(internal_cast(CRTTITypeInfo<T>::GetTypeId()));
+			}
+
+		protected:
+
+			virtual void const* internal_cast(type_id_t _type_id) const noexcept = 0;
 	};
 }

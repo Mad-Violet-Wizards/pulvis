@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/Export.hpp"
+
 namespace engine::rtti
 {
 	class PULVIS_API CRTTITypeName

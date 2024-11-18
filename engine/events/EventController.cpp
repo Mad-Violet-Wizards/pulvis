@@ -20,6 +20,15 @@ namespace engine::events
 		}
 	}
 
+	void CEventController::ClearListeners()
+	{
+		for (CEventBus& bus : m_EventBuses)
+		{
+			bus.ClearListeners();
+		}
+	
+	}
+
 	void CEventController::SendEvent(IEvent* _event)
 	{
 		const EEventBus bus = _event->GetBusType();

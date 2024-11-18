@@ -45,5 +45,21 @@ namespace engine::rtti
 
 				return false;
 			}
+
+			template<typename T>
+			static void const* Cast(type_id_t _type_id, T const* ptr) noexcept
+			{
+				if (GetTypeId() == _type_id)
+				{
+					return static_cast<T const*>(ptr);
+				}
+
+				if constexpr (sizeof...(Parents) > 0)
+				{
+					(... || CRTTITypeInfo<Parents>::Cast(_type_id, ptr));
+				}
+
+				return nullptr;
+			}
 	};
 }

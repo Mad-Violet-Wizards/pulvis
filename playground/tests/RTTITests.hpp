@@ -69,16 +69,122 @@ namespace engine::rtti
 		class IBase : public engine::rtti::IRTTIBase
 		{
 			RTTI_CLASS_API(IBase);
+
+			public:
+			
+				virtual ~IBase() = default;
+				int GetVirtualBase() { return 0; }
+				RTTI_METHOD_API(IBase, GetVirtualBase);
+
+				int Add(int _a, int _b)
+				{
+					return _a + _b;
+				}
+				RTTI_METHOD_API(IBase, Add);
+
+				int Subtract(int _a, int _b)
+				{
+					return _a - _b;
+				}
+				RTTI_METHOD_API(IBase, Subtract);
+
+				int AddConst(int _a, int _b) const
+				{
+					return _a + _b;
+				}
+				RTTI_METHOD_API(IBase, AddConst);
+
+				int SubtractConst(int _a, int _b) const
+				{
+					return _a - _b;
+				}
+				RTTI_METHOD_API(IBase, SubtractConst);
 		};
 //////////////////////////////////////////////////////////////////////////
+		class IBase2 : public engine::rtti::IRTTIBase
+		{
+			RTTI_CLASS_API(IBase2);
+
+			public:
+			
+				virtual ~IBase2() = default;
+
+				int Multiply(int _a, int _b)
+				{
+					return _a * _b;
+				}
+				RTTI_METHOD_API(IBase2, Multiply);
+
+				int Divide(int _a, int _b)
+				{
+					return _a / _b;
+				}
+				RTTI_METHOD_API(IBase2, Divide);
+
+				int MultiplyConst(int _a, int _b) const
+				{
+					return _a * _b;
+				}
+				RTTI_METHOD_API(IBase2, MultiplyConst);
+
+				int DivideConst(int _a, int _b) const
+				{
+					return _a / _b;
+				}
+				RTTI_METHOD_API(IBase2, DivideConst);
+		};
+
 		class CDerived : public IBase
 		{
 			RTTI_CLASS_API(CDerived, IBase);
+		
+			public:
+
+				int GetPrivateInt() const
+				{
+					return m_PrivateInt;
+				}
+
+				int GetVirtualBase() { return 1; }
+				RTTI_METHOD_API(CDerived, GetVirtualBase);
+
+			private:
+
+				int m_PrivateInt = 0;
+				RTTI_FIELD_API(CDerived, m_PrivateInt);
 		};
 //////////////////////////////////////////////////////////////////////////
 		class CDerived2 : public IBase
 		{
 			RTTI_CLASS_API(CDerived2, IBase);
+
+		public:
+
+			int GetPrivateInt() const
+			{
+				return m_PrivateInt;
+			}
+
+		private:
+			int m_PrivateInt = 0;
+			RTTI_FIELD_API(CDerived2, m_PrivateInt);
+		};
+
+		class CDerivedBoth : public IBase, public IBase2
+		{
+			RTTI_CLASS_API(CDerivedBoth, IBase, IBase2);
+
+		public:
+
+			int GetPrivateInt() const
+			{
+				return m_PrivateInt;
+			}
+
+			private:
+
+				int m_PrivateInt = 0;
+				RTTI_FIELD_API(CDerivedBoth, m_PrivateInt);
 		};
 //////////////////////////////////////////////////////////////////////////
 	}
