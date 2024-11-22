@@ -4,41 +4,6 @@
 
 namespace engine::rtti::detail
 {
-	//CRTTIClass* class_detail::FindClassById(type_id_t _id)
-	//{
-	//	for (CRTTIClass& c : s_ClassesStorage)
-	//	{
-	//		if (c.GetTypeId() == _id)
-	//		{
-	//			return &c;
-	//		}
-	//	}
-	//	return nullptr;
-	//}
-	//const CRTTIClass* class_detail::FindConstClassById(type_id_t _id)
-	//{
-	//	for (const CRTTIClass& c : s_ClassesStorage)
-	//	{
-	//		if (c.GetTypeId() == _id)
-	//		{
-	//			return &c;
-	//		}
-	//	}
-	//	return nullptr;
-	//}
-
-	//const CRTTIClass* class_detail::FindConstClassByName(const char* _name)
-	//{
-	//	for (const CRTTIClass& c : s_ClassesStorage)
-	//	{
-	//		if (c.GetName() == _name)
-	//		{
-	//			return &c;
-	//		}
-	//	}
-	//	return nullptr;
-	//}
-
 	void CRTTIClassStorage::RegisterClass(CRTTIClass* _class)
 	{
 		s_ClassesStorage[s_CurrentStorageIndex++] = _class;

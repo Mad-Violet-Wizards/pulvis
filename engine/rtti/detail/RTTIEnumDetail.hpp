@@ -7,15 +7,15 @@ namespace engine::rtti::detail
 //////////////////////////////////////////////////////////////////////////
 	namespace enum_detail
 	{
-		static constexpr int s_CheckValuesLimit = 256;
-		static constexpr int s_MapperBufferLimit = 2048;
-		static int s_EnumMapperIndex = 0;
-
 		namespace
 		{
-			struct SEnumData
+			static constexpr int s_CheckValuesLimit = 256;
+			static constexpr int s_MapperBufferLimit = 2048;
+			static int s_EnumMapperIndex = 0;
+
+			struct SEnumValues
 			{
-				SEnumData(std::string_view _enumValueStr, int _enumValueInt)
+				SEnumValues(std::string_view _enumValueStr, int _enumValueInt)
 					: m_EnumValueStr(_enumValueStr)
 					, m_EnumValueInt(_enumValueInt)
 				{}
@@ -27,7 +27,7 @@ namespace engine::rtti::detail
 			struct SEnumDataBuffer
 			{
 				std::string_view m_EnumName;
-				std::vector<SEnumData> m_EnumData;
+				std::vector<SEnumValues> m_EnumData;
 				bool m_Valid = false;
 			};
 		}
@@ -50,9 +50,9 @@ namespace engine::rtti::detail
 		{
 			const int index = GetEnumIndex<E>();
 
-			for (const SEnumData& data : s_EnumDataStorage[index].m_EnumData)
+			for (const SEnumValues& data : s_EnumDataStorage[index].m_EnumData)
 			{
-				if (data.m_EnumValueInt == (int)_value)
+				if (data.m_EnumValueInt == static_cast<int>(_value))
 				{
 					return data.m_EnumValueStr;
 				}
@@ -66,7 +66,7 @@ namespace engine::rtti::detail
 		{
 			const int index = GetEnumIndex<E>();
 			
-			for (const SEnumData& data : s_EnumDataStorage[index].m_EnumData)
+			for (const SEnumValues& data : s_EnumDataStorage[index].m_EnumData)
 			{
 				if (data.m_EnumValueStr == _value)
 				{
@@ -91,7 +91,7 @@ namespace engine::rtti::detail
 				constexpr size_t enum_value_end = function_signature.find(">(void)") - enum_value_start;
 
 				std::string_view enum_value_str = function_signature.substr(enum_value_start, enum_value_end);
-				constexpr int enum_value_int = (int)EnumValue;
+				constexpr int enum_value_int = static_cast<int>(EnumValue);
 
 				if (s_EnumDataStorage[s_EnumMapperIndex].m_Valid)
 				{

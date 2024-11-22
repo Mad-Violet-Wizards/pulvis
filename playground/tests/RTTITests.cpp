@@ -111,11 +111,6 @@ TEST_CASE("IsTypeOf", "[RTTI]")
 
 		CDerived derived;
 
-		std::cout << derived.GetTypeId() << std::endl;
-		std::cout << CRTTITypeInfo<CDerived>::GetTypeId() << std::endl; 
-		std::cout << CRTTITypeInfo<CDerived2>::GetTypeId() << std::endl;
-		std::cout << CRTTITypeInfo<IBase>::GetTypeId() << std::endl;
-
 		REQUIRE(derived.GetTypeId() == CRTTITypeInfo<CDerived>::GetTypeId());
 		REQUIRE(derived.IsTypeOfId(CRTTITypeInfo<CDerived>::GetTypeId()));
 		REQUIRE(derived.IsTypeOfId(derived.GetTypeId()));
@@ -308,7 +303,11 @@ TEST_CASE("RTTI Fields", "[RTTI]")
 		rtti_field->Set(&derived, 10);
 		REQUIRE(derived.GetPrivateInt() == 10);
 		int result_get = 0;
-		rtti_field->Get(&derived, result_get);
+		rtti_field->GetByRef(&derived, result_get);
 		REQUIRE(result_get == 10);
+
+		rtti_field->Set(&derived, 123);
+		int result_get2 = rtti_field->Get<int>(&derived);
+		REQUIRE(result_get2 == 123);
 	}
 }

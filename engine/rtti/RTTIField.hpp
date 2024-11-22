@@ -23,17 +23,24 @@ namespace engine::rtti
 			}
 
 			template<class C, typename T>
-			void Set(C* _instance, T _value)
+			void Set(C* _instance, T _value) const
 			{
 				auto* field = static_cast<detail::RTTIField<C, T>*>(m_FieldImpl.get());
 				field->Set(_instance, _value);
 			}
 
 			template<class C, typename T>
-			void Get(C* _instance, T& _out_val)
+			void GetByRef(C* _instance, T& _out_val) const
 			{
 				auto* field = static_cast<detail::RTTIField<C, T>*>(m_FieldImpl.get());
 				_out_val = field->Get(_instance);
+			}
+
+			template<typename T, class C>
+			T Get(C* _instance) const
+			{
+				auto* field = static_cast<detail::RTTIField<C, T>*>(m_FieldImpl.get());
+				return field->Get(_instance);
 			}
 
 			const std::string& GetName() const
