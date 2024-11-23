@@ -10,7 +10,8 @@ project "Engine"
     pchheader("engine/engine_pch.hpp")
     pchsource("%{wks.location}/engine/engine_pch.cpp")
     files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
-    buildoptions{ "/utf-8", "/Zc:preprocessor" }
+    buildoptions{ "/utf-8", "/Zc:preprocessor"}
+    flags("FatalWarnings")
 
     filter "configurations:*"
         includedirs { 
@@ -33,6 +34,8 @@ project "Engine"
     filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"
+        buildoptions { "/ZI", "/MP" }
+        linkoptions { "/INCREMENTAL" }
 
     filter "configurations:Release"
         defines { "RELEASE" }
@@ -68,6 +71,8 @@ project "Game"
     filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"
+        buildoptions { "/ZI", "/MP" }
+        linkoptions { "/INCREMENTAL" }
 
     filter "configurations:Release"
         defines { "RELEASE" }

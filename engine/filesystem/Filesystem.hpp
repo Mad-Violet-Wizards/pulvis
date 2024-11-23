@@ -14,15 +14,14 @@ namespace fs
 		public:
 
 			Filesystem(const std::string& _name, const std::string& _absolute_path);
-			~Filesystem() = default;
+			~Filesystem();
 
 			void Mount();
 			void Unmount();
+			bool IsMounted() const;
 
 			std::optional<CFileHandle> OpenFile(const std::string& _relative_path, std::shared_ptr<IFileDataModel>* _file_data_model, EFileMode _open_mode);
 			std::optional<CFileHandle> OpenFile(const std::string& _relative_path, EFileMode _open_mode);
-
-			bool GetIsMounted() const { return m_Mounted; }
 
 		private:
 
@@ -30,11 +29,8 @@ namespace fs
 
 		private:
 
-			bool m_Mounted;
-			std::string m_Name;
-			std::filesystem::path m_AbsolutePath;
-
-			std::vector<std::string> m_MountedFilelist;
+			class Impl;
+			Impl* m_Impl = nullptr;
 	};
 }
 }

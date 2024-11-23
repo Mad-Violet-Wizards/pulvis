@@ -20,7 +20,8 @@ namespace engine::events
 	{
 		public:
 
-			CEventBus() = default;
+			CEventBus();
+			~CEventBus();
 
 			void SetEventBusType(EEventBus _bus_type);
 			EEventBus GetEventBusType() const;
@@ -34,10 +35,8 @@ namespace engine::events
 			void ClearListeners();
 
 	private:
-
-		std::unordered_multimap<event_t, IEventListener*> m_EventListeners;
-		std::list<SNextFrameEventGuard> m_NextFrameEvents;
-
-		EEventBus m_BusType = EEventBus::Invalid;
+		
+		class Impl;
+		Impl* m_Impl;
 	};
 }

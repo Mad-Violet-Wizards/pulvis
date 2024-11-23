@@ -92,25 +92,31 @@ namespace engine
     {
       m_AssertionIgnoreList.push_back(_assertion);
     }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    class CAssertManager::Impl 
+    {
+      public:
 
-
-      //std::optional<engine::fs::CFileHandle> assert_text_file = m_EngineFs->OpenFile("assertions.txt", engine::fs::EFileMode::ReadWrite | engine::fs::EFileMode::Append);
-
-      //
-
-      //assert_text_file->Close();
+        CAssertIgnoreList m_IgnoreList;
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     CAssertManager::CAssertManager()
     {
       //engine::events::CEventController::GetInstance().SubscribeEvent(CFi, this);
+      m_Impl = new Impl();
+    }
+
+    CAssertManager::~CAssertManager()
+    {
+      delete m_Impl;
     }
 
     void CAssertManager::Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code)
     {
       CAssertion assertion(_asserting_filename, _line_of_code);
 
-      if (m_IgnoreList.IsIgnored(assertion))
+      if (m_Impl->m_IgnoreList.IsIgnored(assertion))
 				return;
 
       std::cerr << "Assertion failed: " << _expression << "\n";
@@ -125,7 +131,7 @@ namespace engine
       switch (user_action)
       {
       case EAssertionAction::Ignore:
-        m_IgnoreList.AddToIgnoreList(assertion);
+        m_Impl->m_IgnoreList.AddToIgnoreList(assertion);
         break;
       case EAssertionAction::Abort:
         std::raise(SIGABRT);

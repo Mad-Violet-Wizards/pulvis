@@ -14,8 +14,8 @@ namespace core
 
 	struct PULVIS_API SApplicationSetup
 	{
-		std::string m_WindowName = "Application name (Pulvis 1.0.0)";
-		std::string m_InitProject = "";
+		char* m_ApplicationName;
+		char* m_AplicationToRun;
 		unsigned int m_WindowWidth;
 		unsigned int m_WindowHeight;
 

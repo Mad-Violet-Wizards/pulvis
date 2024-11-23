@@ -43,7 +43,7 @@ namespace std
 	{
 		std::size_t operator()(const engine::core::UUID& _uuid) const
 		{
-			return static_cast<uint64_t>(_uuid);
+			return static_cast<std::size_t>(_uuid);
 		}
 	};
 }

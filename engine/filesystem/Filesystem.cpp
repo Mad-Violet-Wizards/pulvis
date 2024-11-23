@@ -5,36 +5,52 @@
 #include "Filesystem.hpp"
 #include "engine/events/events/FilesystemMountedEvent.hpp"
 
-namespace engine
+namespace engine::fs
 {
-	namespace fs
-	{
-		Filesystem::Filesystem(const std::string& _name, const std::string& _absolute_path)
-			: m_Name(_name)
-			, m_AbsolutePath(_absolute_path)
-			, m_Mounted(false)
-		{
 
+	class Filesystem::Impl
+	{
+		public:
+
+			bool m_Mounted;
+			std::string m_Name;
+			std::filesystem::path m_AbsolutePath;
+
+			std::vector<std::string> m_MountedFilelist;
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+		Filesystem::Filesystem(const std::string& _name, const std::string& _absolute_path)
+		{
+			m_Impl = new Impl();
+			m_Impl->m_Name = _name;
+			m_Impl->m_AbsolutePath = _absolute_path;
+			m_Impl->m_Mounted = false;
+		}
+
+		Filesystem::~Filesystem()
+		{
+			delete m_Impl;
 		}
 
 		void Filesystem::Mount()
 		{
-			if (!std::filesystem::exists(m_AbsolutePath))
+			if (!std::filesystem::exists(m_Impl->m_AbsolutePath))
 			{
-				std::cout << "[Filesystem] " << m_Name << " creating directory : " << m_AbsolutePath << "\n";
-				std::filesystem::create_directory(m_AbsolutePath);
+				std::cout << "[Filesystem] " << m_Impl->m_Name << " creating directory : " << m_Impl->m_AbsolutePath << "\n";
+				std::filesystem::create_directory(m_Impl->m_AbsolutePath);
 			}
 
-			for (const auto& entry : std::filesystem::directory_iterator(m_AbsolutePath))
+			for (const auto& entry : std::filesystem::directory_iterator(m_Impl->m_AbsolutePath))
 			{
 				std::string path = entry.path().string();
-				path.erase(0, m_AbsolutePath.string().size());
+				path.erase(0, m_Impl->m_AbsolutePath.string().size());
 
-				std::cout << "[Filesystem] " << m_Name << " mounted: " << path << "\n";
-				m_MountedFilelist.push_back(path);
+				std::cout << "[Filesystem] " << m_Impl->m_Name << " mounted: " << path << "\n";
+				m_Impl->m_MountedFilelist.push_back(path);
 			}
 
-			m_Mounted = true;
+			m_Impl->m_Mounted = true;
 		}
 
 		void Filesystem::Unmount()
@@ -42,9 +58,14 @@ namespace engine
 
 		}
 
+		bool Filesystem::IsMounted() const
+		{
+			return m_Impl->m_Mounted;
+		}
+
 		std::optional<CFileHandle> engine::fs::Filesystem::OpenFile(const std::string& _relative_path, std::shared_ptr<IFileDataModel>* _file_data_model, EFileMode _open_mode)
 		{
-			const std::filesystem::path file_path = m_AbsolutePath / _relative_path;
+			const std::filesystem::path file_path = m_Impl->m_AbsolutePath / _relative_path;
 
 			ASSERT(_file_data_model, "[Filesystem] FileDataModel is nullptr.");
 
@@ -73,7 +94,7 @@ namespace engine
 
 		std::optional<CFileHandle> engine::fs::Filesystem::OpenFile(const std::string& _relative_path, EFileMode _open_mode)
 		{
-			const std::filesystem::path file_path = m_AbsolutePath / _relative_path;
+			const std::filesystem::path file_path = m_Impl->m_AbsolutePath / _relative_path;
 			
 			const bool create_if_no_exists = GetCreateFileIfNotExists(_open_mode);
 
@@ -117,6 +138,5 @@ namespace engine
 			}
 
 			return false;
-		}
 	}
 }

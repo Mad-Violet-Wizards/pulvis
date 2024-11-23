@@ -30,7 +30,7 @@ namespace engine::threads
 
 		private:
 
-			std::vector<std::unique_ptr<CThreadWorker>> m_Workers;
-			std::atomic<concurrency_t> m_NextWorker;
+			class Impl;
+			Impl* m_Impl = nullptr;
 	};
 }

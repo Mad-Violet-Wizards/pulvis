@@ -10,6 +10,20 @@ namespace engine::rtti::detail
 	public:
 
 		virtual ~IRTTIMethod() = default;
+
+		void SetMethodName(const std::string& _method_name)
+		{
+			m_MethodName = _method_name;
+		}
+
+		const std::string& GetMethodName() const
+		{
+			return m_MethodName;
+		}
+
+	private:
+
+		std::string m_MethodName;
 	};
 
 	////////////////////////////////////////////////////////////////////////

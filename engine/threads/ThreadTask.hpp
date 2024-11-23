@@ -141,13 +141,14 @@ namespace engine::threads
 	public:
 
 		CThreadTask() : m_Impl(nullptr) {}
+		~CThreadTask() { delete m_Impl; }
 
 		// Function pointer
 		template <typename R, typename... Args>
 		CThreadTask(R(*_func)(Args...), Args&&... _args)
 		{
 			using Func = R(*)(Args...);
-			m_Impl = std::make_unique<detail::CThreadTaskFunctionImpl<R, Func, Args...>>
+			m_Impl = new detail::CThreadTaskFunctionImpl<R, Func, Args...>
 			(
 				std::forward<Func>(_func),
 				std::forward<Args>(_args)...
@@ -159,12 +160,13 @@ namespace engine::threads
 		CThreadTask(C* _instance, R(C::* _method)(Args...), Args&&... _args)
 		{
 			using Func = R(C::*)(Args...);
-			m_Impl = std::make_unique<detail::CThreadTaskClassMethodImpl<R, C, Args...>>
+			m_Impl = new detail::CThreadTaskClassMethodImpl<R, C, Args...>
 				(
 					_instance,
 					std::forward<Func>(_method),
 					std::forward<Args>(_args)...
 				);
+
 
 		}
 
@@ -173,7 +175,7 @@ namespace engine::threads
 			CThreadTask(Func&& _func, Args&&... _args)
 		{
 			using R = std::decay_t<decltype(_func(std::declval<Args>()...))>;
-			m_Impl = std::make_unique<detail::CThreadTaskFunctionImpl<R, Func, Args...>>
+			m_Impl = new detail::CThreadTaskFunctionImpl<R, Func, Args...>
 			(
 				std::forward<Func>(_func),
 				std::forward<Args>(_args)...
@@ -181,17 +183,17 @@ namespace engine::threads
 		}
 
 		CThreadTask(CThreadTask&& _other) noexcept
-			: m_Impl(std::move(_other.m_Impl))
+			: m_Impl(_other.m_Impl)
 		{
-			_other.m_Impl.reset();
+			_other.m_Impl = nullptr;
 		}
 
 		CThreadTask& operator=(CThreadTask&& _other) noexcept
 		{
 			if (this != &_other)
 			{
-				m_Impl = std::move(_other.m_Impl);
-				_other.m_Impl.reset();
+				m_Impl = _other.m_Impl;
+				_other.m_Impl = nullptr;
 			}
 
 			return *this;
@@ -200,7 +202,7 @@ namespace engine::threads
 		template<typename R>
 		std::future<R> GetFuture() 
 		{
-			return static_cast<detail::IThreadTaskFuture<R>*>(m_Impl.get())->GetFuture();
+			return static_cast<detail::IThreadTaskFuture<R>*>(m_Impl)->GetFuture();
 		}
 
 		void Execute()
@@ -210,6 +212,6 @@ namespace engine::threads
 
 		private:
 
-			std::unique_ptr<detail::IThreadTask> m_Impl;
+			detail::IThreadTask* m_Impl;
 	};
 } 

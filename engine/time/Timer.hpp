@@ -12,30 +12,23 @@
     #endif
 #endif
 
-namespace engine
+namespace engine::time
 {
-namespace time
-{
-    class Timer
-    {
-        public:
+  class PULVIS_API Timer
+  {
+		public:
 
-            Timer()
-                : m_bStarted(false)
-            {
+			Timer();
+			~Timer() = default;
 
-            }
+			void Start();
+			void End();
+			void Reset();
+			double GetElapsedTime(ETimeUnit _time_unit) const;
 
-            ~Timer() = default;
+    private:
 
-            void Start();
-            void End();
-            void Reset();
-            double GetElapsedTime(ETimeUnit _time_unit) const;
-
-        private:
-
-            bool m_bStarted;
+      bool m_bStarted;
 #ifdef WINDOWS_OS
     LARGE_INTEGER m_Frequency;
     LARGE_INTEGER m_StartTime;
@@ -44,6 +37,5 @@ namespace time
     struct timespec m_StartTime;
     struct timespec m_EndTime;
 #endif
-    };
-}
+  };
 }

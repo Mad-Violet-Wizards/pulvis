@@ -220,7 +220,7 @@ namespace engine::pstd
 	private:
 
 		static constexpr size_t s_BufferSize = 128;
-		typename std::aligned_storage<s_BufferSize, sizeof(size_t)>::type m_StorageBuffer;
+		alignas(sizeof(size_t)) std::byte m_StorageBuffer[s_BufferSize];
 
 		using Invoker = R(*)(void*, Args...);
 		using InvokerNoInstance = R(*)(void*, void*, Args...);

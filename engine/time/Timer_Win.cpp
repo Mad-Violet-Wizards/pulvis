@@ -31,6 +31,8 @@ namespace engine
 				case ETimeUnit::Microseconds: return elapsed * 1000000.0;
 				case ETimeUnit::Nanoseconds: return elapsed * 1000000000.0;
 			}
+
+			return 0.0;
 		}
 
 		void Timer::Reset()

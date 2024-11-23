@@ -4,6 +4,8 @@
 #include "engine/filesystem/Utils.hpp"
 #include "engine/events/EventController.hpp"
 
+#include <GLFW/glfw3.h>
+
 namespace engine
 {
 	namespace core
@@ -47,7 +49,8 @@ namespace engine
 
 		void Application::InitializeWindow()
 		{
-			m_Window = new rendering::CWindow(s_AppContext.m_AppSetup.m_WindowWidth, s_AppContext.m_AppSetup.m_WindowHeight, s_AppContext.m_AppSetup.m_WindowName.c_str());
+			const std::string window_name = s_AppContext.m_AppSetup.m_ApplicationName;
+			m_Window = new rendering::CWindow(s_AppContext.m_AppSetup.m_WindowWidth, s_AppContext.m_AppSetup.m_WindowHeight, window_name.c_str());
 		}
 
 		bool Application::IsCloseRequested() const
@@ -92,7 +95,7 @@ namespace engine
 		void Application::UpdateFrameTime()
 		{
 			m_FrameTimer.End();
-			m_FrameTime = m_FrameTimer.GetElapsedTime(engine::time::ETimeUnit::Milliseconds);
+			m_FrameTime = static_cast<float>(m_FrameTimer.GetElapsedTime(engine::time::ETimeUnit::Milliseconds));
 			m_FrameTimer.Reset();
 		}
 
