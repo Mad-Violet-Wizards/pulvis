@@ -8,7 +8,7 @@ namespace engine
 {
 namespace rendering
 {
-	class PULVIS_API CContext
+	class CContext
 	{
 		public:
 

@@ -7,7 +7,6 @@ namespace engine::rtti::detail
 	void CRTTIClassStorage::RegisterClass(CRTTIClass* _class)
 	{
 		s_ClassesStorage[s_CurrentStorageIndex++] = _class;
-		static_assert(s_ClassesStorage.size() == s_ClassBufferLimit, "RTTI class buffer limit reached");
 	}
 
 	CRTTIClass* CRTTIClassStorage::FindClassByName(const char* _name)

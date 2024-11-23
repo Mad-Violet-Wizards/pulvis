@@ -14,9 +14,7 @@
 #include <cstdio>
 #include <iostream>
 
-namespace engine
-{
-namespace core
+namespace engine::core
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
     enum class ELogLevel
@@ -84,7 +82,7 @@ namespace core
         public:
 
             CLogger();
-            ~CLogger() = default;
+            ~CLogger();
              
 						CLogger(const CLogger&) = delete;
 						CLogger& operator=(const CLogger&) = delete;
@@ -98,17 +96,20 @@ namespace core
             template<typename... Args>
             void LOG(ELogLevel _log_level, fmt::format_string<Args...> _msg, Args&&... _args)
             {
-                const std::string formatted_msg = fmt::format(_msg, std::forward<Args>(_args)...);
-                SLogInfo log_info(_log_level, formatted_msg);
-                std::cout << log_info.ConsoleDump();
-                m_LogFileDumpQueue.push(log_info);
+              const std::string formatted_msg = fmt::format(_msg, std::forward<Args>(_args)...);
+              SLogInfo log_info(_log_level, formatted_msg);
+              LogImpl(log_info);
             }
 
         private:
 
-            std::queue<SLogInfo> m_LogFileDumpQueue;
+          void LogImpl(const SLogInfo& _log_info);
+
+      private:
+            
+          class Impl;
+          Impl* m_Impl;
     };
-}
 }
 
 #ifndef PULVIS_FATAL_LOG

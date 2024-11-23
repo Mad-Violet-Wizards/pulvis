@@ -1,7 +1,8 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+
+struct GLFWwindow;
 
 namespace engine
 {
@@ -17,7 +18,7 @@ namespace rendering
 			CWindow(const CWindow&) = delete;
 			CWindow &operator=(const CWindow&) = delete;
 
-			bool ShouldClose() const { return glfwWindowShouldClose(m_Window); }
+			bool ShouldClose() const;
 
 		private:
 

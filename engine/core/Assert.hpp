@@ -68,6 +68,8 @@ namespace engine
     {
     public:
 
+			~CAssertManager();
+
       void Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code);
 
       void OnEvent(engine::events::IEvent* _event) override;
@@ -75,12 +77,12 @@ namespace engine
     private:
 
       CAssertManager();
-      ~CAssertManager() = default;
       friend class Singleton<CAssertManager>;
 
       EAssertionAction GetUserAction() const;
 
-      CAssertIgnoreList m_IgnoreList;
+      class Impl;
+      Impl* m_Impl;
     };
   }
 }

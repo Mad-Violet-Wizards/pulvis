@@ -3,6 +3,8 @@
 #include <format>
 #include <fmt/format.h>
 
+#include <GLFW/glfw3.h>
+
 namespace engine
 {
 namespace rendering
@@ -43,6 +45,11 @@ namespace rendering
 	{
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
+	}
+
+	bool CWindow::ShouldClose() const
+	{
+		return glfwWindowShouldClose(m_Window);
 	}
 
 }

@@ -22,7 +22,8 @@ namespace engine::rtti::detail
 
 		static inline int s_CurrentStorageIndex = 0;
 		constexpr static inline int s_ClassBufferLimit = 2048;
-		static inline std::array<CRTTIClass*, s_ClassBufferLimit> s_ClassesStorage = {};
+		static inline CRTTIClass* s_ClassesStorage[s_ClassBufferLimit];
+
 	};
 
 	static void AttachParent(const char* _class_name, const char* _parent_name);

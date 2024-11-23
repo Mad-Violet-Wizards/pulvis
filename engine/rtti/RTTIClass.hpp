@@ -20,32 +20,17 @@ namespace engine::rtti
 		static const CRTTIClass* FindConstInStorage(const char* _name);
 
 		CRTTIClass()
-			: m_Name(s_RttiInvalidClass)
-			, m_TypeId(INVALID_TYPE_ID)
 		{
-
+			m_Impl = nullptr;
 		}
 
-		CRTTIClass(const char* _name)
-			: m_Name(_name)
-			, m_TypeId(Hash(_name))
-		{
-		}
+		CRTTIClass(const char* _name);
+		~CRTTIClass();
 
-		const std::string& GetName() const
-		{
-			return m_Name;
-		}
+		const std::string& GetName() const;
+		type_id_t GetTypeId() const;
 
-		type_id_t GetTypeId() const
-		{
-			return m_TypeId;
-		}
-
-		void AttachParent(CRTTIClass* _parent)
-		{
-			m_Parents.push_back(_parent);
-		}
+		void AttachParent(CRTTIClass* _parent);
 
 
 		void AddMethod(CRTTIMethod* _method);
@@ -58,10 +43,7 @@ namespace engine::rtti
 
 	private:
 
-		std::string m_Name;
-		type_id_t m_TypeId;
-		std::vector<CRTTIMethod*> m_Methods;
-		std::vector<CRTTIField*> m_Fields;
-		std::vector<CRTTIClass*> m_Parents;
+		class Impl;
+		Impl* m_Impl;
 	};
 }
