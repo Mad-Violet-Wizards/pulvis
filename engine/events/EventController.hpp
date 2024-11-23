@@ -16,6 +16,7 @@ namespace engine::events
 		friend class Singleton<CEventController>;
 
 		void Frame();
+		void ClearListeners();
 
 		template<typename C>
 		void SubscribeEvent(IEventListener* _listener)

@@ -34,10 +34,6 @@ namespace engine
 		{
 			if (s_AppContext.m_AppSetup.m_ClientApp != EClientApp::Playground)
 				delete m_Window;
-
-			CLogger::Destroy();
-			CAssertManager::Destroy();
-			engine::events::CEventController::Destroy();
 		}
 
 

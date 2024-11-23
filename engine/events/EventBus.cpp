@@ -84,4 +84,8 @@ namespace engine::events
 			}
 		}
 	}
+	void CEventBus::ClearListeners()
+	{
+		m_EventListeners.clear();
+	}
 }

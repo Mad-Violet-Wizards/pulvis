@@ -22,12 +22,14 @@
 // +Engine
 //	 +Core
 #include "engine/core/Assert.hpp"
-#include "engine/core/Algorithm.hpp"
-#include "engine/core/Export.hpp"
 #include "engine/core/Logger.hpp"
 #include "engine/core/UUID.hpp"
 #include "engine/events/EventListener.hpp"
 #include "engine/events/EventController.hpp"
 //	-Core
+
+//	+pstd
+#include "engine/pstd/Intersects.hpp"
+//	-pstd
 
 // -Engine

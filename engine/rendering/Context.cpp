@@ -12,7 +12,7 @@ namespace rendering
 	{
 		std::vector<std::string> vk_instance_layers;
 		FillInstanceLayers(vk_instance_layers, engine::rendering::s_DebugVerbose);
-		m_VkEnabledInstanceLayers = engine::core::Intersect(vk_instance_layers, _requested_layers);
+		m_VkEnabledInstanceLayers = engine::pstd::Intersect(vk_instance_layers, _requested_layers);
 
 		if (engine::rendering::s_DebugVerbose)
 		{

@@ -112,12 +112,12 @@ namespace engine::events
 				m_Listener2 = std::make_unique<MocEventListener2>();
 			}
 
-			MocEventListener* GetListener() const
+			MocEventListener* GetListener()
 			{
 				return m_Listener.get();
 			}
 
-			MocEventListener2* GetListener2() const
+			MocEventListener2* GetListener2()
 			{
 				return m_Listener2.get();
 			}

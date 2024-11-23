@@ -4,7 +4,7 @@
 #include <functional>
 #include <type_traits>
 
-#include "ThreadFunctionWrapper.hpp"
+#include "engine/pstd/FastFunction.hpp"
 
 /* engine::threads::detail */
 namespace engine::threads::detail
@@ -73,7 +73,7 @@ namespace engine::threads::detail
 
 		private:
 
-			CThreadFunctionWrapper<R, Args...> m_Function;
+			pstd::FastFunction<R, Args...> m_Function;
 			std::tuple<Args...> m_Args;
 			std::promise<std::decay_t<R>> m_Promise;
 	};
@@ -125,7 +125,7 @@ namespace engine::threads::detail
 
 	private:
 
-		CThreadFunctionWrapper<R, Args...> m_Function;
+		pstd::FastFunction<R, Args...> m_Function;
 		std::tuple<Args...> m_Args;
 		std::promise<std::decay_t<R>> m_Promise;
 	};
