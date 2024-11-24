@@ -4,36 +4,44 @@
 
 namespace engine::rtti::detail
 {
-//////////////////////////////////////////////////////////////////////////
-	namespace enum_detail
+	struct SEnumValues
 	{
-		namespace
-		{
-			static constexpr int s_CheckValuesLimit = 256;
-			static constexpr int s_MapperBufferLimit = 2048;
-			static int s_EnumMapperIndex = 0;
+		SEnumValues(std::string_view _enumValueStr, int _enumValueInt)
+			: m_EnumValueStr(_enumValueStr)
+			, m_EnumValueInt(_enumValueInt)
+		{}
 
-			struct SEnumValues
-			{
-				SEnumValues(std::string_view _enumValueStr, int _enumValueInt)
-					: m_EnumValueStr(_enumValueStr)
-					, m_EnumValueInt(_enumValueInt)
-				{}
+		std::string_view m_EnumValueStr;
+		int m_EnumValueInt;
+	};
 
-				std::string_view m_EnumValueStr;
-				int m_EnumValueInt;
-			};
+	struct SEnumDataBuffer
+	{
+		std::string_view m_EnumName;
+		std::vector<SEnumValues> m_EnumData;
+		bool m_Valid = false;
+	};
+	//////////////////////////////////////////////////////////////////////////
+	class PULVIS_API CRTTIEnumStorage
+	{
+		public:
 
-			struct SEnumDataBuffer
-			{
-				std::string_view m_EnumName;
-				std::vector<SEnumValues> m_EnumData;
-				bool m_Valid = false;
-			};
-		}
-		static inline std::array<SEnumDataBuffer, s_MapperBufferLimit> s_EnumDataStorage = {};
+			static void RegisterEnum(const SEnumDataBuffer& _enum_data_buffer);
+			static SEnumDataBuffer& GetEnumDataBufferRef(int _index);
+			static const SEnumDataBuffer& GetEnumDataBufferConstRef(int _index);
+
+			static int GetCurrentIndex();
+			static void IncrementIndex();
+
+			static constexpr int inline s_CheckValuesLimit = 256;
+			static constexpr int inline s_MapperBufferLimit = 2048;
+
+		private:
+
+			static inline int s_EnumMapperIndex = 0;
+			static inline SEnumDataBuffer s_EnumDataStorage[s_MapperBufferLimit];
+	};
 //////////////////////////////////////////////////////////////////////////
-
 		template<typename E>
 		static int GetEnumCount()
 		{
@@ -42,7 +50,8 @@ namespace engine::rtti::detail
 			if (index == -1)
 				return -1;
 
-			return s_EnumDataStorage[index].m_EnumData.size();
+
+			return CRTTIEnumStorage::GetEnumDataBufferConstRef(index).m_EnumData.size();
 		}
 
 		template<typename E>
@@ -50,7 +59,7 @@ namespace engine::rtti::detail
 		{
 			const int index = GetEnumIndex<E>();
 
-			for (const SEnumValues& data : s_EnumDataStorage[index].m_EnumData)
+			for (const SEnumValues& data : CRTTIEnumStorage::GetEnumDataBufferConstRef(index).m_EnumData)
 			{
 				if (data.m_EnumValueInt == static_cast<int>(_value))
 				{
@@ -66,7 +75,7 @@ namespace engine::rtti::detail
 		{
 			const int index = GetEnumIndex<E>();
 			
-			for (const SEnumValues& data : s_EnumDataStorage[index].m_EnumData)
+			for (const SEnumValues& data : CRTTIEnumStorage::GetEnumDataBufferConstRef(index).m_EnumData)
 			{
 				if (data.m_EnumValueStr == _value)
 				{
@@ -93,19 +102,19 @@ namespace engine::rtti::detail
 				std::string_view enum_value_str = function_signature.substr(enum_value_start, enum_value_end);
 				constexpr int enum_value_int = static_cast<int>(EnumValue);
 
-				if (s_EnumDataStorage[s_EnumMapperIndex].m_Valid)
+				SEnumDataBuffer& buffer = CRTTIEnumStorage::GetEnumDataBufferRef(CRTTIEnumStorage::GetCurrentIndex());
+
+				if (buffer.m_Valid)
 				{
-					SEnumDataBuffer& buffer = s_EnumDataStorage[s_EnumMapperIndex];
-					buffer = s_EnumDataStorage[s_EnumMapperIndex];
 					buffer.m_EnumData.push_back({ enum_value_str, enum_value_int });
 					return;
 				}
 
-				SEnumDataBuffer buffer;
-				buffer.m_EnumName = enum_name;
-				buffer.m_EnumData.push_back({ enum_value_str, enum_value_int });
-				buffer.m_Valid = true;
-				s_EnumDataStorage[s_EnumMapperIndex] = buffer;
+				SEnumDataBuffer new_buffer;
+				new_buffer.m_EnumName = enum_name;
+				new_buffer.m_EnumData.push_back({ enum_value_str, enum_value_int });
+				new_buffer.m_Valid = true;
+				CRTTIEnumStorage::RegisterEnum(new_buffer);
 			}
 		}
 
@@ -118,17 +127,16 @@ namespace engine::rtti::detail
 		template<typename E>
 		static constexpr void RegisterEnum()
 		{
-			RegisterEnumImpl<E>(std::make_integer_sequence<int, s_CheckValuesLimit>());
-			s_EnumMapperIndex++;
-			static_assert(s_EnumDataStorage.size() == s_MapperBufferLimit, "Enum buffer limit reached!");
+			RegisterEnumImpl<E>(std::make_integer_sequence<int, CRTTIEnumStorage::s_CheckValuesLimit>());
+			CRTTIEnumStorage::IncrementIndex();
 		}
 
 		template<typename E>
 		static int GetEnumIndex()
 		{
-			for (int i = 0; i < s_MapperBufferLimit; ++i)
+			for (int i = 0; i < CRTTIEnumStorage::s_MapperBufferLimit; ++i)
 			{
-				if (CRTTITypeName::GetTypename<E>() == s_EnumDataStorage[i].m_EnumName)
+				if (CRTTITypeName::GetTypename<E>() == CRTTIEnumStorage::GetEnumDataBufferConstRef(i).m_EnumName)
 				{
 					return i;
 				}
@@ -136,5 +144,4 @@ namespace engine::rtti::detail
 			
 			return -1;
 		}
-	};
 }

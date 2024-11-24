@@ -14,7 +14,7 @@ namespace engine::rtti
 			constexpr CRTTIEnum()
 			{
 				static_assert(std::is_enum_v<E>, "RTTIEnum can only be used with enum types");
-				engine::rtti::detail::enum_detail::RegisterEnum<E>();
+				engine::rtti::detail::RegisterEnum<E>();
 			}
 
 		public:
@@ -26,17 +26,17 @@ namespace engine::rtti
 
 			inline static int GetCount()
 			{
-				return detail::enum_detail::GetEnumCount<E>();
+				return detail::GetEnumCount<E>();
 			}
 
 			inline static std::string_view ToString(E _value)
 			{
-				return detail::enum_detail::ToString<E>(_value);
+				return detail::ToString<E>(_value);
 			}
 
 			inline static E FromString(std::string_view _value)
 			{
-				return detail::enum_detail::FromString<E>(_value);
+				return detail::FromString<E>(_value);
 			}
 	};
 }
