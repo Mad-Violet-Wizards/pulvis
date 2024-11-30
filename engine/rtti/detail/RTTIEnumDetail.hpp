@@ -33,6 +33,19 @@ namespace engine::rtti::detail
 		}
 		static inline std::array<SEnumDataBuffer, s_MapperBufferLimit> s_EnumDataStorage = {};
 //////////////////////////////////////////////////////////////////////////
+		template<typename E>
+		static int GetEnumIndex()
+		{
+			for (int i = 0; i < s_MapperBufferLimit; ++i)
+			{
+				if (CRTTITypeName::GetTypename<E>() == s_EnumDataStorage[i].m_EnumName)
+				{
+					return i;
+				}
+			}
+			
+			return -1;
+		}
 
 		template<typename E>
 		static int GetEnumCount()
@@ -77,20 +90,41 @@ namespace engine::rtti::detail
 			return static_cast<E>(0);
 		}
 
+#if defined(WINDOWS_OS)
+		static constexpr std::string_view DetermineEnumValueStr(std::string_view _function_signature, std::string_view _enum_name)
+		{
+			constexpr size_t start = _function_signature.rfind(_enum_name) + _enum_name.size();
+
+			if (_function_signature[start] == ':' && _function_signature[start + 1] == ':')
+			{
+				constexpr size_t enum_value_start = start + 2;
+				constexpr size_t enum_value_end = _function_signature.find(">(void)") - enum_value_start;
+
+				return _function_signature.substr(enum_value_start, enum_value_end);
+			}
+
+			return "";
+		}
+#else
+		static constexpr std::string_view DetermineEnumValueStr(std::string_view _function_signature, std::string_view _enum_name)
+		{
+			return "";
+		}
+#endif
+
 		template<typename E, E EnumValue>
 		static constexpr void RegisterIfValid() noexcept
 		{
+#if defined(WINDOWS_OS)
 			constexpr std::string_view function_signature = __FUNCSIG__;
+#else
+			constexpr std::string_view function_signature = __PRETTY_FUNCTION__;
+#endif
 			constexpr std::string_view enum_name = CRTTITypeName::GetTypename<E>();
+			constexpr std::string_view enum_value_str = DetermineEnumValueStr(function_signature, enum_name);
 
-			constexpr size_t start = function_signature.rfind(enum_name) + enum_name.size();
-
-			if constexpr (function_signature[start] == ':' && function_signature[start + 1] == ':')
+			if (!enum_value_str.empty())
 			{
-				constexpr size_t enum_value_start = start + 2;
-				constexpr size_t enum_value_end = function_signature.find(">(void)") - enum_value_start;
-
-				std::string_view enum_value_str = function_signature.substr(enum_value_start, enum_value_end);
 				constexpr int enum_value_int = static_cast<int>(EnumValue);
 
 				if (s_EnumDataStorage[s_EnumMapperIndex].m_Valid)
@@ -121,20 +155,6 @@ namespace engine::rtti::detail
 			RegisterEnumImpl<E>(std::make_integer_sequence<int, s_CheckValuesLimit>());
 			s_EnumMapperIndex++;
 			static_assert(s_EnumDataStorage.size() == s_MapperBufferLimit, "Enum buffer limit reached!");
-		}
-
-		template<typename E>
-		static int GetEnumIndex()
-		{
-			for (int i = 0; i < s_MapperBufferLimit; ++i)
-			{
-				if (CRTTITypeName::GetTypename<E>() == s_EnumDataStorage[i].m_EnumName)
-				{
-					return i;
-				}
-			}
-			
-			return -1;
 		}
 	};
 }

@@ -35,9 +35,6 @@ namespace engine
 
 namespace std
 {
-	template<typename T>
-	struct hash;
-
 	template<>
 	struct hash<engine::core::UUID>
 	{
