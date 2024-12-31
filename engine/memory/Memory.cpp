@@ -12,7 +12,7 @@ namespace engine::memory
 {
 	void* Allocate(EMemoryCategory _mem_category, size_t _size)
 	{
-		void* ptr = malloc(_size);
+		void* ptr = std::malloc(_size);
 		
 		if (CMemoryProfiler::GetInstance().IsActive())
 		{
@@ -35,7 +35,7 @@ namespace engine::memory
 			CMemoryProfiler::GetInstance().DecreaseMemoryUsage(_ptr);
 		}
 
-		free(_ptr);
+		std::free(_ptr);
 	}
 
 	std::vector<std::string> GetStacktrace()

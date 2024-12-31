@@ -97,7 +97,17 @@ namespace engine
     {
       public:
 
+        Impl()
+				{
+#if defined(DEBUG)
+          m_IsActive = true;
+#else
+          m_IsActive = false;
+#endif
+				}
+
         CAssertIgnoreList m_IgnoreList;
+        bool m_IsActive;
     };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +124,11 @@ namespace engine
 
     void CAssertManager::Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code)
     {
+      if (!m_Impl->m_IsActive)
+      {
+        return;
+      }
+
       CAssertion assertion(_asserting_filename, _line_of_code);
 
       if (m_Impl->m_IgnoreList.IsIgnored(assertion))
@@ -150,6 +165,16 @@ namespace engine
     void CAssertManager::OnEvent(engine::events::IEvent* _event)
     {
 
+    }
+
+    void CAssertManager::SetActive(bool _is_active)
+    {
+      m_Impl->m_IsActive = _is_active;
+    }
+
+    bool CAssertManager::IsActive() const
+    {
+      return m_Impl->m_IsActive;
     }
 
     EAssertionAction CAssertManager::GetUserAction() const

@@ -6,7 +6,10 @@
 #include "engine/memory/Memory.hpp"
 #include "engine/memory/MemoryProfiler.hpp"
 #include "engine/memory/Allocators/FrameAllocator.hpp"
-
+#include "engine/memory/Allocators/PoolAllocator.hpp"
+#include "engine/memory/Allocators/StlProxyAllocator.hpp"
+#include "engine/pstd/Vector.hpp"
+#include "engine/pstd/Containers.hpp"
 TEST_CASE("Allocate and Deallocate", "[Memory]")
 {
 	using namespace engine::memory;
@@ -60,15 +63,19 @@ TEST_CASE("Frame Allocator", "[Memory]")
 	using namespace engine::memory;
 	using namespace engine::memory::tests;
 
+	engine::core::CAssertManager::GetInstance().SetActive(false);
+
 	SECTION("Allocate & run out of memory")
 	{
 		FrameAllocator<OneByteClass> frame_allocator(EMemoryCategory::Test, 1024);
 
 		for (size_t i = 0; i < 1024; ++i)
 		{
-			OneByteClass* one_byte = frame_allocator.allocate(1);
+			OneByteClass* one_byte = frame_allocator.Allocate(1);
 			REQUIRE(one_byte != nullptr);
 		}
+
+		REQUIRE(frame_allocator.Alloc(1) == nullptr);
 	}
 
 	SECTION("Std::array with frame allocator.")
@@ -78,7 +85,7 @@ TEST_CASE("Frame Allocator", "[Memory]")
 
 		for (size_t i = 0; i < 1024; ++i)
 		{
-			one_byte_array[i] = frame_allocator.allocate(1);
+			one_byte_array[i] = frame_allocator.Allocate(1);
 			REQUIRE(one_byte_array[i] != nullptr);
 		}
 	}
@@ -86,25 +93,25 @@ TEST_CASE("Frame Allocator", "[Memory]")
 	SECTION("Release")
 	{
 		FrameAllocator<OneByteClass> frame_allocator(EMemoryCategory::Test, 8);
-		OneByteClass* one_byte = frame_allocator.allocate(1);
+		OneByteClass* one_byte = frame_allocator.Allocate(1);
 		REQUIRE(one_byte != nullptr);
 		frame_allocator.Release();
-		REQUIRE(frame_allocator.allocate(1) == nullptr);
+		REQUIRE(frame_allocator.Allocate(1) == nullptr);
 	}
 
 	SECTION("Reset")
 	{
 		FrameAllocator<int> frame_allocator(EMemoryCategory::Test, 8);
 
-		int* int_ptr_first = frame_allocator.allocate(1);
+		int* int_ptr_first = frame_allocator.Allocate(1);
 		REQUIRE(int_ptr_first != nullptr);
 
-		int* int_ptr_second = frame_allocator.allocate(1);
+		int* int_ptr_second = frame_allocator.Allocate(1);
 		REQUIRE(int_ptr_second != nullptr);
 
 		frame_allocator.Reset();
 
-		int* int_ptr_third = frame_allocator.allocate(1);
+		int* int_ptr_third = frame_allocator.Allocate(1);
 		REQUIRE(int_ptr_third != nullptr);
 
 	}
@@ -113,7 +120,7 @@ TEST_CASE("Frame Allocator", "[Memory]")
 	{
 		FrameAllocator<int> frame_allocator(EMemoryCategory::Test, 8);
 
-		int* int_ptr = frame_allocator.allocate(1);
+		int* int_ptr = frame_allocator.Allocate(1);
 		*int_ptr = 128;
 		REQUIRE(*int_ptr == 128);
 		REQUIRE(int_ptr != nullptr);
@@ -121,5 +128,24 @@ TEST_CASE("Frame Allocator", "[Memory]")
 		frame_allocator.ZeroMemory();
 
 		REQUIRE(*int_ptr == 0);
+	}
+}
+
+TEST_CASE("Pool allocator", "[Memory]")
+{
+	using namespace engine::memory;
+	using namespace engine::memory::tests;
+
+	engine::core::CAssertManager::GetInstance().SetActive(false);
+
+	SECTION("Containers with pool allocator")
+	{
+		PoolAllocator<OneByteClass> pool_allocator(EMemoryCategory::Test, 2, 1, 512);
+		Vector<OneByteClass, PoolAllocator<OneByteClass>> one_byte_vector(pool_allocator);
+
+		for (size_t i = 0; i < 512; ++i)
+		{
+			one_byte_vector.PushBack(OneByteClass());
+		}
 	}
 }

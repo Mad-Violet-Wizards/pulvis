@@ -74,6 +74,9 @@ namespace engine
 
       void OnEvent(engine::events::IEvent* _event) override;
 
+			void SetActive(bool _is_active);
+			bool IsActive() const;
+
     private:
 
       CAssertManager();

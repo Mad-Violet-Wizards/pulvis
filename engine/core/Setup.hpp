@@ -19,6 +19,12 @@ namespace core
 		unsigned int m_WindowWidth;
 		unsigned int m_WindowHeight;
 
+#if defined DEBUG
+		bool m_AssertionsEnabled = true;
+#else
+		bool m_AssertionsEnabled = false;
+#endif
+
 		EClientApp m_ClientApp = EClientApp::Unknown;
 	};
 }

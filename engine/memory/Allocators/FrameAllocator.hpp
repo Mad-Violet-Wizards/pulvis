@@ -2,24 +2,24 @@
 
 #include <memory>
 
-#include "engine/memory/MemoryCategory.hpp"
-#include "engine/memory/Memory.hpp"
-
 #include "Allocator.hpp"
+
+#include "engine/memory/MacroUtility.hpp"
+
 
 namespace engine::memory
 {
-	template<class T>
-	class FrameAllocator : public IAllocator<T>
+	template<typename T>
+	class FrameAllocator : public IAllocator
 	{
 		public:
 
-			FrameAllocator(EMemoryCategory _mem_category, size_t _capacity) noexcept
-				: m_Capacity(_capacity)
-				, m_Offset(0)
+			explicit FrameAllocator(EMemoryCategory _mem_category, size_t _capacity) noexcept
 			{
-				void* raw_memory = Allocate(_mem_category, _capacity);
-				m_Memory = static_cast<T*>(raw_memory);
+				m_Capacity = _capacity;
+				m_Offset = 0;
+				m_MemoryCategory = _mem_category;
+				m_Memory = engine::memory::Allocate<T>(_mem_category, _capacity);
 			}
 
 			~FrameAllocator() noexcept
@@ -27,7 +27,17 @@ namespace engine::memory
 				Release();
 			}
 
-			[[nodiscard]] IAllocator<T>::pointer allocate(IAllocator<T>::size_type _size) noexcept
+			[[nodiscard]] T* Allocate(size_t _n) noexcept
+			{
+				return static_cast<T*>(Alloc(_n));
+			}
+
+			void Deallocate(T* _ptr, size_t _n) noexcept
+			{
+				Dealloc(_ptr, _n);
+			}
+
+			[[nodiscard]] void* Alloc(size_t _size) noexcept
 			{
 				if (!m_Memory)
 				{
@@ -50,40 +60,39 @@ namespace engine::memory
 				}
 
 				m_Offset += _size;
-				return static_cast<IAllocator<T>::pointer>(raw_ptr);
+				return raw_ptr;
 			}
 
-			void deallocate(IAllocator<T>::pointer _ptr, IAllocator<T>::size_type _n) noexcept
+			void Dealloc(void* _ptr, size_t _n) noexcept
 			{
 				// Do nothing.
 			}
 
-			void Reset() noexcept
+			void Reset() noexcept override
 			{
 				m_Offset = 0;
 			}
 
-			void Release() noexcept
+			void Release() noexcept override
 			{
 				if (m_Memory)
 				{
-					std::free(m_Memory);
+					engine::memory::Deallocate(m_MemoryCategory, m_Memory);
 					m_Memory = nullptr;
 					m_Offset = 0;
 				}
 			}
 
-			void ZeroMemory() noexcept
+			void ZeroMemory() noexcept override
 			{
-				memset(m_Memory, 0, m_Capacity);
+				std::memset(m_Memory, 0, m_Capacity);
 			}
 
 		private:
 
-			void* m_Memory;
 			size_t m_Capacity;
 			size_t m_Offset;
-
-
+			EMemoryCategory m_MemoryCategory;
+			void* m_Memory;
 	};
 }
