@@ -1,5 +1,6 @@
 #include "engine/engine_pch.hpp"
 #include "PoolAllocator.hpp"
+#include <iomanip>
 
 namespace engine::memory
 {
@@ -10,10 +11,10 @@ namespace engine::memory
 		m_BlockCount = _block_count;
 
 		const size_t data_size = m_BlockCount * m_BlockSize;
-		m_Memory = static_cast<std::byte*>(std::malloc(data_size));
+		m_Memory = engine::memory::Allocate<std::byte>(_mem_category, data_size);
 
 		const size_t ledger_size = m_BlockCount;
-		m_Ledger = static_cast<std::byte*>(engine::memory::Allocate(_mem_category, ledger_size));
+		m_Ledger = engine::memory::Allocate<std::byte>(_mem_category, ledger_size);
 
 		std::memset(m_Ledger, 0, ledger_size);
 		std::memset(m_Memory, 0, data_size);
@@ -26,10 +27,13 @@ namespace engine::memory
 		m_BlockCount = _bucket.m_BlockCount;
 
 		const size_t data_size = m_BlockCount * m_BlockSize;
-		m_Memory = static_cast<std::byte*>(std::malloc(data_size));
+		m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, data_size);
 
 		const size_t ledger_size = m_BlockCount;
-		m_Ledger = static_cast<std::byte*>(std::malloc(ledger_size));
+		m_Ledger = engine::memory::Allocate<std::byte>(m_MemoryCategory, ledger_size);
+
+		std::memset(m_Ledger, 0, ledger_size);
+		std::memset(m_Memory, 0, data_size);
 
 		std::memcpy(m_Ledger, _bucket.m_Ledger, ledger_size);
 		std::memcpy(m_Memory, _bucket.m_Memory, data_size);
@@ -54,10 +58,13 @@ namespace engine::memory
 			m_BlockCount = _bucket.m_BlockCount;
 
 			const size_t data_size = m_BlockCount * m_BlockSize;
-			m_Memory = static_cast<std::byte*>(std::malloc(data_size));
+			m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, data_size);
 
 			const size_t ledger_size = m_BlockCount;
-			m_Ledger = static_cast<std::byte*>(std::malloc(ledger_size));
+			m_Ledger = engine::memory::Allocate<std::byte>(m_MemoryCategory, ledger_size);
+
+			std::memset(m_Ledger, 0, ledger_size);
+			std::memset(m_Memory, 0, data_size);
 
 			std::memcpy(m_Ledger, _bucket.m_Ledger, ledger_size);
 			std::memcpy(m_Memory, _bucket.m_Memory, data_size);
@@ -90,6 +97,7 @@ namespace engine::memory
 			{
 				engine::memory::Deallocate(m_MemoryCategory, m_Ledger);
 			}
+
 
 			m_BlockSize = _bucket.m_BlockSize;
 			m_BlockCount = _bucket.m_BlockCount;
@@ -169,6 +177,25 @@ namespace engine::memory
 		return true;
 	}
 
+	void Bucket::DumpConsole()
+	{
+		size_t free_blocks = FindFreeBlocks(m_BlockSize);
+
+		if (free_blocks == -1)
+		{
+			free_blocks = 0;
+		}
+
+		std::cout << fmt::format("Occpuancy: {}/{}\n", m_BlockCount - free_blocks, m_BlockCount);
+
+		std::cout << "\nMemory:\n";
+		for (size_t i = 0; i < m_BlockCount; ++i)
+		{
+			std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(m_Memory[i]) << " ";
+		}
+		std::cout << std::dec << std::endl;
+	}
+
 	size_t Bucket::FindFreeBlocks(size_t _size)
 	{
 		size_t free_blocks = 0;
@@ -195,18 +222,13 @@ namespace engine::memory
 
 	void Bucket::SetBlocksInUse(size_t _index, size_t _size)
 	{
-		for (size_t i = 0; i < _size; ++i)
-		{
-			m_Ledger[_index + i] = static_cast<std::byte>(1);
-		}
+		std::memset(m_Ledger + _index, 1, _size);
 	}
 
 	void Bucket::SetBlocksFree(size_t _index, size_t _size)
 	{
-		for (size_t i = 0; i < _size; ++i)
-		{
-			m_Ledger[_index + i] = static_cast<std::byte>(0);
-		}
+		std::memset(m_Memory + (_index * m_BlockSize), 0, _size * m_BlockSize);
+		std::memset(m_Ledger + _index, 0, _size);
 	}
 
 }

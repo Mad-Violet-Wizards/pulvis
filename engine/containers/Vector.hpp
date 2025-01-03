@@ -133,7 +133,7 @@ class Vector
 				m_Allocator.destroy(m_Data + i);
 			}
 
-			m_Allocator.deallocate(m_Data, m_Capacity);
+			m_Allocator.Deallocate(m_Data, m_Capacity);
 			m_Data = nullptr;
 			m_Size = 0;
 			m_Capacity = 0;
@@ -143,7 +143,7 @@ class Vector
 		{
 			if (_size > m_Capacity)
 			{
-				T* new_data = m_Allocator.allocate(_size);
+				T* new_data = m_Allocator.Allocate(_size);
 
 				for (size_t i = 0; i < m_Size; ++i)
 				{
@@ -151,7 +151,11 @@ class Vector
 					m_Allocator.destroy(m_Data + i);
 				}
 
-				m_Allocator.deallocate(m_Data, m_Capacity);
+				if (m_Capacity > 0)
+				{
+					m_Allocator.Deallocate(m_Data, m_Capacity);
+				}
+
 				m_Data = new_data;
 				m_Capacity = _size;
 			}

@@ -6,6 +6,27 @@ namespace engine::memory
 {
 	enum class EMemoryCategory;
 
+	template<typename T, class Alloc, typename... Args>
+	T* New(Alloc& _alloc, Args&&... _args)
+	{
+		T* ptr = _alloc.Allocate(sizeof(T));
+
+		if (!ptr)
+		{
+			return nullptr;
+		}
+
+		_alloc.construct(ptr, std::forward<Args>(_args)...);
+		return ptr;
+	}
+
+	template<typename T, class Alloc>
+	void Delete(Alloc& _alloc, T* _ptr)
+	{
+		_alloc.destroy(_ptr);
+		_alloc.Deallocate(static_cast<void*>(_ptr));
+	}
+
 	template<typename T>
 	T* Allocate(EMemoryCategory _mem_category)
 	{

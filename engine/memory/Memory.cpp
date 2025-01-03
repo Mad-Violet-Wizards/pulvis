@@ -38,6 +38,18 @@ namespace engine::memory
 		std::free(_ptr);
 	}
 
+	void Deallocate(EMemoryCategory _mem_category, void* _ptr, size_t _size)
+	{
+		if (CMemoryProfiler::GetInstance().IsActive())
+		{
+			CMemoryProfiler::GetInstance().DecreaseMemoryUsage(_ptr);
+		}
+
+
+
+		std::free(_ptr);
+	}
+
 	std::vector<std::string> GetStacktrace()
 	{
 #ifdef WINDOWS_OS

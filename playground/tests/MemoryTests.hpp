@@ -7,6 +7,17 @@ namespace engine::memory::tests
 {
 	class align1 OneByteClass
 	{
+		public:
+			OneByteClass()
+			{
+				m_Value[0] = std::byte(0);
+			}
+
+			OneByteClass(std::byte _value)
+			{
+				m_Value[0] = _value;
+			}
+
 		std::byte m_Value[1];
 	};
 

@@ -2,6 +2,7 @@
 
 #include "engine/memory/MacroUtility.hpp"
 #include "engine/memory/MemoryCategory.hpp"
+#include "engine/rtti/RTTIEnum.hpp"
 
 namespace engine::memory
 {
@@ -29,6 +30,10 @@ namespace engine::memory
 
 		bool IsFull() const;
 
+#ifdef DEBUG
+		void DumpConsole();
+#endif
+
 	private:
 
 		size_t FindFreeBlocks(size_t _size);
@@ -48,10 +53,9 @@ namespace engine::memory
 	template<typename T>
 	class PoolAllocator
 	{
-	public:
-
 		ALLOCATOR_API(PoolAllocator, T);
 
+	public:
 		PoolAllocator(EMemoryCategory _mem_category, size_t _bucket_count, size_t _block_size, size_t _block_count)
 			: m_MemoryCategory(_mem_category)
 			, m_BucketCount(_bucket_count)
@@ -71,11 +75,7 @@ namespace engine::memory
 			m_BucketCount = _other.GetBucketCount();
 			m_BlockSize = _other.GetBlockSize();
 			m_BlockCount = _other.GetBlockCount();
-
-			for (const auto& bucket : _other.CopyBuckets())
-			{
-				m_Buckets.emplace_back(bucket);
-			}
+			m_Buckets = _other.CopyBuckets();
 		}
 
 		template<typename U>
@@ -87,12 +87,7 @@ namespace engine::memory
 				m_BucketCount = _other.GetBucketCount();
 				m_BlockSize = _other.GetBlockSize();
 				m_BlockCount = _other.GetBlockCount();
-
-				m_Buckets.clear();
-				for (const auto& bucket : _other.CopyBuckets())
-				{
-					m_Buckets.emplace_back(bucket);
-				}
+				m_Buckets = _other.CopyBuckets();
 			}
 
 			return *this;
@@ -106,7 +101,13 @@ namespace engine::memory
 			m_BlockSize = _other.GetBlockSize();
 			m_BlockCount = _other.GetBlockCount();
 
-			m_Buckets = std::move(_other.CopyBuckets());
+			m_Buckets = _other.CopyBuckets();
+
+			_other.m_MemoryCategory = EMemoryCategory::None;
+			_other.m_BucketCount = 0;
+			_other.m_BlockSize = 0;
+			_other.m_BlockCount = 0;
+			_other.m_Buckets.clear();
 		}
 
 		template<typename U>
@@ -119,13 +120,19 @@ namespace engine::memory
 				m_BlockSize = _other.GetBlockSize();
 				m_BlockCount = _other.GetBlockCount();
 
-				m_Buckets = std::move(_other.CopyBuckets());
+				m_Buckets = _other.CopyBuckets();
+
+				_other.m_MemoryCategory = EMemoryCategory::None;
+				_other.m_BucketCount = 0;
+				_other.m_BlockSize = 0;
+				_other.m_BlockCount = 0;
+				_other.m_Buckets.clear();
 			}
 
 			return *this;
 		}
 
-		T* allocate(size_t _size)
+		T* Allocate(size_t _size)
 		{
 			for (auto& bucket : m_Buckets)
 			{
@@ -143,7 +150,7 @@ namespace engine::memory
 			return nullptr;
 		}
 
-		void deallocate(T* _ptr, size_t _size)
+		void Deallocate(T* _ptr, size_t _size)
 		{
 			for (auto& bucket : m_Buckets)
 			{
@@ -179,6 +186,23 @@ namespace engine::memory
 		{
 			return m_Buckets;
 		}
+
+#ifdef DEBUG
+		void DumpConsole()
+		{
+			std::cout << "[PoolAllocator] Dump\n";
+			std::cout << "Memory Category: " << engine::rtti::CRTTIEnum<EMemoryCategory>::ToString(m_MemoryCategory) << "\n";
+			std::cout << "Bucket Count: " << m_BucketCount << "\n";
+			std::cout << "Block Size: " << m_BlockSize << "\n";
+			std::cout << "Block Count: " << m_BlockCount << "\n";
+
+			for (int i = 0; i < m_Buckets.size(); ++i)
+			{
+				std::cout << "\nBucket: " << i << "\n";
+				m_Buckets[i].DumpConsole();
+			}
+		}
+#endif
 
 	private:
 

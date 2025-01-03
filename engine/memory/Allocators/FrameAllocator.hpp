@@ -1,8 +1,7 @@
 #pragma once
 
 #include <memory>
-
-#include "Allocator.hpp"
+#include <iomanip>
 
 #include "engine/memory/MacroUtility.hpp"
 
@@ -10,89 +9,128 @@
 namespace engine::memory
 {
 	template<typename T>
-	class FrameAllocator : public IAllocator
+	class FrameAllocator
 	{
-		public:
+	public:
 
-			explicit FrameAllocator(EMemoryCategory _mem_category, size_t _capacity) noexcept
+		ALLOCATOR_API(FrameAllocator, T);
+
+		FrameAllocator(EMemoryCategory _mem_category, size_t _capacity)
+			: m_MemoryCategory(_mem_category)
+			, m_Capacity(_capacity)
+			, m_Offset(0)
+		{
+			m_Memory = engine::memory::Allocate<std::byte>(_mem_category, _capacity);
+			std::memset(m_Memory, 0, _capacity);
+		}
+
+		template<typename U>
+		FrameAllocator(const FrameAllocator<U>& _allocator) noexcept
+		{
+			m_MemoryCategory = _allocator.GetMemoryCategory();
+			m_Capacity = _allocator.GetCapacity();
+			m_Offset = _allocator.GetOffset();
+			m_Memory = _allocator.GetMemory();
+		}
+
+		template<typename U>
+		FrameAllocator& operator=(const FrameAllocator<U>& _allocator) noexcept
+		{
+			if (this != &_allocator)
 			{
-				m_Capacity = _capacity;
-				m_Offset = 0;
-				m_MemoryCategory = _mem_category;
-				m_Memory = engine::memory::Allocate<T>(_mem_category, _capacity);
+				m_MemoryCategory = _allocator.GetMemoryCategory();
+				m_Capacity = _allocator.GetCapacity();
+				m_Offset = _allocator.GetOffset();
+				m_Memory = _allocator.GetMemory();
 			}
 
-			~FrameAllocator() noexcept
+			return *this;
+		}
+
+		template<typename U>
+		FrameAllocator(FrameAllocator<U>&& _allocator) noexcept
+		{
+			m_MemoryCategory = _allocator.GetMemoryCategory();
+			m_Capacity = _allocator.GetCapacity();
+			m_Offset = _allocator.GetOffset();
+			m_Memory = _allocator.GetMemory();
+		}
+
+		template<typename U>
+		FrameAllocator& operator=(FrameAllocator<U>&& _allocator) noexcept
+		{
+			if (this != &_allocator)
 			{
-				Release();
+				m_MemoryCategory = _allocator.GetMemoryCategory();
+				m_Capacity = _allocator.GetCapacity();
+				m_Offset = _allocator.GetOffset();
+				m_Memory = _allocator.GetMemory();
 			}
 
-			[[nodiscard]] T* Allocate(size_t _n) noexcept
+			return *this;
+		}
+
+		~FrameAllocator() noexcept
+		{
+			engine::memory::Deallocate(m_MemoryCategory, m_Memory);
+		}
+
+		[[nodiscard]] T* Allocate(size_t _size)
+		{
+			if (m_Offset + _size > m_Capacity)
 			{
-				return static_cast<T*>(Alloc(_n));
+				ASSERT(false, "FrameAllocator: ran out of memory!");
+				return nullptr;
 			}
 
-			void Deallocate(T* _ptr, size_t _n) noexcept
+			T* ptr = reinterpret_cast<T*>(m_Memory + m_Offset);
+			m_Offset += _size;
+			return ptr;
+		}
+
+		void Deallocate(T* _ptr, size_t _n)
+		{
+			// Do nothing.
+		}
+
+		EMemoryCategory GetMemoryCategory() const
+		{
+			return m_MemoryCategory;
+		}
+
+		std::byte* GetMemory() const
+		{
+			return m_Memory;
+		}
+
+		size_t GetCapacity() const
+		{
+			return m_Capacity;
+		}
+
+		size_t GetOffset() const
+		{
+			return m_Offset;
+		}
+
+		void DumpConsole()
+		{
+			std::cout << "[FrameAllocator] Dumping memory: \n";
+			std::cout << "Capacity: " << m_Capacity << " | Offset: " << m_Offset << "\n";
+			std::cout << "Memory:\n";
+
+			for (size_t i = 0; i < m_Capacity; ++i)
 			{
-				Dealloc(_ptr, _n);
+				std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(m_Memory[i]) << " ";
 			}
+			std::cout << std::dec << std::endl;
+		}
 
-			[[nodiscard]] void* Alloc(size_t _size) noexcept
-			{
-				if (!m_Memory)
-				{
-					return nullptr;
-				}
+	private:
 
-				if (m_Offset + _size > m_Capacity)
-				{
-					ASSERT(false, "FrameAllocator: ran out of memory!");
-					return nullptr;
-				}
-				
-				void* raw_ptr = static_cast<char*>(m_Memory) + m_Offset;
-				size_t remaining_size = m_Capacity - m_Offset;
-
-				if (!std::align(alignof(T), _size, raw_ptr, remaining_size))
-				{
-					ASSERT(false, "FrameAllocator: can't align pointer!");
-					return nullptr;
-				}
-
-				m_Offset += _size;
-				return raw_ptr;
-			}
-
-			void Dealloc(void* _ptr, size_t _n) noexcept
-			{
-				// Do nothing.
-			}
-
-			void Reset() noexcept override
-			{
-				m_Offset = 0;
-			}
-
-			void Release() noexcept override
-			{
-				if (m_Memory)
-				{
-					engine::memory::Deallocate(m_MemoryCategory, m_Memory);
-					m_Memory = nullptr;
-					m_Offset = 0;
-				}
-			}
-
-			void ZeroMemory() noexcept override
-			{
-				std::memset(m_Memory, 0, m_Capacity);
-			}
-
-		private:
-
-			size_t m_Capacity;
-			size_t m_Offset;
-			EMemoryCategory m_MemoryCategory;
-			void* m_Memory;
+		EMemoryCategory m_MemoryCategory;
+		size_t m_Capacity;
+		size_t m_Offset;
+		std::byte* m_Memory{ nullptr };
 	};
 }
