@@ -10,6 +10,7 @@
 #include <array>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <iostream>
 #include <list>
 #include <new>

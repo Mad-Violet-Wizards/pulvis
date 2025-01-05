@@ -11,22 +11,38 @@ namespace engine::memory
 
 	public:
 
-		Bucket(EMemoryCategory _mem_category, size_t _block_size, size_t _block_count);
+		Bucket();
 		Bucket(const Bucket& _bucket);
 		Bucket& operator=(const Bucket& _bucket);
 
-		Bucket(Bucket&& _bucket);
-		Bucket& operator=(Bucket&& _bucket);
+		Bucket(Bucket&& _bucket) noexcept;
+		Bucket& operator=(Bucket&& _bucket) noexcept;
 
 		~Bucket();
 
 		bool Owns(void* ptr) const;
 
-		[[nodiscard]] void* Allocate(size_t _size);
-		void Deallocate(void* _ptr, size_t _size);
+		template<typename T>
+		[[nodiscard]] T* Allocate(size_t _size)
+		{
+			const size_t free_block_index = FindFreeBlocks(_size);
+			const size_t memory_index = free_block_index * m_TypeSize;
 
-		size_t GetBlockSize() const;
-		size_t GetBlockCount() const;
+			T* ptr = reinterpret_cast<T*>(m_Memory + memory_index);
+			SetBlocksInUse(free_block_index, _size);
+			m_Size += _size;
+			return ptr;
+		}
+
+		template<typename T>
+		void Deallocate(T* _ptr, size_t _size)
+		{
+			const size_t memory_index = reinterpret_cast<std::byte*>(_ptr) - m_Memory;
+			const size_t ledger_index = memory_index / m_TypeSize;
+
+			SetBlocksFree(ledger_index, _size);
+			m_Size -= _size;
+		}
 
 		bool IsFull() const;
 
@@ -36,114 +52,92 @@ namespace engine::memory
 
 	private:
 
-		size_t FindFreeBlocks(size_t _size);
+		size_t FindFreeBlocks(size_t _size) const;
 		void SetBlocksInUse(size_t _index, size_t _size);
 		void SetBlocksFree(size_t _index, size_t _size);
 
-	private:
+	public:
 
 		EMemoryCategory m_MemoryCategory;
-		size_t m_BlockSize;
-		size_t m_BlockCount;
-
+		size_t m_Capacity;
+		size_t m_TypeSize;
+		size_t m_Size;
 		std::byte* m_Memory{ nullptr };
 		std::byte* m_Ledger{ nullptr };
 	};
 
-	template<typename T>
+	template<typename T, size_t N>
 	class PoolAllocator
 	{
-		ALLOCATOR_API(PoolAllocator, T);
-
 	public:
-		PoolAllocator(EMemoryCategory _mem_category, size_t _bucket_count, size_t _block_size, size_t _block_count)
+		PoolAllocator(EMemoryCategory _mem_category, size_t _bucket_capacity)
 			: m_MemoryCategory(_mem_category)
-			, m_BucketCount(_bucket_count)
-			, m_BlockCount(_block_count)
-			, m_BlockSize(_block_size)
 		{
-			for (size_t i = 0; i < m_BucketCount; ++i)
+			for (size_t i = 0; i < N; ++i)
 			{
-				m_Buckets.emplace_back(m_MemoryCategory, m_BlockSize, m_BlockCount);
+				m_Buckets[i].m_MemoryCategory = _mem_category;
+				m_Buckets[i].m_Capacity = _bucket_capacity;
+				m_Buckets[i].m_TypeSize = sizeof(T);
+				m_Buckets[i].m_Memory = engine::memory::Allocate<std::byte>(_mem_category, _bucket_capacity);
+				m_Buckets[i].m_Ledger = engine::memory::Allocate<std::byte>(_mem_category, _bucket_capacity / sizeof(T));
+				std::memset(m_Buckets[i].m_Ledger, 0, _bucket_capacity / sizeof(T));
 			}
 		}
 
-		template<typename U>
-		PoolAllocator(const PoolAllocator<U>& _other) noexcept
+		template<typename U, size_t N>
+		PoolAllocator(const PoolAllocator<U, N>& _other) noexcept
 		{
 			m_MemoryCategory = _other.GetMemoryCategory();
-			m_BucketCount = _other.GetBucketCount();
-			m_BlockSize = _other.GetBlockSize();
-			m_BlockCount = _other.GetBlockCount();
 			m_Buckets = _other.CopyBuckets();
 		}
 
-		template<typename U>
-		PoolAllocator& operator=(const PoolAllocator<U>& _other) noexcept
+		template<typename U, size_t N>
+		PoolAllocator& operator=(const PoolAllocator<U, N>& _other) noexcept
 		{
 			if (this != &_other)
 			{
 				m_MemoryCategory = _other.GetMemoryCategory();
-				m_BucketCount = _other.GetBucketCount();
-				m_BlockSize = _other.GetBlockSize();
-				m_BlockCount = _other.GetBlockCount();
 				m_Buckets = _other.CopyBuckets();
 			}
 
 			return *this;
 		}
 
-		template<typename U>
-		PoolAllocator(PoolAllocator<U>&& _other) noexcept
+		template<typename U, size_t N>
+		PoolAllocator(PoolAllocator<U, N>&& _other) noexcept
 		{
 			m_MemoryCategory = _other.GetMemoryCategory();
-			m_BucketCount = _other.GetBucketCount();
-			m_BlockSize = _other.GetBlockSize();
-			m_BlockCount = _other.GetBlockCount();
-
 			m_Buckets = _other.CopyBuckets();
 
 			_other.m_MemoryCategory = EMemoryCategory::None;
-			_other.m_BucketCount = 0;
-			_other.m_BlockSize = 0;
-			_other.m_BlockCount = 0;
 			_other.m_Buckets.clear();
 		}
 
-		template<typename U>
-		PoolAllocator& operator=(PoolAllocator<U>&& _other) noexcept
+		template<typename U, size_t N>
+		PoolAllocator& operator=(PoolAllocator<U, N>&& _other) noexcept
 		{
 			if (this != &_other)
 			{
 				m_MemoryCategory = _other.GetMemoryCategory();
-				m_BucketCount = _other.GetBucketCount();
-				m_BlockSize = _other.GetBlockSize();
-				m_BlockCount = _other.GetBlockCount();
-
 				m_Buckets = _other.CopyBuckets();
 
-				_other.m_MemoryCategory = EMemoryCategory::None;
-				_other.m_BucketCount = 0;
-				_other.m_BlockSize = 0;
-				_other.m_BlockCount = 0;
+				_other.m_MemoryCategory = EMemoryCategory::None;;
 				_other.m_Buckets.clear();
 			}
 
 			return *this;
 		}
 
-		T* Allocate(size_t _size)
+		template<typename U>
+		U* Allocate(size_t _size)
 		{
-			for (auto& bucket : m_Buckets)
+			static_assert(std::is_same_v<U, T>, "PoolAllocator: U must be the same type as T!");
+
+			for (Bucket& bucket : m_Buckets)
 			{
 				if (!bucket.IsFull())
 				{
-					void* ptr = bucket.Allocate(_size);
-
-					if (ptr != nullptr)
-					{
-						return static_cast<T*>(ptr);
-					}
+					return bucket.Allocate<T>(_size);
 				}
 			}
 
@@ -152,7 +146,7 @@ namespace engine::memory
 
 		void Deallocate(T* _ptr, size_t _size)
 		{
-			for (auto& bucket : m_Buckets)
+			for (Bucket& bucket : m_Buckets)
 			{
 				if (bucket.Owns(_ptr))
 				{
@@ -167,24 +161,34 @@ namespace engine::memory
 			return m_MemoryCategory;
 		}
 
-		size_t GetBucketCount() const
-		{
-			return m_BucketCount;
-		}
-
-		size_t GetBlockSize() const
-		{
-			return m_BlockSize;
-		}
-
-		size_t GetBlockCount() const
-		{
-			return m_BlockCount;
-		}
-
-		std::vector<Bucket> CopyBuckets() const
+		std::array<Bucket, N> CopyBuckets() const
 		{
 			return m_Buckets;
+		}
+
+
+		template<typename U, typename... Args>
+		void construct(U* _ptr, Args&&... _args) const noexcept
+		{
+			new (_ptr) U(std::forward<Args>(_args)...);
+		}
+
+		template<typename U>
+		void destroy(U* _ptr) const noexcept
+		{
+			_ptr->~U();
+		}
+
+		template<typename U, size_t N>
+		bool operator==(const PoolAllocator<U, N>& _rhs) const noexcept
+		{
+			return true;
+		}
+
+		template<typename U, size_t N>
+		bool operator!=(const PoolAllocator<U, N>& _rhs) const noexcept
+		{
+			return !(*this == _rhs);
 		}
 
 #ifdef DEBUG
@@ -192,9 +196,7 @@ namespace engine::memory
 		{
 			std::cout << "[PoolAllocator] Dump\n";
 			std::cout << "Memory Category: " << engine::rtti::CRTTIEnum<EMemoryCategory>::ToString(m_MemoryCategory) << "\n";
-			std::cout << "Bucket Count: " << m_BucketCount << "\n";
-			std::cout << "Block Size: " << m_BlockSize << "\n";
-			std::cout << "Block Count: " << m_BlockCount << "\n";
+			std::cout << "Buckets:\n";
 
 			for (int i = 0; i < m_Buckets.size(); ++i)
 			{
@@ -207,9 +209,6 @@ namespace engine::memory
 	private:
 
 		EMemoryCategory m_MemoryCategory;
-		size_t m_BucketCount;
-		size_t m_BlockSize;
-		size_t m_BlockCount;
-		std::vector<Bucket> m_Buckets;
+		std::array<Bucket, N> m_Buckets;
 	};
 }

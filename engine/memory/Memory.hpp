@@ -9,13 +9,7 @@ namespace engine::memory
 	template<typename T, class Alloc, typename... Args>
 	T* New(Alloc& _alloc, Args&&... _args)
 	{
-		T* ptr = _alloc.Allocate(sizeof(T));
-
-		if (!ptr)
-		{
-			return nullptr;
-		}
-
+		T* ptr = _alloc.Allocate<T>(sizeof(T));
 		_alloc.construct(ptr, std::forward<Args>(_args)...);
 		return ptr;
 	}
@@ -65,6 +59,7 @@ namespace engine::memory
 	}
 
 	PULVIS_API void* Allocate(EMemoryCategory _mem_category, size_t _size);
+	PULVIS_API void* Reallocate(void* _ptr, size_t _size);
 	PULVIS_API void Deallocate(EMemoryCategory _mem_category, void* _ptr);
 	std::vector<std::string> GetStacktrace();
 }

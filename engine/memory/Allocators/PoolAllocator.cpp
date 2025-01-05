@@ -4,79 +4,60 @@
 
 namespace engine::memory
 {
-	Bucket::Bucket(EMemoryCategory _mem_category, size_t _block_size, size_t _block_count)
+	Bucket::Bucket()
+		: m_MemoryCategory(EMemoryCategory::Memory)
+		, m_Capacity(0)
+		, m_TypeSize(0)
+		, m_Size(0)
+		, m_Memory(nullptr)
+		, m_Ledger(nullptr)
 	{
-		m_MemoryCategory = _mem_category;
-		m_BlockSize = _block_size;
-		m_BlockCount = _block_count;
-
-		const size_t data_size = m_BlockCount * m_BlockSize;
-		m_Memory = engine::memory::Allocate<std::byte>(_mem_category, data_size);
-
-		const size_t ledger_size = m_BlockCount;
-		m_Ledger = engine::memory::Allocate<std::byte>(_mem_category, ledger_size);
-
-		std::memset(m_Ledger, 0, ledger_size);
-		std::memset(m_Memory, 0, data_size);
 	}
 
 	Bucket::Bucket(const Bucket& _bucket)
 	{
 		m_MemoryCategory = _bucket.m_MemoryCategory;
-		m_BlockSize = _bucket.m_BlockSize;
-		m_BlockCount = _bucket.m_BlockCount;
+		m_Capacity = _bucket.m_Capacity;
+		m_TypeSize = _bucket.m_TypeSize;
+		m_Size = _bucket.m_Size;
 
-		const size_t data_size = m_BlockCount * m_BlockSize;
-		m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, data_size);
+		m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, m_Capacity);
 
-		const size_t ledger_size = m_BlockCount;
+		const size_t ledger_size = m_Capacity / m_TypeSize;
 		m_Ledger = engine::memory::Allocate<std::byte>(m_MemoryCategory, ledger_size);
-
 		std::memset(m_Ledger, 0, ledger_size);
-		std::memset(m_Memory, 0, data_size);
 
 		std::memcpy(m_Ledger, _bucket.m_Ledger, ledger_size);
-		std::memcpy(m_Memory, _bucket.m_Memory, data_size);
+		std::memcpy(m_Memory, _bucket.m_Memory, m_Capacity);
 	}
 
 	Bucket& Bucket::operator=(const Bucket& _bucket)
 	{
 		if (this != &_bucket)
 		{
-			if (m_Memory != nullptr)
-			{
-				engine::memory::Deallocate(m_MemoryCategory, m_Memory);
-			}
-
-			if (m_Ledger != nullptr)
-			{
-				engine::memory::Deallocate(m_MemoryCategory, m_Ledger);
-			}
-
 			m_MemoryCategory = _bucket.m_MemoryCategory;
-			m_BlockSize = _bucket.m_BlockSize;
-			m_BlockCount = _bucket.m_BlockCount;
+			m_Capacity = _bucket.m_Capacity;
+			m_TypeSize = _bucket.m_TypeSize;
+			m_Size = _bucket.m_Size;
 
-			const size_t data_size = m_BlockCount * m_BlockSize;
-			m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, data_size);
+			m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, m_Capacity);
 
-			const size_t ledger_size = m_BlockCount;
+			const size_t ledger_size = m_Capacity / m_TypeSize;
 			m_Ledger = engine::memory::Allocate<std::byte>(m_MemoryCategory, ledger_size);
-
 			std::memset(m_Ledger, 0, ledger_size);
-			std::memset(m_Memory, 0, data_size);
 
 			std::memcpy(m_Ledger, _bucket.m_Ledger, ledger_size);
-			std::memcpy(m_Memory, _bucket.m_Memory, data_size);
+			std::memcpy(m_Memory, _bucket.m_Memory, m_Capacity);
 		}
 
 		return *this;
 	}
 
-	Bucket::Bucket(Bucket&& _bucket)
+	Bucket::Bucket(Bucket&& _bucket) noexcept
 		: m_MemoryCategory(_bucket.m_MemoryCategory)
-		, m_BlockSize(_bucket.m_BlockSize)
-		, m_BlockCount(_bucket.m_BlockCount)
+		, m_Capacity(_bucket.m_Capacity)
+		, m_TypeSize(_bucket.m_TypeSize)
+		, m_Size(_bucket.m_Size)
 		, m_Memory(std::move(_bucket.m_Memory))
 		, m_Ledger(std::move(_bucket.m_Ledger))
 	{
@@ -84,25 +65,14 @@ namespace engine::memory
 		_bucket.m_Ledger = nullptr;
 	}
 
-	Bucket& Bucket::operator=(Bucket&& _bucket)
+	Bucket& Bucket::operator=(Bucket&& _bucket) noexcept
 	{
 		if (this != &_bucket)
 		{
-			if (m_Memory != nullptr)
-			{
-				engine::memory::Deallocate(m_MemoryCategory, m_Memory);
-			}
-
-			if (m_Ledger != nullptr)
-			{
-				engine::memory::Deallocate(m_MemoryCategory, m_Ledger);
-			}
-
-
-			m_BlockSize = _bucket.m_BlockSize;
-			m_BlockCount = _bucket.m_BlockCount;
 			m_MemoryCategory = _bucket.m_MemoryCategory;
-
+			m_Capacity = _bucket.m_Capacity;
+			m_TypeSize = _bucket.m_TypeSize;
+			m_Size = _bucket.m_Size;
 			m_Memory = std::move(_bucket.m_Memory);
 			m_Ledger = std::move(_bucket.m_Ledger);
 
@@ -128,87 +98,39 @@ namespace engine::memory
 
 	bool Bucket::Owns(void* ptr) const
 	{
-		return ptr >= m_Memory && ptr < m_Memory + m_BlockCount * m_BlockSize;
-	}
-
-	void* Bucket::Allocate(size_t _size)
-	{
-		const size_t blocks_needed = (_size + m_BlockSize - 1) / m_BlockSize;
-
-		const size_t index = FindFreeBlocks(blocks_needed);
-		if (index == -1)
-		{
-			return nullptr;
-		}
-
-		SetBlocksInUse(index, blocks_needed);
-		return m_Memory + (index * m_BlockSize);
-	}
-
-	void Bucket::Deallocate(void* _ptr, size_t _size)
-	{
-		const std::byte* ptr = static_cast<const std::byte*>(_ptr);
-		const size_t distance = static_cast<size_t>(ptr - m_Memory);
-		const size_t index = distance / m_BlockSize;
-		const size_t blocks_needed = (_size + m_BlockSize - 1) / m_BlockSize;
-		SetBlocksFree(index, blocks_needed);
-	}
-
-	size_t Bucket::GetBlockSize() const
-	{
-		return m_BlockSize;
-	}
-
-	size_t Bucket::GetBlockCount() const
-	{
-		return m_BlockCount;
+		return ptr >= m_Memory && ptr < m_Memory + m_Capacity;
 	}
 
 	bool Bucket::IsFull() const
 	{
-		for (size_t i = 0; i < m_BlockCount; ++i)
-		{
-			if (static_cast<size_t>(m_Ledger[i]) == 0)
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return m_Size >= m_Capacity;
 	}
 
 	void Bucket::DumpConsole()
 	{
-		size_t free_blocks = FindFreeBlocks(m_BlockSize);
-
-		if (free_blocks == -1)
-		{
-			free_blocks = 0;
-		}
-
-		std::cout << fmt::format("Occpuancy: {}/{}\n", m_BlockCount - free_blocks, m_BlockCount);
-
-		std::cout << "\nMemory:\n";
-		for (size_t i = 0; i < m_BlockCount; ++i)
+		std::cout << "Capacity: " << m_Capacity << "\n";
+		std::cout << "Memory:\n";
+		for (size_t i = 0; i < m_Capacity; ++i)
 		{
 			std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(m_Memory[i]) << " ";
 		}
 		std::cout << std::dec << std::endl;
 	}
 
-	size_t Bucket::FindFreeBlocks(size_t _size)
+	size_t Bucket::FindFreeBlocks(size_t _size) const
 	{
 		size_t free_blocks = 0;
+		const size_t ledger_size = m_Capacity / m_TypeSize;
 
-		for (size_t i = 0; i < m_BlockCount; ++i)
+		for (size_t i = 0; i < ledger_size; ++i)
 		{
 			if (static_cast<size_t>(m_Ledger[i]) == 0)
 			{
-				++free_blocks;
+				free_blocks += m_TypeSize;
 
 				if (free_blocks == _size)
 				{
-					return i - _size + 1;
+					return i;
 				}
 			}
 			else
@@ -222,13 +144,12 @@ namespace engine::memory
 
 	void Bucket::SetBlocksInUse(size_t _index, size_t _size)
 	{
-		std::memset(m_Ledger + _index, 1, _size);
+		std::memset(m_Ledger + _index, 1, _size / m_TypeSize);
 	}
 
 	void Bucket::SetBlocksFree(size_t _index, size_t _size)
 	{
-		std::memset(m_Memory + (_index * m_BlockSize), 0, _size * m_BlockSize);
-		std::memset(m_Ledger + _index, 0, _size);
+		std::memset(m_Ledger + _index, 0, _size / m_TypeSize);
 	}
 
 }

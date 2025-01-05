@@ -75,15 +75,18 @@ namespace engine::memory
 			engine::memory::Deallocate(m_MemoryCategory, m_Memory);
 		}
 
-		[[nodiscard]] T* Allocate(size_t _size)
+		template<typename U>
+		[[nodiscard]] U* Allocate(size_t _size)
 		{
-			if (m_Offset + _size > m_Capacity)
+			static_assert(std::is_same_v<U, T>, "FrameAllocator: U must be the same type as T!");
+
+			if (m_Offset == m_Capacity)
 			{
 				ASSERT(false, "FrameAllocator: ran out of memory!");
 				return nullptr;
 			}
 
-			T* ptr = reinterpret_cast<T*>(m_Memory + m_Offset);
+			U* ptr = reinterpret_cast<T*>(m_Memory + m_Offset);
 			m_Offset += _size;
 			return ptr;
 		}

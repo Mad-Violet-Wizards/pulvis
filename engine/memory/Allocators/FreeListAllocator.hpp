@@ -16,11 +16,8 @@ namespace engine::memory
 		bool m_IsFree{ true };
 	};
 
-	template<typename T>
 	class FreeListAllocator
 	{
-		ALLOCATOR_API(FreeListAllocator, T);
-
 	public:
 
 		FreeListAllocator(EMemoryCategory _mem_category, size_t _capacity)
@@ -34,8 +31,7 @@ namespace engine::memory
 			std::memset(m_Memory, 0, _capacity);
 		}
 
-		template<typename U>
-		FreeListAllocator(const FreeListAllocator<U>& _other) noexcept
+		FreeListAllocator(const FreeListAllocator& _other)
 		{
 			m_MemoryCategory = _other.GetMemoryCategory();
 			m_Capacity = _other.GetCapacity();
@@ -43,8 +39,7 @@ namespace engine::memory
 			m_Memory = _other.GetMemory();
 		}
 
-		template<typename U>
-		FreeListAllocator& operator=(const FreeListAllocator<U>& _other) noexcept
+		FreeListAllocator& operator=(const FreeListAllocator _other)
 		{
 			if (this != &_other)
 			{
@@ -57,8 +52,7 @@ namespace engine::memory
 			return *this;
 		}
 
-		template<typename U>
-		FreeListAllocator(FreeListAllocator<U>&& _other) noexcept
+		FreeListAllocator(FreeListAllocator&& _other) noexcept
 		{
 			m_MemoryCategory = _other.GetMemoryCategory();
 			m_Capacity = _other.GetCapacity();
@@ -71,8 +65,7 @@ namespace engine::memory
 			_other.m_MemoryCategory = EMemoryCategory::Undefined;
 		}
 
-		template<typename U>
-		FreeListAllocator& operator=(FreeListAllocator<U>&& _other) noexcept
+		FreeListAllocator& operator=(FreeListAllocator&& _other) noexcept
 		{
 			if (this != &_other)
 			{
@@ -114,6 +107,7 @@ namespace engine::memory
 			m_Head = nullptr;
 		}
 
+		template<typename T>
 		T* Allocate(size_t _size)
 		{
 			FreeListAllocatorNode* current = m_Head;
@@ -144,6 +138,7 @@ namespace engine::memory
 			return nullptr;
 		}
 
+		template<typename T>
 		void Deallocate(T* _ptr, size_t _size)
 		{
 			FreeListAllocatorNode* current = m_Head;
@@ -153,7 +148,6 @@ namespace engine::memory
 			{
 				if (current->m_Size == _size && m_Memory + current->m_Offset == reinterpret_cast<std::byte*>(_ptr))
 				{
-					std::memset(m_Memory + current->m_Offset, 0, _size);
 					current->m_IsFree = true;
 					break;
 				}
@@ -184,6 +178,29 @@ namespace engine::memory
 		{
 			return m_Memory;
 		}
+
+		template<typename U, typename... Args>
+		void construct(U* _ptr, Args&&... _args) const noexcept
+		{
+			new (_ptr) U(std::forward<Args>(_args)...);
+		}
+
+		template<typename U>
+		void destroy(U* _ptr) const noexcept
+		{
+			_ptr->~U();
+		}
+
+		bool operator==(const FreeListAllocator& _rhs) const noexcept
+		{
+			return true;
+		}
+
+		bool operator!=(const FreeListAllocator& _rhs) const noexcept
+		{
+			return !(*this == _rhs);
+		}
+
 
 #ifdef DEBUG
 		void DumpConsole()

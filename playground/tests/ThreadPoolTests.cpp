@@ -10,6 +10,8 @@ using namespace engine::threads;
 using namespace engine::threads::tests;
 using namespace engine::pstd;
 
+#undef BENCHMARKING
+
 TEST_CASE("Thread Function Wrapper", "[Threads]")
 {
 	SECTION("Simple functions wrapper")
