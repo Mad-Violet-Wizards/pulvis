@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/memory/MacroUtility.hpp"
-#include "engine/memory/MemoryCategory.hpp"
 #include "engine/rtti/RTTIEnum.hpp"
+
+#include "engine/memory/MemoryCategory.hpp"
 
 namespace engine::memory
 {
@@ -12,8 +12,8 @@ namespace engine::memory
 	public:
 
 		Bucket();
-		Bucket(const Bucket& _bucket);
-		Bucket& operator=(const Bucket& _bucket);
+		Bucket(const Bucket& _bucket) = delete;
+		Bucket& operator=(const Bucket& _bucket) = delete;
 
 		Bucket(Bucket&& _bucket) noexcept;
 		Bucket& operator=(Bucket&& _bucket) noexcept;
@@ -85,32 +85,20 @@ namespace engine::memory
 		}
 
 		template<typename U, size_t N>
-		PoolAllocator(const PoolAllocator<U, N>& _other) noexcept
-		{
-			m_MemoryCategory = _other.GetMemoryCategory();
-			m_Buckets = _other.CopyBuckets();
-		}
+		PoolAllocator(const PoolAllocator<U, N>& _other) noexcept = delete;
 
 		template<typename U, size_t N>
-		PoolAllocator& operator=(const PoolAllocator<U, N>& _other) noexcept
-		{
-			if (this != &_other)
-			{
-				m_MemoryCategory = _other.GetMemoryCategory();
-				m_Buckets = _other.CopyBuckets();
-			}
-
-			return *this;
-		}
+		PoolAllocator& operator=(const PoolAllocator<U, N>& _other) noexcept = delete;
 
 		template<typename U, size_t N>
 		PoolAllocator(PoolAllocator<U, N>&& _other) noexcept
 		{
 			m_MemoryCategory = _other.GetMemoryCategory();
-			m_Buckets = _other.CopyBuckets();
 
-			_other.m_MemoryCategory = EMemoryCategory::None;
-			_other.m_Buckets.clear();
+			for (size_t i = 0; i < N; ++i)
+			{
+				m_Buckets[i] = std::move(_other.m_Buckets[i]);
+			}
 		}
 
 		template<typename U, size_t N>
@@ -119,10 +107,11 @@ namespace engine::memory
 			if (this != &_other)
 			{
 				m_MemoryCategory = _other.GetMemoryCategory();
-				m_Buckets = _other.CopyBuckets();
 
-				_other.m_MemoryCategory = EMemoryCategory::None;;
-				_other.m_Buckets.clear();
+				for (size_t i = 0; i < N; ++i)
+				{
+					m_Buckets[i] = std::move(_other.m_Buckets[i]);
+				}
 			}
 
 			return *this;
@@ -153,6 +142,15 @@ namespace engine::memory
 					bucket.Deallocate(_ptr, _size);
 					return;
 				}
+			}
+		}
+
+		void Reset()
+		{
+			for (Bucket& bucket : m_Buckets)
+			{
+				bucket.m_Size = 0;
+				std::memset(bucket.m_Ledger, 0, bucket.m_Capacity / sizeof(T));
 			}
 		}
 
@@ -198,7 +196,7 @@ namespace engine::memory
 			std::cout << "Memory Category: " << engine::rtti::CRTTIEnum<EMemoryCategory>::ToString(m_MemoryCategory) << "\n";
 			std::cout << "Buckets:\n";
 
-			for (int i = 0; i < m_Buckets.size(); ++i)
+			for (size_t i = 0; i < m_Buckets.size(); ++i)
 			{
 				std::cout << "\nBucket: " << i << "\n";
 				m_Buckets[i].DumpConsole();

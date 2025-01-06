@@ -26,6 +26,11 @@ namespace engine::memory::tests
 		std::byte m_Value[2];
 	};
 
+	class ThreeByteClass
+	{
+		std::byte m_Value[3];
+	};
+
 	class align4 FourByteClass
 	{
 		std::byte m_Value[4];
@@ -44,6 +49,11 @@ namespace engine::memory::tests
 	class align32 ThirtyTwoByteClass
 	{
 		std::byte m_Value[32];
+	};
+
+	class FourtyTwoByteClass
+	{
+		std::byte m_Value[42];
 	};
 
 	class align64 SixtyFourByteClass

@@ -5,6 +5,7 @@
 #ifdef WINDOWS_OS
 #include <Windows.h>
 #include <DbgHelp.h>
+#include <memoryapi.h>
 #pragma comment(lib, "Dbghelp.lib")
 #endif
 
@@ -12,13 +13,7 @@ namespace engine::memory
 {
 	void* Allocate(EMemoryCategory _mem_category, size_t _size)
 	{
-		const bool force_system_allocator = _size > 4096;
-
-		// If size is fairly small (less than 4kB) 
-		// we can use std::malloc otherwise
-		// system API logic is used.
-
-		void* ptr = std::malloc(_size);
+		void* ptr = VirtualAlloc(nullptr, _size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 		
 		if (CMemoryProfiler::GetInstance().IsActive())
 		{
@@ -41,17 +36,7 @@ namespace engine::memory
 			CMemoryProfiler::GetInstance().DecreaseMemoryUsage(_ptr);
 		}
 
-		std::free(_ptr);
-	}
-
-	void Deallocate(EMemoryCategory _mem_category, void* _ptr, size_t _size)
-	{
-		if (CMemoryProfiler::GetInstance().IsActive())
-		{
-			CMemoryProfiler::GetInstance().DecreaseMemoryUsage(_ptr);
-		}
-
-		std::free(_ptr);
+		VirtualFree(_ptr, 0, MEM_RELEASE);
 	}
 
 	std::vector<std::string> GetStacktrace()

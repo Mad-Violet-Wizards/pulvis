@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/memory/MacroUtility.hpp"
-#include "engine/memory/MemoryCategory.hpp"
 #include <iomanip>
+
+#include "engine/memory/MemoryCategory.hpp"
 
 namespace engine::memory
 {
@@ -31,26 +31,8 @@ namespace engine::memory
 			std::memset(m_Memory, 0, _capacity);
 		}
 
-		FreeListAllocator(const FreeListAllocator& _other)
-		{
-			m_MemoryCategory = _other.GetMemoryCategory();
-			m_Capacity = _other.GetCapacity();
-			m_Head = _other.GetHead();
-			m_Memory = _other.GetMemory();
-		}
-
-		FreeListAllocator& operator=(const FreeListAllocator _other)
-		{
-			if (this != &_other)
-			{
-				m_MemoryCategory = _other.GetMemoryCategory();
-				m_Capacity = _other.GetCapacity();
-				m_Head = _other.GetHead();
-				m_Memory = _other.GetMemory();
-			}
-
-			return *this;
-		}
+		FreeListAllocator(const FreeListAllocator& _other) = delete;
+		FreeListAllocator& operator=(const FreeListAllocator _other) = delete;
 
 		FreeListAllocator(FreeListAllocator&& _other) noexcept
 		{
@@ -159,6 +141,24 @@ namespace engine::memory
 			FindAndMergeFreeBlocks();
 		}
 
+		void Reset()
+		{
+			FreeListAllocatorNode* head = m_Head;
+			FreeListAllocatorNode* next = m_Head->m_Next;
+
+			while (next)
+			{
+				head->m_Size += next->m_Size;
+				FreeListAllocatorNode* temp = next;
+				next = next->m_Next;
+				delete temp;
+			}
+
+			m_Head->m_IsFree = true;
+			m_Head->m_Next = nullptr;
+			m_Head->m_Offset = 0;
+		}
+
 		EMemoryCategory GetMemoryCategory() const
 		{
 			return m_MemoryCategory;
@@ -200,7 +200,6 @@ namespace engine::memory
 		{
 			return !(*this == _rhs);
 		}
-
 
 #ifdef DEBUG
 		void DumpConsole()

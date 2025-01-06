@@ -3,17 +3,12 @@
 #include <memory>
 #include <iomanip>
 
-#include "engine/memory/MacroUtility.hpp"
-
-
 namespace engine::memory
 {
 	template<typename T>
 	class FrameAllocator
 	{
 	public:
-
-		ALLOCATOR_API(FrameAllocator, T);
 
 		FrameAllocator(EMemoryCategory _mem_category, size_t _capacity)
 			: m_MemoryCategory(_mem_category)
@@ -25,27 +20,10 @@ namespace engine::memory
 		}
 
 		template<typename U>
-		FrameAllocator(const FrameAllocator<U>& _allocator) noexcept
-		{
-			m_MemoryCategory = _allocator.GetMemoryCategory();
-			m_Capacity = _allocator.GetCapacity();
-			m_Offset = _allocator.GetOffset();
-			m_Memory = _allocator.GetMemory();
-		}
+		FrameAllocator(const FrameAllocator<U>& _allocator) noexcept = delete;
 
 		template<typename U>
-		FrameAllocator& operator=(const FrameAllocator<U>& _allocator) noexcept
-		{
-			if (this != &_allocator)
-			{
-				m_MemoryCategory = _allocator.GetMemoryCategory();
-				m_Capacity = _allocator.GetCapacity();
-				m_Offset = _allocator.GetOffset();
-				m_Memory = _allocator.GetMemory();
-			}
-
-			return *this;
-		}
+		FrameAllocator& operator=(const FrameAllocator<U>& _allocator) noexcept = delete;
 
 		template<typename U>
 		FrameAllocator(FrameAllocator<U>&& _allocator) noexcept
@@ -54,6 +32,10 @@ namespace engine::memory
 			m_Capacity = _allocator.GetCapacity();
 			m_Offset = _allocator.GetOffset();
 			m_Memory = _allocator.GetMemory();
+
+			_allocator.m_Memory = nullptr;
+			_allocator.m_Capacity = 0;
+			_allocator.m_Offset = 0;
 		}
 
 		template<typename U>
@@ -65,6 +47,10 @@ namespace engine::memory
 				m_Capacity = _allocator.GetCapacity();
 				m_Offset = _allocator.GetOffset();
 				m_Memory = _allocator.GetMemory();
+
+				_allocator.m_Memory = nullptr;
+				_allocator.m_Capacity = 0;
+				_allocator.m_Offset = 0;
 			}
 
 			return *this;
@@ -114,6 +100,28 @@ namespace engine::memory
 		size_t GetOffset() const
 		{
 			return m_Offset;
+		}
+
+		template<typename U, typename... Args>
+		void construct(U* _ptr, Args&&... _args) const noexcept
+		{
+			new (_ptr) U(std::forward<Args>(_args)...);
+		}
+
+		template<typename U>
+		void destroy(U* _ptr) const noexcept
+		{
+			_ptr->~U();
+		}
+
+		bool operator==(const FrameAllocator& _rhs) const noexcept
+		{
+			return true;
+		}
+
+		bool operator!=(const FrameAllocator& _rhs) const noexcept
+		{
+			return !(*this == _rhs);
 		}
 
 		void DumpConsole()

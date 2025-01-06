@@ -14,45 +14,6 @@ namespace engine::memory
 	{
 	}
 
-	Bucket::Bucket(const Bucket& _bucket)
-	{
-		m_MemoryCategory = _bucket.m_MemoryCategory;
-		m_Capacity = _bucket.m_Capacity;
-		m_TypeSize = _bucket.m_TypeSize;
-		m_Size = _bucket.m_Size;
-
-		m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, m_Capacity);
-
-		const size_t ledger_size = m_Capacity / m_TypeSize;
-		m_Ledger = engine::memory::Allocate<std::byte>(m_MemoryCategory, ledger_size);
-		std::memset(m_Ledger, 0, ledger_size);
-
-		std::memcpy(m_Ledger, _bucket.m_Ledger, ledger_size);
-		std::memcpy(m_Memory, _bucket.m_Memory, m_Capacity);
-	}
-
-	Bucket& Bucket::operator=(const Bucket& _bucket)
-	{
-		if (this != &_bucket)
-		{
-			m_MemoryCategory = _bucket.m_MemoryCategory;
-			m_Capacity = _bucket.m_Capacity;
-			m_TypeSize = _bucket.m_TypeSize;
-			m_Size = _bucket.m_Size;
-
-			m_Memory = engine::memory::Allocate<std::byte>(m_MemoryCategory, m_Capacity);
-
-			const size_t ledger_size = m_Capacity / m_TypeSize;
-			m_Ledger = engine::memory::Allocate<std::byte>(m_MemoryCategory, ledger_size);
-			std::memset(m_Ledger, 0, ledger_size);
-
-			std::memcpy(m_Ledger, _bucket.m_Ledger, ledger_size);
-			std::memcpy(m_Memory, _bucket.m_Memory, m_Capacity);
-		}
-
-		return *this;
-	}
-
 	Bucket::Bucket(Bucket&& _bucket) noexcept
 		: m_MemoryCategory(_bucket.m_MemoryCategory)
 		, m_Capacity(_bucket.m_Capacity)
@@ -121,6 +82,7 @@ namespace engine::memory
 	{
 		size_t free_blocks = 0;
 		const size_t ledger_size = m_Capacity / m_TypeSize;
+		size_t index = 0;
 
 		for (size_t i = 0; i < ledger_size; ++i)
 		{
@@ -130,11 +92,12 @@ namespace engine::memory
 
 				if (free_blocks == _size)
 				{
-					return i;
+					return index;
 				}
 			}
 			else
 			{
+				index = i + 1;
 				free_blocks = 0;
 			}
 		}

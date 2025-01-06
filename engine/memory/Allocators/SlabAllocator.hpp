@@ -1,6 +1,6 @@
-#include "engine/memory/MacroUtility.hpp"
-#include "engine/memory/MemoryCategory.hpp"
 #include <iomanip>
+
+#include "engine/memory/MemoryCategory.hpp"
 
 namespace engine::memory
 {
@@ -16,6 +16,48 @@ namespace engine::memory
 				, m_Memory{ nullptr }
 				, m_Ledger{ nullptr }
 			{
+			}
+
+			SlabAllocatorNode(const SlabAllocatorNode&) = delete;
+			SlabAllocatorNode& operator=(const SlabAllocatorNode&) = delete;
+
+			SlabAllocatorNode(SlabAllocatorNode&& _other) noexcept
+			{
+				m_TypeHash = _other.m_TypeHash;
+				m_TypeSize = _other.m_TypeSize;
+				m_Capacity = _other.m_Capacity;
+				m_Offset = _other.m_Offset;
+				m_Memory = _other.m_Memory;
+				m_Ledger = _other.m_Ledger;
+
+				_other.m_TypeHash = -1;
+				_other.m_TypeSize = -1;
+				_other.m_Capacity = 0;
+				_other.m_Offset = 0;
+				_other.m_Memory = nullptr;
+				_other.m_Ledger = nullptr;
+			}
+
+			SlabAllocatorNode& operator=(SlabAllocatorNode&& _other) noexcept
+			{
+				if (this != &_other)
+				{
+					m_TypeHash = _other.m_TypeHash;
+					m_TypeSize = _other.m_TypeSize;
+					m_Capacity = _other.m_Capacity;
+					m_Offset = _other.m_Offset;
+					m_Memory = _other.m_Memory;
+					m_Ledger = _other.m_Ledger;
+
+					_other.m_TypeHash = -1;
+					_other.m_TypeSize = -1;
+					_other.m_Capacity = 0;
+					_other.m_Offset = 0;
+					_other.m_Memory = nullptr;
+					_other.m_Ledger = nullptr;
+				}
+
+				return *this;
 			}
 
 			~SlabAllocatorNode()
@@ -62,6 +104,7 @@ namespace engine::memory
 			{
 				size_t free_blocks = 0;
 				const size_t ledger_size = m_Capacity / m_TypeSize;
+				size_t index = 0;
 
 				for (size_t i = 0; i < ledger_size; ++i)
 				{
@@ -71,11 +114,12 @@ namespace engine::memory
 
 						if (free_blocks == _size)
 						{
-							return i;
+							return index;
 						}
 					}
 					else
 					{
+						index = i;
 						free_blocks = 0;
 					}
 				}
@@ -113,8 +157,28 @@ namespace engine::memory
 			{
 			}
 
-			~SlabAllocator()
+			SlabAllocator(const SlabAllocator& _other) = delete;
+			SlabAllocator& operator=(const SlabAllocator _other) = delete;
+
+			SlabAllocator(SlabAllocator&& _other) noexcept
 			{
+				m_MemoryCategory = _other.GetMemoryCategory();
+				m_Slabs = _other.GetSlabs();
+			}
+
+			SlabAllocator& operator=(SlabAllocator&& _other) noexcept
+			{
+				if (this != &_other)
+				{
+					m_MemoryCategory = _other.GetMemoryCategory();
+
+					for (size_t i = 0; i < N; ++i)
+					{
+						m_Slabs[i] = std::move(_other.m_Slabs[i]);
+					}
+				}
+
+				return *this;
 			}
 
 			template<typename T>
@@ -138,6 +202,22 @@ namespace engine::memory
 						slab.m_Memory = engine::memory::Allocate<std::byte>(EMemoryCategory::Memory, slab.m_Capacity);
 						slab.m_Ledger = engine::memory::Allocate<std::byte>(EMemoryCategory::Memory, slab.m_Capacity / slab.m_TypeSize);
 						std::memset(slab.m_Ledger, 0, slab.m_Capacity / slab.m_TypeSize);
+						return;
+					}
+				}
+			}
+
+			template<typename T>
+			void ResetSlab()
+			{
+				const size_t type_hash = std::type_index(typeid(T)).hash_code();
+
+				for (SlabAllocatorNode& slab : m_Slabs)
+				{
+					if (slab.m_TypeHash == type_hash)
+					{
+						std::memset(slab.m_Ledger, 0, slab.m_Capacity / slab.m_TypeSize);
+						slab.m_Offset = 0;
 						return;
 					}
 				}
