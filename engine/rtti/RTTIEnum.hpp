@@ -21,7 +21,7 @@ namespace engine::rtti
 
 			inline static constexpr std::string_view GetName()
 			{
-				return CRTTITypeName::GetTypename<E>();;
+				return CRTTITypeName::GetTypename<E>();
 			}
 
 			inline static int GetCount()
