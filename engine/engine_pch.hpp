@@ -10,9 +10,11 @@
 #include <array>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <iostream>
 #include <list>
 #include <new>
+#include <stack>
 // -SLT
 
 // +FMT
@@ -26,6 +28,7 @@
 #include "engine/core/UUID.hpp"
 #include "engine/events/EventListener.hpp"
 #include "engine/events/EventController.hpp"
+#include "engine/memory/Memory.hpp"
 //	-Core
 
 //	+pstd
