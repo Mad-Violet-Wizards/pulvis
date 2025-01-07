@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "engine/rendering/Window.hpp"
 #include "engine/filesystem/Filesystem.hpp"
 #include "engine/time/Timer.hpp"
 #include "Setup.hpp"
@@ -17,7 +16,7 @@ namespace engine
 			SApplicationSetup m_AppSetup;
 		};
 
-		static SApplicationContext s_AppContext;
+		extern PULVIS_API SApplicationContext s_AppContext;
 
 		//////////////////////////////////////////////////////////////////////////
 		struct PULVIS_API SFrameContext
@@ -47,8 +46,7 @@ namespace engine
 
 			private:
 
-				void InitializeCoreSystems();
-				void InitializeWindow();
+				void InitializeServices();
 				void UpdateFrameTime();
 
 				void PreFrame();
@@ -60,9 +58,6 @@ namespace engine
 				engine::time::Timer m_FrameTimer;
 				float m_FrameTime;
 				bool m_bCoreSystemsInitialized;
-				bool m_bWindowInitialized;
-				
-				engine::rendering::CWindow* m_Window;
 
 				engine::fs::Filesystem m_EngineFilesystem;
 		};

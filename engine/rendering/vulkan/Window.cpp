@@ -29,16 +29,16 @@ namespace rendering
 		glfwSetWindowUserPointer(m_Window, this);
 
 		glfwSetErrorCallback([](int error, const char* desc)
-		{
+			{
 				std::cout << fmt::format("GLFW Error {0}: {1}\n", error, desc);
-		});
+			});
 
 		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* _window, int _width, int _height)
-		{
+			{
 				CWindow* window = reinterpret_cast<CWindow*>(glfwGetWindowUserPointer(_window));
 				window->m_Width = _width;
 				window->m_Height = _height;
-		});
+			});
 	}
 
 	CWindow::~CWindow()
