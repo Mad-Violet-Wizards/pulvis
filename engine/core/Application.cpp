@@ -3,13 +3,15 @@
 #include "Application.hpp"
 #include "engine/filesystem/Utils.hpp"
 #include "engine/events/EventController.hpp"
-
+#include "engine/rendering/RenderingService.hpp"
 #include <GLFW/glfw3.h>
 
 namespace engine
 {
 	namespace core
 	{
+//////////////////////////////////////////////////////////////////////////
+	extern PULVIS_API SApplicationContext s_AppContext = {};
 //////////////////////////////////////////////////////////////////////////
 		SFrameContext::SFrameContext()
 			: m_FrameNumber(0)
@@ -29,33 +31,24 @@ namespace engine
 
 			s_AppContext.m_AppSetup = _app_setup;
 
-			InitializeCoreSystems();
+			InitializeServices();
 		}
 
 		Application::~Application()
 		{
-			if (s_AppContext.m_AppSetup.m_ClientApp != EClientApp::Playground)
-				delete m_Window;
 		}
 
 
-		void Application::InitializeCoreSystems()
+		void Application::InitializeServices()
 		{
 			m_EngineFilesystem.Mount();
 
-			if (s_AppContext.m_AppSetup.m_ClientApp != EClientApp::Playground)
-				InitializeWindow();
-		}
-
-		void Application::InitializeWindow()
-		{
-			const std::string window_name = s_AppContext.m_AppSetup.m_ApplicationName;
-			m_Window = new rendering::CWindow(s_AppContext.m_AppSetup.m_WindowWidth, s_AppContext.m_AppSetup.m_WindowHeight, window_name.c_str());
+			engine::rendering::RenderingService::GetInstance().Initialize(engine::rendering::ERendererType::Vulkan);
 		}
 
 		bool Application::IsCloseRequested() const
 		{
-			return m_Window->ShouldClose();
+			return engine::rendering::RenderingService::GetInstance().ShouldClose();
 		}
 
 		void Application::Run()

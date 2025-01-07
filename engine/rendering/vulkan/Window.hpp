@@ -20,6 +20,8 @@ namespace rendering
 
 			bool ShouldClose() const;
 
+			GLFWwindow* GetWindow() const { return m_Window; }
+
 		private:
 
 			unsigned int m_Width;
