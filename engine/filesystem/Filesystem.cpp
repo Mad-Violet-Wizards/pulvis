@@ -41,10 +41,13 @@ namespace engine::fs
 				std::filesystem::create_directory(m_Impl->m_AbsolutePath);
 			}
 
-			for (const auto& entry : std::filesystem::directory_iterator(m_Impl->m_AbsolutePath))
+			for (const auto& entry : std::filesystem::recursive_directory_iterator(m_Impl->m_AbsolutePath))
 			{
 				std::string path = entry.path().string();
 				path.erase(0, m_Impl->m_AbsolutePath.string().size());
+
+				if (path[0] == '\\' || path[0] == '/')
+					path.erase(0, 1);
 
 				std::cout << "[Filesystem] " << m_Impl->m_Name << " mounted: " << path << "\n";
 				m_Impl->m_MountedFilelist.push_back(path);
@@ -65,7 +68,8 @@ namespace engine::fs
 
 		std::optional<CFileHandle> engine::fs::Filesystem::OpenFile(const std::string& _relative_path, std::shared_ptr<IFileDataModel>* _file_data_model, EFileMode _open_mode)
 		{
-			const std::filesystem::path file_path = m_Impl->m_AbsolutePath / _relative_path;
+			std::filesystem::path file_path = m_Impl->m_AbsolutePath;
+			file_path /= _relative_path;
 
 			ASSERT(_file_data_model, "[Filesystem] FileDataModel is nullptr.");
 
@@ -118,6 +122,63 @@ namespace engine::fs
 
 			return std::nullopt;
 		}
+
+		void Filesystem::GetFilenamesInDirectory(const std::string& _relative_path, std::vector<std::string>& _out_filenames_list) const
+		{
+			const std::filesystem::path directory_path = m_Impl->m_AbsolutePath / _relative_path;
+
+			for (const auto& entry : std::filesystem::directory_iterator(directory_path))
+			{
+				std::string path = entry.path().string();
+				path.erase(0, directory_path.string().size());
+				if (path.find("\\") == 0 || path.find("/") == 0)
+				{
+					path.erase(0, 1);
+				}
+
+				_out_filenames_list.push_back(path);
+			}
+		}
+
+		bool Filesystem::GetFileExists(const std::string& _relative_path) const
+		{
+			const std::filesystem::path file_path = m_Impl->m_AbsolutePath / _relative_path;
+
+			return std::filesystem::exists(file_path);
+		}
+
+		std::vector<std::string>::const_iterator Filesystem::FileListBegin() const
+		{
+			return m_Impl->m_MountedFilelist.cbegin();
+		}
+
+		std::vector<std::string>::const_iterator Filesystem::FileListEnd() const
+		{
+			return m_Impl->m_MountedFilelist.cend();
+		}
+
+		std::string Filesystem::GetFilename(const std::string& _filepath)
+		{
+			const size_t last_slash = _filepath.find_last_of("/\\");
+			if (last_slash == std::string::npos)
+			{
+				return _filepath;
+			}
+
+			return _filepath.substr(last_slash + 1);
+		}
+
+		std::string Filesystem::GetFileExtension(const std::string& _filename)
+		{
+			const size_t last_dot = _filename.find_last_of('.');
+			if (last_dot == std::string::npos)
+			{
+				return "";
+			}
+
+			return _filename.substr(last_dot);
+		}
+
 		bool Filesystem::GetCreateFileIfNotExists(EFileMode _open_mode) const
 		{
 			if (_open_mode & EFileMode::Write)

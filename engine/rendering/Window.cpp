@@ -3,11 +3,10 @@
 #include <format>
 #include <fmt/format.h>
 
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#include <glfw/glfw3.h>
 
-namespace engine
-{
-namespace rendering
+namespace engine::rendering
 {
 	CWindow::CWindow(unsigned int _width, unsigned int _height, const char* _title)
 		: m_Width(_width)
@@ -15,7 +14,9 @@ namespace rendering
 		, m_Title(_title)
 	{
 		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		m_Window = glfwCreateWindow(_width, _height, _title, nullptr, nullptr);
@@ -39,6 +40,16 @@ namespace rendering
 				window->m_Width = _width;
 				window->m_Height = _height;
 			});
+
+		glfwMakeContextCurrent(m_Window);
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			ASSERT(false, "Failed to initialize GLAD.");
+			glfwTerminate();
+		}
+
+		glViewport(0, 0, _width, _height);
 	}
 
 	CWindow::~CWindow()
@@ -51,6 +62,4 @@ namespace rendering
 	{
 		return glfwWindowShouldClose(m_Window);
 	}
-
-}
 }

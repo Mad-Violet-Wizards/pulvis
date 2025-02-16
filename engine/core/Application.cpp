@@ -4,46 +4,32 @@
 #include "engine/filesystem/Utils.hpp"
 #include "engine/events/EventController.hpp"
 #include "engine/rendering/RenderingService.hpp"
+#include "engine/project/ProjectService.hpp"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 namespace engine
 {
 	namespace core
 	{
-//////////////////////////////////////////////////////////////////////////
-	extern PULVIS_API SApplicationContext s_AppContext = {};
-//////////////////////////////////////////////////////////////////////////
-		SFrameContext::SFrameContext()
-			: m_FrameNumber(0)
-			, m_DeltaTime(0.f)
-		{
-		}
 
-		extern PULVIS_API SFrameContext s_FrameContext = {};
-
+		CApplicationContext Application::m_AppContext = {};
+		
 //////////////////////////////////////////////////////////////////////////
 		Application::Application(const SApplicationSetup& _app_setup)
-			: m_EngineFilesystem("engine", engine::fs::GetEnginePath() + "/pulvis/")
-			, m_bCoreSystemsInitialized(false)
-			, m_FrameTime(0.f)
+			: m_FrameTime(0.f)
 		{
 			ASSERT(_app_setup.m_ClientApp != EClientApp::Unknown, "Client application not set!");
 
-			s_AppContext.m_AppSetup = _app_setup;
-
-			InitializeServices();
+			const std::string fs_absolute_path = engine::fs::GetEnginePath() + "/pulvis/";
+			m_AppContext.m_Filesystem = new engine::fs::Filesystem("Engine", fs_absolute_path);
+			m_AppContext.m_Setup = _app_setup;
+			m_AppContext.m_StateMachine.SetContext(&m_AppContext);
+			m_AppContext.m_StateMachine.SetState(EApplicationState::Initialize);
 		}
 
 		Application::~Application()
 		{
-		}
-
-
-		void Application::InitializeServices()
-		{
-			m_EngineFilesystem.Mount();
-
-			engine::rendering::RenderingService::GetInstance().Initialize(engine::rendering::ERendererType::Vulkan);
 		}
 
 		bool Application::IsCloseRequested() const
@@ -56,7 +42,6 @@ namespace engine
 			while(!IsCloseRequested())
 			{
 				FrameCycle();
-				glfwPollEvents();
 			}
 		}
 
@@ -69,20 +54,26 @@ namespace engine
 
 		void Application::PreFrame()
 		{
-			s_FrameContext.m_FrameNumber++;
-			s_FrameContext.m_DeltaTime = m_FrameTime;
+			m_AppContext.m_FrameNumber++;
+			m_AppContext.m_DeltaTime = m_FrameTime;
 
 			m_FrameTimer.Start();
+
+			engine::rendering::RenderingService::GetInstance().BeginFrame();
 		}
 
 		void Application::Frame()
 		{
+			m_AppContext.m_StateMachine.Frame();
+			engine::projects::ProjectService::GetInstance().Frame();
 			engine::events::CEventController::GetInstance().Frame();
+			engine::rendering::RenderingService::GetInstance().Frame();
 		}
 
 		void Application::PostFrame()
 		{
 			UpdateFrameTime();
+			engine::rendering::RenderingService::GetInstance().EndFrame();
 		}
 		
 		void Application::UpdateFrameTime()
@@ -90,11 +81,6 @@ namespace engine
 			m_FrameTimer.End();
 			m_FrameTime = static_cast<float>(m_FrameTimer.GetElapsedTime(engine::time::ETimeUnit::Milliseconds));
 			m_FrameTimer.Reset();
-		}
-
-		const engine::fs::Filesystem& Application::GetEngineFs() const
-		{
-			return m_EngineFilesystem;
 		}
 	}
 }

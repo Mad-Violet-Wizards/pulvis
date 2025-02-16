@@ -14,6 +14,7 @@ namespace engine::threads
 	{
 		public:
 
+			CThreadPool();
 			explicit CThreadPool(const SThreadPoolSettings& _settings);
 			~CThreadPool();
 

@@ -5,14 +5,22 @@
 
 namespace engine::rendering
 {
-	class RenderingService : public Singleton<RenderingService>
+	class PULVIS_API RenderingService : public Singleton<RenderingService>
 	{
 		public:
 
 			~RenderingService();
 
 			void Initialize(ERendererType _rendererType);
+
+			void BeginFrame();
+			void Frame();
+			void EndFrame();
+
 			bool ShouldClose() const;
+			bool IsInitialized() const;
+
+			IRenderer* GetRenderer() const;
 
 		private:
 

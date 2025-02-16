@@ -94,5 +94,5 @@ private:																																																																							\
 	inline static CONCATENATE(SFieldRegistrar_, CONCATENATE(class_t, field_name)) CONCATENATE(s_FieldRegistrar, CONCATENATE(class_t, field_name)) = {}; \
 //////////////////////////////////////////////////////////////////////////
 #define RTTI_ENUM_API(enumName)																					\
-inline static engine::rtti::CRTTIEnum<enumName> s_Enum_##enumName = {}; \
+static engine::rtti::CRTTIEnum<enumName> s_Enum_##enumName = {}; \
 //////////////////////////////////////////////////////////////////////////

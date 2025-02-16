@@ -4,16 +4,16 @@
 #include <windows.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>
+#include <GLFW/glfw3.h>
 
-#include "Context.hpp"
-#include "Window.hpp"
+#include "ContextVulkan.hpp"
 #include "engine/core/Application.hpp"
 
 
-namespace engine::rendering
+namespace engine::rendering::vulkan
 {
 	RendererVulkan::RendererVulkan()
-		: IRenderer()
+		: engine::rendering::IRenderer()
 		, m_Context{ nullptr }
 		, m_Window{ nullptr }
 	{
@@ -28,14 +28,17 @@ namespace engine::rendering
 
 	void RendererVulkan::Initialize()
 	{
-		const std::string window_name = engine::core::s_AppContext.m_AppSetup.m_ApplicationName;
+		static const engine::core::CApplicationContext& app_context = engine::core::Application::GetContext();
 
-		m_Window = new rendering::CWindow(engine::core::s_AppContext.m_AppSetup.m_WindowWidth, 
-			engine::core::s_AppContext.m_AppSetup.m_WindowHeight, 
+		const std::string window_name = app_context.m_Setup.m_ApplicationName;
+
+		m_Window = new engine::rendering::CWindow(app_context.m_Setup.m_WindowWidth,
+			app_context.m_Setup.m_WindowHeight, 
 			window_name.c_str());
 
 		const std::vector<std::string> requested_instance_layers
 		{
+			"VK_LAYER_KHRONOS_validation"
 		};
 
  		const std::vector<std::string> requested_instance_layers_extensions
@@ -44,11 +47,20 @@ namespace engine::rendering
 			VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 			VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 		};
+		
+		const std::vector<std::string> device_extensions
+		{
+			VK_KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME
+		};
 
-		m_Context = new rendering::CContext(m_Window, requested_instance_layers, requested_instance_layers_extensions);
+		m_Context = new CContext(m_Window, requested_instance_layers, requested_instance_layers_extensions, device_extensions);
 	}
 
 	void RendererVulkan::BeginFrame()
+	{
+	}
+
+	void RendererVulkan::Frame()
 	{
 	}
 
@@ -64,7 +76,5 @@ namespace engine::rendering
 	{
 		return m_Window->ShouldClose();
 	}
-
-
 }
 

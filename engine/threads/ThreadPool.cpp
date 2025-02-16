@@ -11,6 +11,28 @@ namespace engine::threads
 			std::atomic<concurrency_t> m_NextWorker;
 	};
 
+	CThreadPool::CThreadPool()
+	{
+		SThreadPoolSettings settings;
+		settings.m_NumThreads = std::thread::hardware_concurrency();
+		settings.m_QueueSize = S_DEFAULT_QUEUE_SIZE;
+
+		m_Impl = new Impl();
+		m_Impl->m_NextWorker = 0;
+
+		m_Impl->m_Workers.reserve(settings.m_NumThreads);
+
+		for (concurrency_t idx = 0; idx < settings.m_NumThreads; ++idx)
+		{
+			m_Impl->m_Workers.emplace_back(std::make_unique<CThreadWorker>(settings.m_QueueSize));
+		}
+
+		for (concurrency_t idx = 0; idx < settings.m_NumThreads; ++idx)
+		{
+			m_Impl->m_Workers[idx]->Start(idx);
+		}
+	}
+
 	CThreadPool::CThreadPool(const SThreadPoolSettings& _settings)
 	{
 		m_Impl = new Impl();

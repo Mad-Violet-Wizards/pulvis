@@ -8,6 +8,8 @@
 
 #include "FileDataModel.hpp"
 #include "Serializable.hpp"
+#include "TextFileDataModel.hpp"
+#include "ShaderFileDataModel.hpp"
 
 namespace engine
 {
@@ -15,12 +17,12 @@ namespace engine
 	{
 		enum class EFileMode
 		{
-			Read = 0x00,
-			Write = 0x01,
-			ReadWrite = 0x02,
-			Append = 0x04,
-			Truncate = 0x08,
-			Binary = 0x10
+			Read = 0x01,
+			Write = 0x02,
+			ReadWrite = 0x04,
+			Append = 0x08,
+			Truncate = 0x16,
+			Binary = 0x32
 		};
 
 		inline EFileMode operator|(EFileMode _lhs, EFileMode _rhs)
@@ -156,6 +158,12 @@ namespace engine
 						SerializeJSON(m_FileStream, *m_FileDataModel);
 						break;
 					}
+					case EFileDataModelType::Text:
+					{
+						CTextFileDataModel* text_model = dynamic_cast<CTextFileDataModel*>(m_FileDataModel->get());
+						text_model->Serialize(m_FileStream);
+						break;
+					}
 					default:
 						ASSERT(true, "Unsupported data type.");
 						break;
@@ -176,6 +184,18 @@ namespace engine
 					case EFileDataModelType::JSON:
 					{
 						DeserializeJSON(m_FileStream, *m_FileDataModel);
+						break;
+					}
+					case EFileDataModelType::Text:
+					{
+						CTextFileDataModel* text_model = dynamic_cast<CTextFileDataModel*>(m_FileDataModel->get());
+						text_model->Deserialize(m_FileStream);
+						break;
+					}
+					case EFileDataModelType::Shader:
+					{
+						CShaderFileDataModel* shader_model = dynamic_cast<CShaderFileDataModel*>(m_FileDataModel->get());
+						shader_model->Deserialize(m_FileStream);
 						break;
 					}
 					default:

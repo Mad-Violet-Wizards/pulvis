@@ -77,7 +77,7 @@ class CEventBus::Impl
 		}
 		else
 		{
-			m_Impl->m_NextFrameEvents.emplace_back(engine::core::s_FrameContext.m_FrameNumber, _event);
+			m_Impl->m_NextFrameEvents.emplace_back(engine::core::Application::GetContext().m_FrameNumber, _event);
 		}
 	}
 
@@ -87,7 +87,7 @@ class CEventBus::Impl
 		{
 			const SNextFrameEventGuard& guard = *it;
 
-			if (engine::core::s_FrameContext.m_FrameNumber > guard.m_FrameNumber)
+			if (engine::core::Application::GetContext().m_FrameNumber > guard.m_FrameNumber)
 			{
 				auto range = m_Impl->m_EventListeners.equal_range(guard.m_Event->GetEventType());
 				for (auto it = range.first; it != range.second; ++it)

@@ -4,9 +4,7 @@
 
 struct GLFWwindow;
 
-namespace engine
-{
-namespace rendering
+namespace engine::rendering
 {
 	class PULVIS_API CWindow
 	{
@@ -20,7 +18,7 @@ namespace rendering
 
 			bool ShouldClose() const;
 
-			GLFWwindow* GetWindow() const { return m_Window; }
+			GLFWwindow* GetWindow() { return m_Window; }
 
 		private:
 
@@ -30,5 +28,4 @@ namespace rendering
 			GLFWwindow *m_Window;
 
 	};
-}
 }

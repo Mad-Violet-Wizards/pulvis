@@ -1,11 +1,11 @@
 #pragma once
 
 #include "engine/rendering/Renderer.hpp"
+#include "engine/rendering/Window.hpp"
 
-namespace engine::rendering
+namespace engine::rendering::vulkan
 {
 	class CContext;
-	class CWindow;
 
 	class RendererVulkan : public IRenderer
 	{
@@ -16,6 +16,7 @@ namespace engine::rendering
 
 			void Initialize() override;
 			void BeginFrame() override;
+			void Frame() override;
 			void EndFrame() override;
 			void Shutdown() override;
 
@@ -24,6 +25,6 @@ namespace engine::rendering
 	private:
 
 			CContext* m_Context;
-			CWindow* m_Window;
+			engine::rendering::CWindow* m_Window;
 	};
 }

@@ -2,6 +2,7 @@
 #include "RenderingService.hpp"
 
 #include "vulkan/RendererVulkan.hpp"
+#include "opengl/RendererOpenGL.hpp"
 
 namespace engine::rendering
 {
@@ -15,9 +16,15 @@ namespace engine::rendering
 
 				switch (_rendererType)
 				{
+				case ERendererType::OpenGL:
+				{
+					m_Renderer = new opengl::RendererOpenGL();
+					m_Renderer->Initialize();
+					break;
+				}
 					case ERendererType::Vulkan:
 					{
-						m_Renderer = new RendererVulkan();
+						m_Renderer = new vulkan::RendererVulkan();
 						m_Renderer->Initialize();
 						break;
 					}
@@ -28,9 +35,24 @@ namespace engine::rendering
 				}
 			}
 
+			IRenderer* GetRenderer() const
+			{
+				return m_Renderer;
+			}
+
+			bool IsRendererInitialized() const
+			{
+				return m_Renderer != nullptr;
+			}
+
 			bool ShouldClose() const
 			{
-				return m_Renderer->ShouldClose();
+				if (m_Renderer)
+				{
+					return m_Renderer->ShouldClose();
+				}
+
+				return false;
 			}
 
 		private:
@@ -54,9 +76,43 @@ namespace engine::rendering
 		m_Impl->Initialize(_rendererType);
 	}
 
+	void RenderingService::BeginFrame()
+	{
+		if (m_Impl->GetRenderer())
+		{
+			m_Impl->GetRenderer()->BeginFrame();
+		}
+	}
+
+	void RenderingService::Frame()
+	{
+		if (m_Impl->GetRenderer())
+		{
+			m_Impl->GetRenderer()->Frame();
+		}
+	}
+
+	void RenderingService::EndFrame()
+	{
+		if (m_Impl->GetRenderer())
+		{
+			m_Impl->GetRenderer()->EndFrame();
+		}
+	}
+
 	bool RenderingService::ShouldClose() const
 	{
 		return m_Impl->ShouldClose();
+	}
+
+	bool RenderingService::IsInitialized() const
+	{
+		return m_Impl->IsRendererInitialized();
+	}
+
+	IRenderer* RenderingService::GetRenderer() const
+	{
+		return m_Impl->GetRenderer();
 	}
 }
 
