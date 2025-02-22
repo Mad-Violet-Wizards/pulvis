@@ -1,10 +1,8 @@
 #pragma once
 
-#include "engine/core/Export.hpp"
-
 namespace engine::rtti
 {
-	class PULVIS_API CRTTITypeName
+	class CRTTITypeName
 	{
 		public:
 #ifdef WINDOWS_OS

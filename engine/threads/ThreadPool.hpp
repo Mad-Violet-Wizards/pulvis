@@ -10,7 +10,7 @@
 
 namespace engine::threads
 {
-	class PULVIS_API CThreadPool
+	class CThreadPool
 	{
 		public:
 
@@ -31,7 +31,7 @@ namespace engine::threads
 
 		private:
 
-			class Impl;
-			Impl* m_Impl = nullptr;
+			std::vector<std::unique_ptr<CThreadWorker>> m_Workers;
+			std::atomic<concurrency_t> m_NextWorker;
 	};
 }

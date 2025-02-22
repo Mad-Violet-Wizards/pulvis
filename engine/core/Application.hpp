@@ -4,14 +4,13 @@
 #include "ApplicationContext.hpp"
 #include "engine/time/Timer.hpp"
 #include "Setup.hpp"
-#include "Export.hpp"
 
 namespace engine
 {
 	namespace core
 	{
 		//////////////////////////////////////////////////////////////////////////
-		class PULVIS_API Application
+		class Application
 		{
 			public:
 
@@ -20,7 +19,6 @@ namespace engine
 				
 				bool IsCloseRequested() const;
 				void Run();
-				void FrameCycle();
 
 				static const CApplicationContext& GetContext() { return Application::m_AppContext; }
 

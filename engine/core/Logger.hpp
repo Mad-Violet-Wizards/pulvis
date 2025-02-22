@@ -77,7 +77,7 @@ namespace engine::core
         }
     };
 
-    class PULVIS_API CLogger : public Singleton<CLogger>, public events::IEventListener
+    class CLogger : public Singleton<CLogger>, public events::IEventListener
     {
         public:
 
@@ -107,8 +107,7 @@ namespace engine::core
 
       private:
             
-          class Impl;
-          Impl* m_Impl;
+				std::queue<SLogInfo> m_LogFileDumpQueue;
     };
 }
 

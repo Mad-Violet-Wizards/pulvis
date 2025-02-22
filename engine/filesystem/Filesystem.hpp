@@ -9,7 +9,7 @@ namespace engine
 {
 namespace fs
 {
-	class PULVIS_API Filesystem
+	class Filesystem
 	{
 		public:
 
@@ -39,8 +39,11 @@ namespace fs
 
 		private:
 
-			class Impl;
-			Impl* m_Impl = nullptr;
+			bool m_Mounted;
+			std::string m_Name;
+			std::filesystem::path m_AbsolutePath;
+
+			std::vector<std::string> m_MountedFilelist;
 	};
 }
 }

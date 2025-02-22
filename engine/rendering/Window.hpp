@@ -6,7 +6,7 @@ struct GLFWwindow;
 
 namespace engine::rendering
 {
-	class PULVIS_API CWindow
+	class CWindow
 	{
 		public:
 

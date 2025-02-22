@@ -4,7 +4,7 @@
 
 namespace engine::events
 {
-	class PULVIS_API IEventListener
+	class IEventListener
 	{
 	public:
 

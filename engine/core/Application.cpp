@@ -4,7 +4,7 @@
 #include "engine/filesystem/Utils.hpp"
 #include "engine/events/EventController.hpp"
 #include "engine/rendering/RenderingService.hpp"
-#include "engine/project/ProjectService.hpp"
+#include "engine/game/GameService.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -41,15 +41,10 @@ namespace engine
 		{
 			while(!IsCloseRequested())
 			{
-				FrameCycle();
+				PreFrame();
+				Frame();
+				PostFrame();
 			}
-		}
-
-		void Application::FrameCycle()
-		{
-			PreFrame();
-			Frame();
-			PostFrame();
 		}
 
 		void Application::PreFrame()
@@ -65,15 +60,15 @@ namespace engine
 		void Application::Frame()
 		{
 			m_AppContext.m_StateMachine.Frame();
-			engine::projects::ProjectService::GetInstance().Frame();
+			engine::game::CGameService::GetInstance().Frame();
 			engine::events::CEventController::GetInstance().Frame();
 			engine::rendering::RenderingService::GetInstance().Frame();
 		}
 
 		void Application::PostFrame()
 		{
-			UpdateFrameTime();
 			engine::rendering::RenderingService::GetInstance().EndFrame();
+			UpdateFrameTime();
 		}
 		
 		void Application::UpdateFrameTime()

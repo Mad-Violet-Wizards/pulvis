@@ -6,7 +6,7 @@
 
 namespace engine::memory
 {
-	class PULVIS_API Bucket
+	class Bucket
 	{
 
 	public:

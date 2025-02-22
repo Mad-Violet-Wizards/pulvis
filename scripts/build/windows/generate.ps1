@@ -17,7 +17,5 @@ if ($validInstances -notcontains $VisualInstanceName)
     exit 1
 }
 
-
-
 Write-Output "[Generate] Starting to generate project files for $VisualInstanceName."
 ./premake5 $VisualInstanceName --file=../../../premake5.lua

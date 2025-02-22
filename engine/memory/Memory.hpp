@@ -1,14 +1,12 @@
 #pragma once
 
-#include "engine/core/Export.hpp"
-
 namespace engine::memory
 {
 	enum class EMemoryCategory;
 
-	PULVIS_API void* Allocate(EMemoryCategory _mem_category, size_t _size);
-	PULVIS_API void* Reallocate(void* _ptr, size_t _size);
-	PULVIS_API void Deallocate(EMemoryCategory _mem_category, void* _ptr);
+	void* Allocate(EMemoryCategory _mem_category, size_t _size);
+	void* Reallocate(void* _ptr, size_t _size);
+	void Deallocate(EMemoryCategory _mem_category, void* _ptr);
 	std::vector<std::string> GetStacktrace();
 
 	template<typename T, class Alloc, typename... Args>

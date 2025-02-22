@@ -5,42 +5,28 @@
 namespace engine::memory
 {
 	//////////////////////////////////////////////////////////////////////////
-	class CMemoryProfiler::Impl
-	{
-	public:
-
-		bool m_IsActive = false;
-
-		std::unordered_map<void*, EMemoryCategory> m_LookupTable;
-
-		constexpr static size_t s_AllocRecordArrayCount = static_cast<size_t>(EMemoryCategory::Count);
-		std::array<std::list<SAllocationRecord>, s_AllocRecordArrayCount> m_AllocationRecords;
-	};
-
 	CMemoryProfiler::CMemoryProfiler()
 	{
-		m_Impl = new Impl();
 	}
 
 	CMemoryProfiler::~CMemoryProfiler()
 	{
-		delete m_Impl;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	void CMemoryProfiler::IncreaseMemoryUsage(const SAllocationRecord& _alloc_record)
 	{
-		m_Impl->m_AllocationRecords[static_cast<size_t>(_alloc_record.m_Category)].push_back(_alloc_record);
-		m_Impl->m_LookupTable.insert({ _alloc_record.m_Address, _alloc_record.m_Category });
+		m_AllocationRecords[static_cast<size_t>(_alloc_record.m_Category)].push_back(_alloc_record);
+		m_LookupTable.insert({ _alloc_record.m_Address, _alloc_record.m_Category });
 	}
 
 	void CMemoryProfiler::DecreaseMemoryUsage(void* _ptr)
 	{
-		auto it = m_Impl->m_LookupTable.find(_ptr);
-		if (it != m_Impl->m_LookupTable.end())
+		auto it = m_LookupTable.find(_ptr);
+		if (it != m_LookupTable.end())
 		{
 			const size_t index = static_cast<size_t>(it->second);
-			std::list<SAllocationRecord>& alloc_records = m_Impl->m_AllocationRecords[index];
+			std::list<SAllocationRecord>& alloc_records = m_AllocationRecords[index];
 
 			for (auto alloc_record_it = alloc_records.begin(); alloc_record_it != alloc_records.end();)
 			{
@@ -55,7 +41,7 @@ namespace engine::memory
 				}
 			}
 
-			m_Impl->m_LookupTable.erase(it);
+			m_LookupTable.erase(it);
 		}
 	}
 
@@ -64,7 +50,7 @@ namespace engine::memory
 		size_t sum = 0;
 
 		const size_t index = static_cast<size_t>(_mem_category);
-		const std::list<SAllocationRecord>& alloc_records = m_Impl->m_AllocationRecords[index];
+		const std::list<SAllocationRecord>& alloc_records = m_AllocationRecords[index];
 		for (const auto& alloc_record : alloc_records)
 		{
 			sum += alloc_record.m_Size;
@@ -75,12 +61,12 @@ namespace engine::memory
 
 	void CMemoryProfiler::SetActive(bool _is_active)
 	{
-		m_Impl->m_IsActive = _is_active;
+		m_IsActive = _is_active;
 	}
 
 	bool CMemoryProfiler::IsActive() const
 	{
-		return m_Impl->m_IsActive;
+		return m_IsActive;
 	}
 
 	void CMemoryProfiler::DumpSummaryMemoryUsageConsole() const
@@ -105,7 +91,7 @@ namespace engine::memory
 			const std::string_view mem_category_text = engine::rtti::CRTTIEnum<EMemoryCategory>::ToString(mem_category);
 			std::cout << "Memory usage for category " << mem_category_text << ": " << memory_usage << " bytes\n";
 
-			const std::list<SAllocationRecord>& alloc_records = m_Impl->m_AllocationRecords[i];
+			const std::list<SAllocationRecord>& alloc_records = m_AllocationRecords[i];
 			for (const auto& alloc_record : alloc_records)
 			{
 				std::cout << "Address: " << alloc_record.m_Address << ", Size: " << alloc_record.m_Size << "\nCallstack:\n";

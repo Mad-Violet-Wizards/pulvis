@@ -2,7 +2,7 @@
 #include "ApplicationStateMachine.hpp"
 
 #include "engine/core/ApplicationContext.hpp"
-#include "engine/project/ProjectService.hpp"
+#include "engine/game/GameService.hpp"
 #include "engine/rendering/RenderingService.hpp"
 
 namespace engine::core
@@ -24,11 +24,8 @@ namespace engine::core
 		std::unique_ptr<IApplicationState> state_initialize = std::make_unique<AppState_Initialize>(this);
 		m_AvailableStates.emplace_back(std::move(state_initialize));
 
-		std::unique_ptr<IApplicationState> state_project_create = std::make_unique<AppState_ProjectCreate>(this);
-		m_AvailableStates.emplace_back(std::move(state_project_create));
-
-		std::unique_ptr<IApplicationState> state_project_load = std::make_unique<AppState_ProjectLoad>(this);
-		m_AvailableStates.emplace_back(std::move(state_project_load));
+		std::unique_ptr<IApplicationState> state_game_load = std::make_unique<AppState_GameLoad>(this);
+		m_AvailableStates.emplace_back(std::move(state_game_load));
 
 		std::unique_ptr<IApplicationState> state_game_loop = std::make_unique<AppState_GameLoop>(this);
 		m_AvailableStates.emplace_back(std::move(state_game_loop));
@@ -115,9 +112,9 @@ namespace engine::core
 	{
 		m_StateMachine->GetContext()->m_Filesystem->Mount();
 
-		engine::projects::ProjectService::GetInstance().Initialize(m_StateMachine->GetContext()->m_Filesystem);
+		engine::game::CGameService::GetInstance().Initialize(m_StateMachine->GetContext()->m_Filesystem);
 		engine::rendering::RenderingService::GetInstance().Initialize(rendering::ERendererType::OpenGL);
-		m_StateMachine->QueueState(EApplicationState::ProjectLoad);
+		m_StateMachine->QueueState(EApplicationState::GameLoad);
 
 	}
 
@@ -127,7 +124,6 @@ namespace engine::core
 
 	void AppState_Initialize::Update()
 	{
-
 	}
 
 	EApplicationState AppState_Initialize::GetState() const
@@ -136,109 +132,32 @@ namespace engine::core
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	AppState_ProjectCreate::AppState_ProjectCreate(ApplicationStateMachine* _stateMachine)
+	AppState_GameLoad::AppState_GameLoad(ApplicationStateMachine* _stateMachine)
 		: IApplicationState(_stateMachine)
 	{
 	}
 
-	void AppState_ProjectCreate::OnEnter()
+	void AppState_GameLoad::OnEnter()
+	{
+		engine::game::CGameService::GetInstance().StartGameLoadThreadTask();
+	}
+
+	void AppState_GameLoad::OnExit()
 	{
 	}
 
-	void AppState_ProjectCreate::OnExit()
+	void AppState_GameLoad::Update()
 	{
-	}
-
-	void AppState_ProjectCreate::Update()
-	{
-		if (m_ProjectName.empty())
+		if (engine::game::CGameService::GetInstance().ConsumeProjectLoaded())
 		{
-			std::string project_name;
-			std::cout << "Enter project name: ";
-			std::cin >> project_name;
-			m_ProjectName = project_name;
-		}
-
-		if (m_ProjectPath.empty())
-		{
-			std::string project_path;
-			std::cout << "Enter ABSOLUTE project path: ";
-			std::cin >> project_path;
-			m_ProjectPath = project_path;
-		}
-
-		if (!m_CreateDirectory.has_value())
-		{
-			std::string create_directory;
-			std::cout << "Create directory? (y/n): ";
-			std::cin >> create_directory;
-			m_CreateDirectory = create_directory == "y";
-		}
-			
-		if (!m_ProjectName.empty() && !m_ProjectPath.empty() && m_CreateDirectory.has_value())
-		{
- 			engine::projects::ProjectService::GetInstance().CreateProject(m_ProjectName, m_ProjectPath, m_CreateDirectory.value());
-			m_StateMachine->QueueState(EApplicationState::ProjectLoad);
+			engine::game::CGameService::GetInstance().SetupShaders();
+			m_StateMachine->QueueState(EApplicationState::GameLoop);
 		}
 	}
 
-	EApplicationState AppState_ProjectCreate::GetState() const
+	EApplicationState AppState_GameLoad::GetState() const
 	{
-		return EApplicationState::ProjectCreate;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	AppState_ProjectLoad::AppState_ProjectLoad(ApplicationStateMachine* _stateMachine)
-		: IApplicationState(_stateMachine)
-	{
-
-	}
-
-	void AppState_ProjectLoad::OnEnter()
-	{
-		engine::projects::ProjectService::GetInstance().GetProjectNames(m_ProjectNamesList);
-	}
-
-	void AppState_ProjectLoad::OnExit()
-	{
-	}
-
-	void AppState_ProjectLoad::Update()
-	{
-		if (m_ProjectNameToLoad.empty())
-		{
-			if (m_ProjectNamesList.size() < 1)
-			{
-				std::cout << "Empty.\n-1 to back.";
-				return;
-			}
-
-			const size_t project_idx = 0;
-			m_ProjectNameToLoad = m_ProjectNamesList[project_idx];
-		}
-		else
-		{
-			ProjectService& project_service = engine::projects::ProjectService::GetInstance();
-			if (!project_service.GetIsProjectLoadInProgress() && project_service.GetProjectContext() == nullptr)
-			{
-				engine::projects::ProjectService::GetInstance().LoadProject(m_ProjectNameToLoad);
-			}
-
-			if (project_service.ConsumeProjectLoaded())
-			{
-				std::cout << "[AppStateMachine::ProjectLoad] Finished at frame: " << m_StateMachine->GetContext()->m_FrameNumber << "\n";
-				engine::projects::ProjectService::GetInstance().SetupShaders();
-				m_ProjectNamesList.clear();
-				m_ProjectNameToLoad.clear();
-				m_StateMachine->QueueState(EApplicationState::GameLoop);
-			}
-		}
-	}
-
-	EApplicationState AppState_ProjectLoad::GetState() const
-	{
-		return EApplicationState::ProjectLoad;
+		return EApplicationState::GameLoad;
 	}
 
 	//////////////////////////////////////////////////////////////////////////

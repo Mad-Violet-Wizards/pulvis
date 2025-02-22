@@ -3,14 +3,14 @@
 #include "engine/filesystem/Serializable.hpp"
 #include "engine/filesystem/FileDataModel.hpp"
 
-namespace engine::projects
+namespace engine::game
 {
-	class CProjectFileDataModel : public engine::fs::IFileDataModel
+	class CGameFileDataModel : public engine::fs::IFileDataModel
 	{
 		public:
 
-			CProjectFileDataModel();
-			CProjectFileDataModel(const std::string& _name, const std::string& _path, unsigned int _version_major, unsigned int _version_minor, unsigned int _version_patch, unsigned int _engine_version_hash);
+			CGameFileDataModel();
+			CGameFileDataModel(const std::string& _name, const std::string& _path, unsigned int _version_major, unsigned int _version_minor, unsigned int _version_patch, unsigned int _engine_version_hash);
 
 			template<class Archive>
 			void serialize(Archive& ar)
@@ -34,5 +34,5 @@ namespace engine::projects
 	};
 }
 
-using namespace engine::projects;
-REGISTER_SERIALIZABLE(CProjectFileDataModel);
+using namespace engine::game;
+REGISTER_SERIALIZABLE(CGameFileDataModel);

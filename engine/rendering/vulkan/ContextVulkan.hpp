@@ -1,6 +1,5 @@
 #pragma once
 
-#include "engine/core/Export.hpp"
 #include "engine/rendering/Renderer.hpp"
 
 #include <vulkan/vulkan.h>

@@ -4,13 +4,12 @@
 #include "RTTIMethod.hpp"
 #include "RTTIField.hpp"
 #include "RTTIHash.hpp"
-#include "engine/core/Export.hpp"
 
 namespace engine::rtti
 {
 	constexpr static const char* s_RttiInvalidClass = "INVALID_CLASS";
 
-	class PULVIS_API CRTTIClass
+	class CRTTIClass
 	{
 	public:
 
@@ -19,11 +18,7 @@ namespace engine::rtti
 		static CRTTIClass* FindInStorage(const char* _name);
 		static const CRTTIClass* FindConstInStorage(const char* _name);
 
-		CRTTIClass()
-		{
-			m_Impl = nullptr;
-		}
-
+		CRTTIClass() = default;
 		CRTTIClass(const char* _name);
 		~CRTTIClass();
 
@@ -31,7 +26,6 @@ namespace engine::rtti
 		type_id_t GetTypeId() const;
 
 		void AttachParent(CRTTIClass* _parent);
-
 
 		void AddMethod(CRTTIMethod* _method);
 		CRTTIMethod* FindMethodByName(const char* _method_name);
@@ -43,7 +37,10 @@ namespace engine::rtti
 
 	private:
 
-		class Impl;
-		Impl* m_Impl;
+		std::string m_Name;
+		type_id_t m_TypeId;
+		std::vector<CRTTIMethod*> m_Methods;
+		std::vector<CRTTIField*> m_Fields;
+		std::vector<CRTTIClass*> m_Parents;
 	};
 }

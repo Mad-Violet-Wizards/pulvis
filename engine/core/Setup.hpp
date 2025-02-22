@@ -12,7 +12,7 @@ namespace core
 		Editor
 	};
 
-	struct PULVIS_API SApplicationSetup
+	struct SApplicationSetup
 	{
 		char* m_ApplicationName;
 		char* m_AplicationToRun;

@@ -4,6 +4,6 @@ namespace engine
 {
 	namespace fs
 	{
-		PULVIS_API std::string GetEnginePath();
+		std::string GetEnginePath();
 	}
 }

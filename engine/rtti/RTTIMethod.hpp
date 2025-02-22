@@ -10,7 +10,7 @@ namespace engine::rtti
 {
 	constexpr static const char* s_RttiInvalidMethod = "INVALID_METHOD";
 
-	class PULVIS_API CRTTIMethod
+	class CRTTIMethod
 	{
 		public:
 

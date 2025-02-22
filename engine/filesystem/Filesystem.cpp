@@ -8,52 +8,39 @@
 namespace engine::fs
 {
 
-	class Filesystem::Impl
-	{
-		public:
-
-			bool m_Mounted;
-			std::string m_Name;
-			std::filesystem::path m_AbsolutePath;
-
-			std::vector<std::string> m_MountedFilelist;
-	};
-
 	//////////////////////////////////////////////////////////////////////////
 		Filesystem::Filesystem(const std::string& _name, const std::string& _absolute_path)
 		{
-			m_Impl = new Impl();
-			m_Impl->m_Name = _name;
-			m_Impl->m_AbsolutePath = _absolute_path;
-			m_Impl->m_Mounted = false;
+			m_Name = _name;
+			m_AbsolutePath = _absolute_path;
+			m_Mounted = false;
 		}
 
 		Filesystem::~Filesystem()
 		{
-			delete m_Impl;
 		}
 
 		void Filesystem::Mount()
 		{
-			if (!std::filesystem::exists(m_Impl->m_AbsolutePath))
+			if (!std::filesystem::exists(m_AbsolutePath))
 			{
-				std::cout << "[Filesystem] " << m_Impl->m_Name << " creating directory : " << m_Impl->m_AbsolutePath << "\n";
-				std::filesystem::create_directory(m_Impl->m_AbsolutePath);
+				std::cout << "[Filesystem] " << m_Name << " creating directory : " << m_AbsolutePath << "\n";
+				std::filesystem::create_directory(m_AbsolutePath);
 			}
 
-			for (const auto& entry : std::filesystem::recursive_directory_iterator(m_Impl->m_AbsolutePath))
+			for (const auto& entry : std::filesystem::recursive_directory_iterator(m_AbsolutePath))
 			{
 				std::string path = entry.path().string();
-				path.erase(0, m_Impl->m_AbsolutePath.string().size());
+				path.erase(0, m_AbsolutePath.string().size());
 
 				if (path[0] == '\\' || path[0] == '/')
 					path.erase(0, 1);
 
-				std::cout << "[Filesystem] " << m_Impl->m_Name << " mounted: " << path << "\n";
-				m_Impl->m_MountedFilelist.push_back(path);
+				std::cout << "[Filesystem] " << m_Name << " mounted: " << path << "\n";
+				m_MountedFilelist.push_back(path);
 			}
 
-			m_Impl->m_Mounted = true;
+			m_Mounted = true;
 		}
 
 		void Filesystem::Unmount()
@@ -63,12 +50,12 @@ namespace engine::fs
 
 		bool Filesystem::IsMounted() const
 		{
-			return m_Impl->m_Mounted;
+			return m_Mounted;
 		}
 
 		std::optional<CFileHandle> engine::fs::Filesystem::OpenFile(const std::string& _relative_path, std::shared_ptr<IFileDataModel>* _file_data_model, EFileMode _open_mode)
 		{
-			std::filesystem::path file_path = m_Impl->m_AbsolutePath;
+			std::filesystem::path file_path = m_AbsolutePath;
 			file_path /= _relative_path;
 
 			ASSERT(_file_data_model, "[Filesystem] FileDataModel is nullptr.");
@@ -98,7 +85,7 @@ namespace engine::fs
 
 		std::optional<CFileHandle> engine::fs::Filesystem::OpenFile(const std::string& _relative_path, EFileMode _open_mode)
 		{
-			const std::filesystem::path file_path = m_Impl->m_AbsolutePath / _relative_path;
+			const std::filesystem::path file_path = m_AbsolutePath / _relative_path;
 			
 			const bool create_if_no_exists = GetCreateFileIfNotExists(_open_mode);
 
@@ -125,7 +112,7 @@ namespace engine::fs
 
 		void Filesystem::GetFilenamesInDirectory(const std::string& _relative_path, std::vector<std::string>& _out_filenames_list) const
 		{
-			const std::filesystem::path directory_path = m_Impl->m_AbsolutePath / _relative_path;
+			const std::filesystem::path directory_path = m_AbsolutePath / _relative_path;
 
 			for (const auto& entry : std::filesystem::directory_iterator(directory_path))
 			{
@@ -142,19 +129,19 @@ namespace engine::fs
 
 		bool Filesystem::GetFileExists(const std::string& _relative_path) const
 		{
-			const std::filesystem::path file_path = m_Impl->m_AbsolutePath / _relative_path;
+			const std::filesystem::path file_path = m_AbsolutePath / _relative_path;
 
 			return std::filesystem::exists(file_path);
 		}
 
 		std::vector<std::string>::const_iterator Filesystem::FileListBegin() const
 		{
-			return m_Impl->m_MountedFilelist.cbegin();
+			return m_MountedFilelist.cbegin();
 		}
 
 		std::vector<std::string>::const_iterator Filesystem::FileListEnd() const
 		{
-			return m_Impl->m_MountedFilelist.cend();
+			return m_MountedFilelist.cend();
 		}
 
 		std::string Filesystem::GetFilename(const std::string& _filepath)

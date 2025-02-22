@@ -10,8 +10,6 @@ namespace engine::core
 	{
 		None,
 		Initialize,
-		ProjectCreate,
-		ProjectLoad,
 		GameLoad,
 		GameLoop,
 	};
@@ -49,40 +47,15 @@ namespace engine::core
 	};
 
 	//////////////////////////////////////////////////////////////////////////
-	class AppState_ProjectCreate : public IApplicationState
+	class AppState_GameLoad : public IApplicationState
 	{
 		public:
 
-			AppState_ProjectCreate(ApplicationStateMachine* _stateMachine);
-
+			AppState_GameLoad(ApplicationStateMachine* _stateMachine);
 			void OnEnter() override;
 			void OnExit() override;
 			void Update() override;
 			EApplicationState GetState() const override;
-
-	private:
-
-		std::string m_ProjectName;
-		std::string m_ProjectPath;
-		std::optional<bool> m_CreateDirectory;
-	};
-
-	//////////////////////////////////////////////////////////////////////////
-	class AppState_ProjectLoad : public IApplicationState
-	{
-		public:
-
-			AppState_ProjectLoad(ApplicationStateMachine* _stateMachine);
-
-			void OnEnter() override;
-			void OnExit() override;
-			void Update() override;
-			EApplicationState GetState() const override;
-
-		private:
-
-			std::vector<std::string> m_ProjectNamesList;
-			std::string m_ProjectNameToLoad;
 	};
 
 	//////////////////////////////////////////////////////////////////////////

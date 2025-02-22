@@ -22,7 +22,7 @@ namespace engine::rtti::detail
 		bool m_Valid = false;
 	};
 	//////////////////////////////////////////////////////////////////////////
-	class PULVIS_API CRTTIEnumStorage
+	class CRTTIEnumStorage
 	{
 		public:
 

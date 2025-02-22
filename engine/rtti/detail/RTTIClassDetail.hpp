@@ -2,11 +2,10 @@
 
 #include "engine/rtti/RTTITypeTraits.hpp"
 #include "engine/rtti/RTTIClass.hpp"
-#include "engine/core/Export.hpp"
 
 namespace engine::rtti::detail
 {
-	class PULVIS_API CRTTIClassStorage
+	class CRTTIClassStorage
 	{
 	public:
 

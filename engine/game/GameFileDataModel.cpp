@@ -1,9 +1,9 @@
 #include "engine/engine_pch.hpp"
-#include "ProjectFileDataModel.hpp"
+#include "GameFileDataModel.hpp"
 
-namespace engine::projects
+namespace engine::game
 {
-	CProjectFileDataModel::CProjectFileDataModel()
+	CGameFileDataModel::CGameFileDataModel()
 		: m_Name("Unkown")
 		, m_Path("Unkown")
 		, m_VersionMajor(0)
@@ -13,7 +13,7 @@ namespace engine::projects
 	{
 	}
 
-	CProjectFileDataModel::CProjectFileDataModel(const std::string& _name, const std::string& _path, unsigned int _version_major, unsigned int _version_minor, unsigned int _version_patch, unsigned int _engine_version_hash)
+	CGameFileDataModel::CGameFileDataModel(const std::string& _name, const std::string& _path, unsigned int _version_major, unsigned int _version_minor, unsigned int _version_patch, unsigned int _engine_version_hash)
 		: m_Name(_name)
 		, m_Path(_path)
 		, m_VersionMajor(_version_major)

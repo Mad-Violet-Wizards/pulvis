@@ -5,7 +5,7 @@
 
 namespace engine::rendering
 {
-	class PULVIS_API RenderingService : public Singleton<RenderingService>
+	class RenderingService : public Singleton<RenderingService>
 	{
 		public:
 
@@ -28,7 +28,6 @@ namespace engine::rendering
 
 			RenderingService();
 
-			class Impl;
-			Impl* m_Impl;
+			IRenderer* m_Renderer{ nullptr };
 	};
 }

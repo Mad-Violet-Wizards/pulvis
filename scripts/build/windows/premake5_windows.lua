@@ -1,6 +1,6 @@
 
 project "Engine"
-    kind "SharedLib"
+    kind "StaticLib"
     language "C++"
     cppdialect "C++latest"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
@@ -12,8 +12,9 @@ project "Engine"
     files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp", "%{wks.location}/engine/**.h", "%{wks.location}/engine/**.c" }
     buildoptions{ "/utf-8", "/Zc:preprocessor"}
     flags("FatalWarnings")
+    linkoptions { "/ignore:4006" }
 
-    filter { "files:**/vendor/glad.c" }
+    filter { "files:**/vendor/**.c" }
         flags { "NoPCH" }
 
     filter "configurations:*"
@@ -38,7 +39,6 @@ project "Engine"
         defines { "DEBUG" }
         symbols "On"
         buildoptions { "/ZI", "/MP" }
-        linkoptions { "/INCREMENTAL" }
 
     filter "configurations:Release"
         defines { "RELEASE" }
@@ -52,6 +52,7 @@ project "Game"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
     buildoptions{ "/utf-8", "/Zc:preprocessor" }
+    linkoptions { "/ignore:4006" }
 
     files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp", "%{wks.location}/game/**.h", "%{wks.location}/game/**.c" }
 
@@ -75,7 +76,6 @@ project "Game"
         defines { "DEBUG" }
         symbols "On"
         buildoptions { "/ZI", "/MP" }
-        linkoptions { "/INCREMENTAL" }
 
     filter "configurations:Release"
         defines { "RELEASE" }

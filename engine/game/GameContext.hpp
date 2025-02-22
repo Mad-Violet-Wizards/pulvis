@@ -1,22 +1,21 @@
 #pragma once
 
 #include "engine/filesystem/Filesystem.hpp"
-#include "ProjectFileDataModel.hpp"
+#include "GameFileDataModel.hpp"
 
-namespace engine::projects
+namespace engine::game
 {
-	class CProjectContext
+	class CGameContext
 	{
 		public:
 
-			CProjectContext(CProjectFileDataModel* _file_data_model);
-			~CProjectContext();
+			CGameContext(const std::string& _game_path);
+			~CGameContext();
 
 			engine::fs::Filesystem* GetFilesystem() const { return m_Filesystem; }
 
 		private:
 
-			CProjectFileDataModel* m_FileDataModel;
 			engine::fs::Filesystem* m_Filesystem = nullptr;
 	};
 }
