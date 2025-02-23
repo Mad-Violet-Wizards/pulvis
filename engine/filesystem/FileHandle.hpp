@@ -10,6 +10,7 @@
 #include "Serializable.hpp"
 #include "TextFileDataModel.hpp"
 #include "ShaderFileDataModel.hpp"
+#include "ScriptFileDataModel.hpp"
 
 namespace engine
 {
@@ -196,6 +197,12 @@ namespace engine
 					{
 						CShaderFileDataModel* shader_model = dynamic_cast<CShaderFileDataModel*>(m_FileDataModel->get());
 						shader_model->Deserialize(m_FileStream);
+						break;
+					}
+					case EFileDataModelType::Script:
+					{
+						CScriptFileDataModel* script_model = dynamic_cast<CScriptFileDataModel*>(m_FileDataModel->get());
+						script_model->Deserialize(m_FileStream);
 						break;
 					}
 					default:

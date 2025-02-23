@@ -7,6 +7,14 @@
 namespace engine::game
 {
 	////////////////////////////////////////////////////////////////////////////////
+	struct SGameLoadThreadTaskData
+	{
+		void Clear();
+
+		std::unordered_map<std::string, std::vector<std::shared_ptr<CShaderFileDataModel>>> m_ShaderDataModels;
+		std::unordered_map<std::string, std::shared_ptr<CScriptFileDataModel>> m_ScriptDataModels;
+	};
+	////////////////////////////////////////////////////////////////////////////////
 	class CGameService : public Singleton<CGameService>
 	{
 		public:
@@ -25,7 +33,8 @@ namespace engine::game
 			bool GetIsProjectLoadInProgress() const;
 
 			void SetupShaders() const;
-			
+			void SetupScripts();
+
 	private:
 
 		void ThreadTask_LoadProject();
@@ -36,7 +45,7 @@ namespace engine::game
 		std::unique_ptr<CGameContext> m_GameContext{ nullptr };
 		engine::threads::CThreadTask* m_LoadProjectTask{ nullptr };
 
-		std::unordered_map<std::string, std::vector<std::shared_ptr<CShaderFileDataModel>>> m_ShaderDataModels;
+		SGameLoadThreadTaskData m_GameLoadThreadTaskData;
 
 		std::atomic<bool> m_GameLoadInProgress;
 		std::atomic<bool> m_GameLoadThreadTaskFinished;

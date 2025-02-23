@@ -45,6 +45,11 @@ namespace engine::rtti
     return detail::CRTTIClassStorage::FindConstClassByName(_name);
   }
 
+  void CRTTIClass::ExportRTTI(sol::state& _lua_state)
+  {
+    detail::CRTTIClassStorage::ExportRTTI(_lua_state);
+  }
+
   void CRTTIClass::AttachParent(CRTTIClass* _parent)
   {
 		m_Parents.push_back(_parent);

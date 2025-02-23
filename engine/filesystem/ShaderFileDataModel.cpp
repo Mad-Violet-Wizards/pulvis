@@ -16,7 +16,7 @@ namespace engine::fs
 		std::string l;
 		while (std::getline(_file_stream, l))
 		{
-						m_ShaderSource += l + "\n";
+			m_ShaderSource += l + "\n";
 		}
 	}
 

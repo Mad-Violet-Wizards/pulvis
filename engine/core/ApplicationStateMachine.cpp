@@ -4,6 +4,7 @@
 #include "engine/core/ApplicationContext.hpp"
 #include "engine/game/GameService.hpp"
 #include "engine/rendering/RenderingService.hpp"
+#include "engine/scriptable/ScriptableService.hpp"
 
 namespace engine::core
 {
@@ -114,6 +115,7 @@ namespace engine::core
 
 		engine::game::CGameService::GetInstance().Initialize(m_StateMachine->GetContext()->m_Filesystem);
 		engine::rendering::RenderingService::GetInstance().Initialize(rendering::ERendererType::OpenGL);
+		engine::scriptable::CScriptableService::GetInstance().Initialize();
 		m_StateMachine->QueueState(EApplicationState::GameLoad);
 
 	}
@@ -151,6 +153,8 @@ namespace engine::core
 		if (engine::game::CGameService::GetInstance().ConsumeProjectLoaded())
 		{
 			engine::game::CGameService::GetInstance().SetupShaders();
+			engine::game::CGameService::GetInstance().SetupScripts();
+
 			m_StateMachine->QueueState(EApplicationState::GameLoop);
 		}
 	}

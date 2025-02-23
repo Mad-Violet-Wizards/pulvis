@@ -12,6 +12,7 @@ namespace fs
 		Binary,
 		Text,
 		Shader,
+		Script,
 		VertexShader,
 		FragmentShader,
 		GeometryShader,
@@ -26,6 +27,7 @@ namespace fs
 			case EFileDataModelType::Binary: return "Binary";
 			case EFileDataModelType::Text: return "Text";
 			case EFileDataModelType::Shader: return "Shader";
+			case EFileDataModelType::Script: return "Script";
 			case EFileDataModelType::Unknown: return "???";
 			default: return "???";
 		}
@@ -39,6 +41,8 @@ namespace fs
 			return EFileDataModelType::Binary;
 		else if (_file_extension == ".txt")
 			return EFileDataModelType::Text;
+		else if (_file_extension == ".lua")
+			return EFileDataModelType::Script;
 		else if (_file_extension == ".frag" || _file_extension == ".vert" || _file_extension == ".geom")
 			return EFileDataModelType::Shader;
 		else

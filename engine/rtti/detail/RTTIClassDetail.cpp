@@ -57,6 +57,14 @@ namespace engine::rtti::detail
 		return nullptr;
 	}
 
+	void CRTTIClassStorage::ExportRTTI(sol::state& _lua_state)
+	{
+		for (CRTTIClass* c : s_ClassesStorage)
+		{
+
+		}
+	}
+
 	void AttachParent(const char* _class_name, const char* _parent_name)
 	{
 		engine::rtti::detail::CRTTIClassStorage::FindClassByName(_class_name)->AttachParent(engine::rtti::detail::CRTTIClassStorage::FindClassByName(_parent_name));

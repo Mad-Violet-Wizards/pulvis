@@ -34,7 +34,7 @@
 
 // beginning of sol/version.hpp
 
-#include <sol/config.hpp>
+#include "config.hpp"
 
 #define SOL_VERSION_MAJOR 3
 #define SOL_VERSION_MINOR 2
@@ -2955,9 +2955,9 @@ struct pre_main {
 	#include <lua.hpp>
 #else
 	extern "C" {
-		#include <lua.h>
-		#include <lauxlib.h>
-		#include <lualib.h>
+		#include <vendor/lua/lua.h>
+		#include <vendor/lua/lauxlib.h>
+		#include <vendor/lua/lualib.h>
 	}
 #endif // C++ Mangling for Lua vs. Not
 
