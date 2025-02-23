@@ -5,7 +5,7 @@
 #include "RTTIField.hpp"
 #include "RTTIHash.hpp"
 
-#include <vendor/common/include/sol3/sol.hpp>
+#include "engine/vendor/sol3/sol.hpp"
 
 namespace engine::rtti
 {
@@ -19,7 +19,6 @@ namespace engine::rtti
 		static const CRTTIClass* FindConstInStorage(type_id_t _type_id);
 		static CRTTIClass* FindInStorage(const char* _name);
 		static const CRTTIClass* FindConstInStorage(const char* _name);
-		static void ExportRTTI(sol::state& _lua_state);
 
 		CRTTIClass() = default;
 		CRTTIClass(const char* _name);
@@ -37,6 +36,7 @@ namespace engine::rtti
 		void AddField(CRTTIField* _field);
 		CRTTIField* FindFieldByName(const char* _field_name);
 		const CRTTIField* FindConstFieldByName(const char* _field_name) const;
+		const std::vector<CRTTIField*>& GetFields() const;
 
 	private:
 

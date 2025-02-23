@@ -44,7 +44,7 @@ public:																																										    \
 		}																																												  \
 		return nullptr;																																						\
 	}																																													  \
-private:																																											\
+public:																																											\
   struct CONCATENATE(SClassRegistrar_, class_t)																							  \
 	{																																													  \
 		CONCATENATE(SClassRegistrar_, class_t)()																								  \
@@ -55,10 +55,10 @@ private:																																											\
 				RegisterParents<__VA_ARGS__>(class_name_str.c_str());																  \
 		}																																												  \
 	};																																												  \
-	inline static CONCATENATE(SClassRegistrar_, class_t) s_ClassRegistrar_##class_t{};				  \
+	inline static CONCATENATE(SClassRegistrar_, class_t) s_ClassRegistrar_##class_t {};				  \
 //////////////////////////////////////////////////////////////////////////
 #define RTTI_METHOD_API(class_t, method_t)																																																					\
-private:																																																																						\
+public:																																																																						\
   inline static engine::rtti::CRTTIMethod CONCATENATE(s_Method_, CONCATENATE(class_t, method_t)) {#class_t, #method_t, &class_t::method_t};					\
 	struct CONCATENATE(SMethodRegistrar_, CONCATENATE(class_t, method_t))																																							\
 	{																																																																									\
@@ -73,10 +73,10 @@ private:																																																																						\
 			}																																																																							\
 		}																																																																								\
 	};																																																																								\
-	inline static CONCATENATE(SMethodRegistrar_, CONCATENATE(class_t, method_t)) CONCATENATE(s_MethodRegistrar, CONCATENATE(class_t, method_t)) = {}; \
+	inline static CONCATENATE(SMethodRegistrar_, CONCATENATE(class_t, method_t)) CONCATENATE(s_MethodRegistrar, CONCATENATE(class_t, method_t)); \
 //////////////////////////////////////////////////////////////////////////
 #define RTTI_FIELD_API(class_t, field_name)																																																						\
-private:																																																																							\
+public:																																																																							\
 	inline static engine::rtti::CRTTIField CONCATENATE(s_Field_, CONCATENATE(class_t, field_name)) {#field_name, &class_t::field_name};									\
 	struct CONCATENATE(SFieldRegistrar_, CONCATENATE(class_t, field_name))																																							\
 	{																																																																										\
@@ -91,7 +91,7 @@ private:																																																																							\
 			}																																																																								\
 		}																																																																									\
 	};																																																																									\
-	inline static CONCATENATE(SFieldRegistrar_, CONCATENATE(class_t, field_name)) CONCATENATE(s_FieldRegistrar, CONCATENATE(class_t, field_name)) = {}; \
+	inline static CONCATENATE(SFieldRegistrar_, CONCATENATE(class_t, field_name)) CONCATENATE(s_FieldRegistrar, CONCATENATE(class_t, field_name)); \
 //////////////////////////////////////////////////////////////////////////
 #define RTTI_ENUM_API(enumName)																					\
 static engine::rtti::CRTTIEnum<enumName> s_Enum_##enumName = {}; \

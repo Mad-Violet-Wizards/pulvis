@@ -10,7 +10,9 @@ namespace engine::resources
 
 		public:
 
-			CTile() = default;
+			CTile();
+
+			static void ExportScriptable(sol::state& _lua_state);
 
 			unsigned int m_TileWidth;
 			RTTI_FIELD_API(CTile, m_TileWidth);
@@ -20,6 +22,8 @@ namespace engine::resources
 
 			std::string m_TilePath;
 			RTTI_FIELD_API(CTile, m_TilePath);
+
+			bool m_Valid;
 	};
 
 	class CAtlasTile : public engine::rtti::IRTTIBase
@@ -28,7 +32,9 @@ namespace engine::resources
 
 		public:
 
-			CAtlasTile() = default;
+			CAtlasTile();
+
+			static void ExportScriptable(sol::state& _lua_state);
 
 			unsigned int m_TileWidth;
 			RTTI_FIELD_API(CAtlasTile, m_TileWidth);
@@ -44,5 +50,7 @@ namespace engine::resources
 
 			unsigned int m_AtlasPositionY;
 			RTTI_FIELD_API(CAtlasTile, m_AtlasPositionY);
+
+			bool m_Valid;
 	};
 }

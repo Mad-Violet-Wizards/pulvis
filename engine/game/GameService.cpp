@@ -9,6 +9,7 @@
 #include "engine/rendering/RenderingService.hpp"
 #include "engine/rendering/opengl/RendererOpenGL.hpp"
 #include "engine/scriptable/ScriptableService.hpp"
+#include "engine/resources/ResourceService.hpp"
 
 namespace engine::game
 {
@@ -32,6 +33,8 @@ namespace engine::game
 
 	void CGameService::Initialize(engine::fs::Filesystem* _filesystem)
 	{
+		resources::CResourceService::GetInstance().RegisterRTTI();
+
 		std::vector<std::string> files;
 		_filesystem->GetFilenamesInDirectory(".", files);
 

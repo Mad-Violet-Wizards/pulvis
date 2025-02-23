@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/filesystem/ScriptFileDataModel.hpp"
-#include <vendor/common/include/sol3/sol.hpp>
+#include "engine/vendor/sol3/sol.hpp"
 
 namespace engine::scriptable
 {

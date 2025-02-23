@@ -3,7 +3,7 @@
 #include "engine/rtti/RTTITypeTraits.hpp"
 #include "engine/rtti/RTTIClass.hpp"
 
-#include <vendor/common/include/sol3/sol.hpp>
+#include "engine/vendor/sol3/sol.hpp"
 
 namespace engine::rtti::detail
 {
@@ -18,8 +18,6 @@ namespace engine::rtti::detail
 
 		static CRTTIClass* FindClassById(type_id_t _id);
 		static const CRTTIClass* FindConstClassById(type_id_t _type_id);
-
-		static void ExportRTTI(sol::state& _lua_state);
 
 	private:
 
