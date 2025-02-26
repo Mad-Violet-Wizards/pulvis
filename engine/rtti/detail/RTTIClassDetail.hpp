@@ -16,6 +16,9 @@ namespace engine::rtti::detail
 		static CRTTIClass* FindClassByName(const char* _name);
 		static const CRTTIClass* FindConstClassByName(const char* _name);
 
+		static CRTTIClass* FindClassByNameSv(std::string_view _sv_name);
+		static const CRTTIClass* FindConstClassByNameSv(std::string_view _sv_name);
+
 		static CRTTIClass* FindClassById(type_id_t _id);
 		static const CRTTIClass* FindConstClassById(type_id_t _type_id);
 

@@ -38,6 +38,15 @@ namespace engine::rtti
 			const size_t end = rawTypename.find(">(void)") - start;
 			return rawTypename.substr(start, end);
 		}
+
+	template<typename T>
+	static constexpr std::string_view GetScopedTypename()
+	{
+		const std::string_view rawTypename = GetTypename<T>();
+		const size_t start = rawTypename.find_last_of("::") + 1;
+		const size_t end = rawTypename.size() - start;
+		return rawTypename.substr(start, end);
+	}
 #else
 	template<typename T>
 	static constexpr std::string_view GetTypename() noexcept

@@ -36,7 +36,7 @@ namespace engine::fs
 				if (path[0] == '\\' || path[0] == '/')
 					path.erase(0, 1);
 
-				std::cout << "[Filesystem] " << m_Name << " mounted: " << path << "\n";
+				PULVIS_INFO_LOG("[Filesystem] {0} mounted: {1}", m_Name, path);
 				m_MountedFilelist.push_back(path);
 			}
 

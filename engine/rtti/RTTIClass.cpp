@@ -45,6 +45,16 @@ namespace engine::rtti
     return detail::CRTTIClassStorage::FindConstClassByName(_name);
   }
 
+  CRTTIClass* CRTTIClass::FindInStorage(std::string_view _sv_name)
+  {
+    return detail::CRTTIClassStorage::FindClassByNameSv(_sv_name);
+  }
+
+  const CRTTIClass* CRTTIClass::FindConstInStorage(std::string_view _sv_name)
+  {
+    return detail::CRTTIClassStorage::FindConstClassByNameSv(_sv_name);
+  }
+
   void CRTTIClass::AttachParent(CRTTIClass* _parent)
   {
 		m_Parents.push_back(_parent);

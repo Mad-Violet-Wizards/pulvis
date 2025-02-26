@@ -1,14 +1,36 @@
 #pragma once
 
 #include "engine/rtti/RTTIMacros.hpp"
+#include "engine/scriptable/Scriptable.hpp"
 
 namespace engine::resources
 {
-	class CTile : public engine::rtti::IRTTIBase
+	//////////////////////////////////////////////////////////////////////////
+	enum class ETileType
 	{
-		RTTI_CLASS_API(CTile);
+		Regular,
+		Atlas,
+		Animated,
+		AtlasAnimated
+	};
 
-		public:
+	//////////////////////////////////////////////////////////////////////////
+	class ITile : public scriptable::IScriptable
+	{
+		RTTI_CLASS_API(ITile, IScriptable);
+
+public:
+
+			virtual ~ITile() = default;
+			virtual ETileType GetTileType() const = 0;
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+	class CTile : public ITile
+	{
+		RTTI_CLASS_API(CTile, ITile);
+
+public:
 
 			CTile();
 
@@ -23,14 +45,22 @@ namespace engine::resources
 			std::string m_TilePath;
 			RTTI_FIELD_API(CTile, m_TilePath);
 
+			ETileType GetTileType() const override { return ETileType::Regular; }
+
+			void Validate() override;
+			bool IsValid() const override { return m_Valid; }
+
+private:
+
 			bool m_Valid;
 	};
 
-	class CAtlasTile : public engine::rtti::IRTTIBase
+	//////////////////////////////////////////////////////////////////////////
+	class CAtlasTile : public ITile
 	{
-		RTTI_CLASS_API(CAtlasTile);
+		RTTI_CLASS_API(CAtlasTile, ITile);
 
-		public:
+public:
 
 			CAtlasTile();
 
@@ -50,6 +80,13 @@ namespace engine::resources
 
 			unsigned int m_AtlasPositionY;
 			RTTI_FIELD_API(CAtlasTile, m_AtlasPositionY);
+
+			ETileType GetTileType() const override { return ETileType::Atlas; }
+
+			void Validate() override;
+			bool IsValid() const override { return m_Valid; }
+
+private:
 
 			bool m_Valid;
 	};

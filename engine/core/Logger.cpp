@@ -18,7 +18,7 @@ namespace engine::core
 	}
 	void CLogger::LogImpl(const SLogInfo& _log_info)
 	{
-		_log_info.ConsoleDump();
+		std::cout << _log_info.ConsoleDump();
 		m_LogFileDumpQueue.push(_log_info);
 	}
 }

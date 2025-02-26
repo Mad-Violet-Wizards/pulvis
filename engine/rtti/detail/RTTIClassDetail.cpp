@@ -33,6 +33,30 @@ namespace engine::rtti::detail
 		return nullptr;
 	}
 
+	CRTTIClass* CRTTIClassStorage::FindClassByNameSv(std::string_view _sv_name)
+	{
+		for (CRTTIClass* c : s_ClassesStorage)
+		{
+			if (c && c->GetName() == _sv_name)
+			{
+				return c;
+			}
+		}
+		return nullptr;
+	}
+
+	const CRTTIClass* CRTTIClassStorage::FindConstClassByNameSv(std::string_view _sv_name)
+	{
+		for (const CRTTIClass* c : s_ClassesStorage)
+		{
+			if (c && c->GetName() == _sv_name)
+			{
+				return c;
+			}
+		}
+		return nullptr;
+	}
+
 	CRTTIClass* CRTTIClassStorage::FindClassById(type_id_t _id)
 	{
 		for (CRTTIClass* c : s_ClassesStorage)

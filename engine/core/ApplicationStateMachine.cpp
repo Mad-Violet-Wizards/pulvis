@@ -6,6 +6,7 @@
 #include "engine/rendering/RenderingService.hpp"
 #include "engine/scriptable/ScriptableService.hpp"
 #include "engine/resources/TilesScriptable.hpp"
+#include "engine/resources/ResourceService.hpp"
 
 namespace engine::core
 {
@@ -155,6 +156,7 @@ namespace engine::core
 		{
 			engine::game::CGameService::GetInstance().SetupShaders();
 			engine::game::CGameService::GetInstance().SetupScripts();
+			engine::resources::CResourceService::GetInstance().LoadTileDefinitions();
 
 			m_StateMachine->QueueState(EApplicationState::GameLoop);
 		}

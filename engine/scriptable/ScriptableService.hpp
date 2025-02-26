@@ -15,6 +15,8 @@ namespace engine::scriptable
 			void Initialize();
 			void SetupScripts(std::unordered_map<std::string, std::shared_ptr<fs::CScriptFileDataModel>>* _scripts);
 
+			void InvokeScript(const std::string& _script_name);
+
 		private:
 
 			std::unordered_map<std::string, std::shared_ptr<fs::CScriptFileDataModel>>* m_Scripts;
