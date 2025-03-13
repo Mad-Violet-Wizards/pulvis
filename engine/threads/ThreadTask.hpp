@@ -136,7 +136,7 @@ namespace engine::threads
 {
 	class IThreadTaskImpl;
 
-	class PULVIS_API CThreadTask
+	class CThreadTask
 	{
 	public:
 

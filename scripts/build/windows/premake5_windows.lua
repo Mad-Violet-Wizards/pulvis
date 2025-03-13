@@ -1,6 +1,6 @@
 
 project "Engine"
-    kind "SharedLib"
+    kind "StaticLib"
     language "C++"
     cppdialect "C++latest"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
@@ -9,9 +9,13 @@ project "Engine"
     defines { "GLFW_DLL", "PULVIS_EXPORTS", "WINDOWS_OS", "FMT_HEADER_ONLY" }
     pchheader("engine/engine_pch.hpp")
     pchsource("%{wks.location}/engine/engine_pch.cpp")
-    files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp" }
+    files { "%{wks.location}/engine/**.hpp", "%{wks.location}/engine/**.cpp", "%{wks.location}/engine/**.h", "%{wks.location}/engine/**.c" }
     buildoptions{ "/utf-8", "/Zc:preprocessor"}
     flags("FatalWarnings")
+    linkoptions { "/ignore:4006" }
+
+    filter { "files:**/vendor/**.c" }
+        flags { "NoPCH" }
 
     filter "configurations:*"
         includedirs { 
@@ -35,7 +39,6 @@ project "Engine"
         defines { "DEBUG" }
         symbols "On"
         buildoptions { "/ZI", "/MP" }
-        linkoptions { "/INCREMENTAL" }
 
     filter "configurations:Release"
         defines { "RELEASE" }
@@ -49,8 +52,9 @@ project "Game"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
     buildoptions{ "/utf-8", "/Zc:preprocessor" }
+    linkoptions { "/ignore:4006" }
 
-    files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp" }
+    files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp", "%{wks.location}/game/**.h", "%{wks.location}/game/**.c" }
 
     filter "configurations:*"
         includedirs { 
@@ -72,7 +76,6 @@ project "Game"
         defines { "DEBUG" }
         symbols "On"
         buildoptions { "/ZI", "/MP" }
-        linkoptions { "/INCREMENTAL" }
 
     filter "configurations:Release"
         defines { "RELEASE" }
@@ -87,7 +90,7 @@ project "Playground"
     basedir("../../../")
     buildoptions{ "/utf-8", "/Zc:preprocessor" }
 
-    files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp" }
+    files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp", "%{wks.location}/playground/**.h", "%{wks.location}/playground/**.c" }
 
     filter "configurations:*"
         includedirs {

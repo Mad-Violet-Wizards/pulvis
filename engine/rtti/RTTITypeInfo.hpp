@@ -26,6 +26,11 @@ namespace engine::rtti
 				return CRTTITypeName::GetTypename<T>();
 			}
 
+			static constexpr std::string_view GetScopedTypeName() noexcept
+			{
+				return CRTTITypeName::template GetScopedTypename<T>();
+			}
+
 			static constexpr type_id_t GetTypeId() noexcept
 			{
 				return Hash(GetTypeName().data());

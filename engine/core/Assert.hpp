@@ -1,6 +1,5 @@
 #pragma once
 
-#include "engine/core/Export.hpp"
 #include "engine/patterns/Singleton.hpp"
 #include "engine/events/EventListener.hpp"
 
@@ -64,7 +63,7 @@ namespace engine
       std::vector<CAssertion> m_AssertionIgnoreList;
     };
 
-    class PULVIS_API CAssertManager : public Singleton<CAssertManager>, public engine::events::IEventListener
+    class CAssertManager : public Singleton<CAssertManager>, public engine::events::IEventListener
     {
     public:
 
@@ -84,8 +83,8 @@ namespace engine
 
       EAssertionAction GetUserAction() const;
 
-      class Impl;
-      Impl* m_Impl;
+			CAssertIgnoreList m_IgnoreList;
+			bool m_IsActive;
     };
   }
 }

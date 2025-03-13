@@ -9,7 +9,7 @@ namespace engine
 {
 namespace fs
 {
-	class PULVIS_API Filesystem
+	class Filesystem
 	{
 		public:
 
@@ -23,14 +23,27 @@ namespace fs
 			std::optional<CFileHandle> OpenFile(const std::string& _relative_path, std::shared_ptr<IFileDataModel>* _file_data_model, EFileMode _open_mode);
 			std::optional<CFileHandle> OpenFile(const std::string& _relative_path, EFileMode _open_mode);
 
+			void GetFilenamesInDirectory(const std::string& _relative_path, std::vector<std::string>& _out_filenames_list) const;
+
+			bool GetFileExists(const std::string& _relative_path) const;
+
+			std::vector<std::string>::const_iterator FileListBegin() const;
+			std::vector<std::string>::const_iterator FileListEnd() const;
+
+			static std::string GetFilename(const std::string& _filepath);
+			static std::string GetFileExtension(const std::string& _filename);
+
 		private:
 
 			bool GetCreateFileIfNotExists(EFileMode _open_mode) const;
 
 		private:
 
-			class Impl;
-			Impl* m_Impl = nullptr;
+			bool m_Mounted;
+			std::string m_Name;
+			std::filesystem::path m_AbsolutePath;
+
+			std::vector<std::string> m_MountedFilelist;
 	};
 }
 }

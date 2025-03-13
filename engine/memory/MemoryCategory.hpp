@@ -35,6 +35,4 @@ namespace engine::memory
 		Test,
 		Count
 	};
-
-	RTTI_ENUM_API(EMemoryCategory);
 }

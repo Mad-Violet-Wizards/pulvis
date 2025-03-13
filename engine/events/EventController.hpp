@@ -7,7 +7,7 @@
 
 namespace engine::events
 {
-	class PULVIS_API CEventController : public Singleton<CEventController>
+	class CEventController : public Singleton<CEventController>
 	{
 		public:
 

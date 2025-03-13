@@ -14,7 +14,7 @@ namespace engine::memory
 		std::vector<std::string> m_StackTrace;
 	};
 
-	class PULVIS_API CMemoryProfiler : public Singleton<CMemoryProfiler>
+	class CMemoryProfiler : public Singleton<CMemoryProfiler>
 	{
 	public:
 
@@ -36,8 +36,12 @@ namespace engine::memory
 
 		friend class Singleton<CMemoryProfiler>;
 
-		class Impl;
-		Impl* m_Impl;
+		bool m_IsActive = false;
+
+		std::unordered_map<void*, EMemoryCategory> m_LookupTable;
+
+		constexpr static size_t s_AllocRecordArrayCount = static_cast<size_t>(EMemoryCategory::Count);
+		std::array<std::list<SAllocationRecord>, s_AllocRecordArrayCount> m_AllocationRecords;
 
 	};
 }

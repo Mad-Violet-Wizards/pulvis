@@ -16,7 +16,7 @@ namespace engine::events
 	};
 
 //////////////////////////////////////////////////////////////////////////
-	class PULVIS_API CEventBus
+	class CEventBus
 	{
 		public:
 
@@ -36,7 +36,9 @@ namespace engine::events
 
 	private:
 		
-		class Impl;
-		Impl* m_Impl;
+		std::unordered_multimap<event_t, IEventListener*> m_EventListeners;
+		std::list<SNextFrameEventGuard> m_NextFrameEvents;
+
+		EEventBus m_BusType = EEventBus::Invalid;
 	};
 }

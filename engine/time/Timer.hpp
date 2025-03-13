@@ -14,7 +14,7 @@
 
 namespace engine::time
 {
-  class PULVIS_API Timer
+  class Timer
   {
 		public:
 

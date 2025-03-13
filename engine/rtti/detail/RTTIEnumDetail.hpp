@@ -22,7 +22,7 @@ namespace engine::rtti::detail
 		bool m_Valid = false;
 	};
 	//////////////////////////////////////////////////////////////////////////
-	class PULVIS_API CRTTIEnumStorage
+	class CRTTIEnumStorage
 	{
 		public:
 
@@ -94,7 +94,10 @@ namespace engine::rtti::detail
 
 			constexpr size_t start = function_signature.rfind(enum_name) + enum_name.size();
 
-			if constexpr (function_signature[start] == ':' && function_signature[start + 1] == ':')
+			if (start >= function_signature.size())
+				return;
+
+			if (function_signature[start] == ':' && function_signature[start + 1] == ':')
 			{
 				constexpr size_t enum_value_start = start + 2;
 				constexpr size_t enum_value_end = function_signature.find(">(void)") - enum_value_start;

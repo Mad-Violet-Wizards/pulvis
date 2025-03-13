@@ -51,5 +51,10 @@ namespace engine
 			std::swap(m_UUID, _other.m_UUID);
 			return *this;
 		}
+
+		bool UUID::operator==(const UUID& _other) const
+		{
+			return m_UUID == _other.GetUUID();
+		}
 	}
 }

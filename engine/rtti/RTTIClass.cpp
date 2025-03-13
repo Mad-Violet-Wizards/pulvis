@@ -4,38 +4,25 @@
 
 namespace engine::rtti
 {
-  class CRTTIClass::Impl
-  {
-    public:
-
-		  std::string m_Name;
-	  	type_id_t m_TypeId;
-	  	std::vector<CRTTIMethod*> m_Methods;
-	  	std::vector<CRTTIField*> m_Fields;
-	  	std::vector<CRTTIClass*> m_Parents;
-  };
-
   //////////////////////////////////////////////////////////////////////////
 	CRTTIClass::CRTTIClass(const char* _name)
 	{
-    m_Impl = new Impl();
-		m_Impl->m_Name = _name;
-		m_Impl->m_TypeId = rtti::Hash(_name);
+		m_Name = _name;
+		m_TypeId = rtti::Hash(_name);
 	}
 
   CRTTIClass::~CRTTIClass()
   {
-    delete m_Impl;
   }
 
 	const std::string& CRTTIClass::GetName() const
 	{
-    return m_Impl->m_Name;
+    return m_Name;
 	}
 
 	type_id_t CRTTIClass::GetTypeId() const
 	{
-    return m_Impl->m_TypeId;
+    return m_TypeId;
 	}
 
   CRTTIClass* CRTTIClass::FindInStorage(type_id_t _type_id)
@@ -58,19 +45,29 @@ namespace engine::rtti
     return detail::CRTTIClassStorage::FindConstClassByName(_name);
   }
 
+  CRTTIClass* CRTTIClass::FindInStorage(std::string_view _sv_name)
+  {
+    return detail::CRTTIClassStorage::FindClassByNameSv(_sv_name);
+  }
+
+  const CRTTIClass* CRTTIClass::FindConstInStorage(std::string_view _sv_name)
+  {
+    return detail::CRTTIClassStorage::FindConstClassByNameSv(_sv_name);
+  }
+
   void CRTTIClass::AttachParent(CRTTIClass* _parent)
   {
-		m_Impl->m_Parents.push_back(_parent);
+		m_Parents.push_back(_parent);
   }
 
   void CRTTIClass::AddMethod(CRTTIMethod* _method)
     {
-      m_Impl->m_Methods.push_back(_method);
+      m_Methods.push_back(_method);
     }
 
     CRTTIMethod* CRTTIClass::FindMethodByName(const char* _method_name)
     {
-      for (CRTTIMethod* m : m_Impl->m_Methods)
+      for (CRTTIMethod* m : m_Methods)
 			{
 				if (m->GetName() == _method_name)
 				{
@@ -78,7 +75,7 @@ namespace engine::rtti
 				}
 			}
 
-      for (CRTTIClass* p : m_Impl->m_Parents)
+      for (CRTTIClass* p : m_Parents)
       {
         if (CRTTIMethod* m = p->FindMethodByName(_method_name))
         {
@@ -91,7 +88,7 @@ namespace engine::rtti
 
     const CRTTIMethod* CRTTIClass::FindConstMethodByName(const char* _method_name) const
     {
-			for (const CRTTIMethod* m : m_Impl->m_Methods)
+			for (const CRTTIMethod* m : m_Methods)
 			{
 				if (m->GetName() == _method_name)
 				{
@@ -99,7 +96,7 @@ namespace engine::rtti
 				}
 			}
 
-			for (const CRTTIClass* p : m_Impl->m_Parents)
+			for (const CRTTIClass* p : m_Parents)
 			{
 				if (const CRTTIMethod* m = p->FindConstMethodByName(_method_name))
 				{
@@ -112,12 +109,12 @@ namespace engine::rtti
 
     void CRTTIClass::AddField(CRTTIField* _field)
     {
-      m_Impl->m_Fields.push_back(_field);
+      m_Fields.push_back(_field);
     }
 
     CRTTIField* CRTTIClass::FindFieldByName(const char* _field_name)
     {
-      for (CRTTIField* f : m_Impl->m_Fields)
+      for (CRTTIField* f : m_Fields)
       {
         if (f->GetName() == _field_name)
         {
@@ -125,7 +122,7 @@ namespace engine::rtti
         }
       }
 
-      for (CRTTIClass* p : m_Impl->m_Parents)
+      for (CRTTIClass* p : m_Parents)
 			{
 				if (CRTTIField* f = p->FindFieldByName(_field_name))
 				{
@@ -138,7 +135,7 @@ namespace engine::rtti
 
     const CRTTIField* CRTTIClass::FindConstFieldByName(const char* _field_name) const
     {
-      for (const CRTTIField* f : m_Impl->m_Fields)
+      for (const CRTTIField* f : m_Fields)
 			{
 				if (f->GetName() == _field_name)
 				{
@@ -146,7 +143,7 @@ namespace engine::rtti
 				}
 			}
 
-      for (const CRTTIClass* p : m_Impl->m_Parents)
+      for (const CRTTIClass* p : m_Parents)
       {
         if (const CRTTIField* f = p->FindConstFieldByName(_field_name))
         {
@@ -155,5 +152,9 @@ namespace engine::rtti
       }
 
       return nullptr;
+    }
+    const std::vector<CRTTIField*>& CRTTIClass::GetFields() const
+    {
+      return m_Fields;
     }
 }

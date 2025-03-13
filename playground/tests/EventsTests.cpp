@@ -25,7 +25,6 @@ TEST_CASE_METHOD(engine::events::tests::EventTestsFixture, "EventTests")
 		REQUIRE(event->GetProcessTime() == EProcessTime::NextFrame);
 		CEventController::GetInstance().SendEvent(event.get());
 		REQUIRE(event->m_Handled == false);
-		m_Application->FrameCycle();
 		REQUIRE(event->m_Handled == true);
 		CEventController::GetInstance().ClearListeners();
 	}

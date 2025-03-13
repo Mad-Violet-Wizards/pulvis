@@ -10,7 +10,12 @@ namespace fs
 	{
 		JSON,
 		Binary,
-		Text, // Unimplemented yet
+		Text,
+		Shader,
+		Script,
+		VertexShader,
+		FragmentShader,
+		GeometryShader,
 		Unknown
 	};
 
@@ -21,13 +26,32 @@ namespace fs
 			case EFileDataModelType::JSON: return "JSON";
 			case EFileDataModelType::Binary: return "Binary";
 			case EFileDataModelType::Text: return "Text";
+			case EFileDataModelType::Shader: return "Shader";
+			case EFileDataModelType::Script: return "Script";
 			case EFileDataModelType::Unknown: return "???";
 			default: return "???";
 		}
 	}
+
+	inline static EFileDataModelType FromFileExtension(const std::string& _file_extension)
+	{
+		if (_file_extension == ".json")
+			return EFileDataModelType::JSON;
+		else if (_file_extension == ".bin")
+			return EFileDataModelType::Binary;
+		else if (_file_extension == ".txt")
+			return EFileDataModelType::Text;
+		else if (_file_extension == ".lua")
+			return EFileDataModelType::Script;
+		else if (_file_extension == ".frag" || _file_extension == ".vert" || _file_extension == ".geom")
+			return EFileDataModelType::Shader;
+		else
+			return EFileDataModelType::Unknown;
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-	class PULVIS_API IFileDataModel
+	class IFileDataModel
 	{
 		public:
 
