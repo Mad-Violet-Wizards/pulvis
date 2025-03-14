@@ -91,7 +91,7 @@ namespace engine::core
 
             friend class Singleton<CLogger>;
 
-            void OnEvent(events::IEvent* _event) override;
+            void OnEvent(const events::IEvent* _event) override;
 
             template<typename... Args>
             void LOG(ELogLevel _log_level, fmt::format_string<Args...> _msg, Args&&... _args)

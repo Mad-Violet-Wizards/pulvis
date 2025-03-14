@@ -20,6 +20,10 @@ namespace engine
 				bool IsCloseRequested() const;
 				void Run();
 
+#ifdef DEBUG
+				void SimulateFrame();
+#endif
+
 				static const CApplicationContext& GetContext() { return Application::m_AppContext; }
 
 			private:

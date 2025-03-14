@@ -116,7 +116,11 @@ namespace engine::core
 		m_StateMachine->GetContext()->m_Filesystem->Mount();
 
 		engine::game::CGameService::GetInstance().Initialize(m_StateMachine->GetContext()->m_Filesystem);
-		engine::rendering::RenderingService::GetInstance().Initialize(rendering::ERendererType::OpenGL);
+
+		if (m_StateMachine->GetContext()->m_Setup.m_ClientApp != EClientApp::Playground)
+		{
+			engine::rendering::RenderingService::GetInstance().Initialize(rendering::ERendererType::OpenGL);
+		}
 		engine::scriptable::CScriptableService::GetInstance().Initialize();
 		m_StateMachine->QueueState(EApplicationState::GameLoad);
 

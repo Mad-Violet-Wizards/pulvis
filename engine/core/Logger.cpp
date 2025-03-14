@@ -13,7 +13,7 @@ namespace engine::core
 	{
 	}
 
-	void CLogger::OnEvent(events::IEvent* _event)
+	void CLogger::OnEvent(const events::IEvent* _event)
 	{
 	}
 	void CLogger::LogImpl(const SLogInfo& _log_info)

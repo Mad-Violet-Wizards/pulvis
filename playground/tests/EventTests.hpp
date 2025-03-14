@@ -3,8 +3,7 @@
 #include "engine/core/Application.hpp"
 #include "engine/core/Setup.hpp"
 #include "engine/events/Event.hpp"
-#include "engine/events/EventBus.hpp"
-#include "engine/events/EventController.hpp"
+#include "engine/events/EventListener.hpp"
 #include "engine/events/EventTypeTraits.hpp"
 
 namespace engine::events
@@ -16,19 +15,12 @@ namespace engine::events
 		class MocEventBool : public IEvent
 		{
 			EVENT_CLASS_API(Tests);
-
-		public:
-			bool m_Handled = false;
-			bool m_Handled2 = false;
 		};
 
 //////////////////////////////////////////////////////////////////////////
 		class MocEventInt : public IEvent
 		{
 			EVENT_CLASS_API(Tests);
-
-		public:
-			int m_Value = 0;
 		};
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,60 +34,42 @@ namespace engine::events
 				{
 					return EProcessTime::NextFrame;
 				}
-				bool m_Handled = false;
 		};
 
 		//////////////////////////////////////////////////////////////////////////
 		class MocEventDifferentBus : public IEvent
 		{
 			EVENT_CLASS_API(Input);
-
-		public:
-
-			bool m_Handled = false;
 		};
 
 //////////////////////////////////////////////////////////////////////////
 		class MocEventListener : public IEventListener
 		{
 			public:
-				void OnEvent(IEvent* _event) override
+				void OnEvent(const IEvent* _event) override;
+				int GetChecksum() const
 				{
-					if (_event->GetEventType() == MocEventBool::GetStaticEventType())
-					{
-						MocEventBool* event = static_cast<MocEventBool*>(_event);
-						event->m_Handled = true;
-					}
-					else if (_event->GetEventType() == MocEventInt::GetStaticEventType())
-					{
-						MocEventInt* event = static_cast<MocEventInt*>(_event);
-						event->m_Value = 42;
-					}
-					else if (_event->GetEventType() == MocEventNextFrameDelay::GetStaticEventType())
-					{
-						MocEventNextFrameDelay* event = static_cast<MocEventNextFrameDelay*>(_event);
-						event->m_Handled = true;
-					}
-					else if (_event->GetEventType() == MocEventDifferentBus::GetStaticEventType())
-					{
-						MocEventDifferentBus* event = static_cast<MocEventDifferentBus*>(_event);
-						event->m_Handled = true;
-					}
+					return m_Checksum;
 				}
+
+			private:
+
+				int m_Checksum = 0;
 		};
 
 //////////////////////////////////////////////////////////////////////////
 		class MocEventListener2 : public IEventListener
 		{			
 		public:
-			void OnEvent(IEvent* _event) override
+			void OnEvent(const IEvent* _event) override;
+			int GetChecksum() const
 			{
-				if (_event->GetEventType() == MocEventBool::GetStaticEventType())
-				{
-					MocEventBool* event = static_cast<MocEventBool*>(_event);
-					event->m_Handled2 = true;
-				}
+				return m_Checksum;
 			}
+
+		private:
+
+			int m_Checksum = 0;
 		};
 
 //////////////////////////////////////////////////////////////////////////

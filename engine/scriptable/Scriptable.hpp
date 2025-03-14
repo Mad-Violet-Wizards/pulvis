@@ -11,7 +11,6 @@ namespace engine::scriptable
 public:
 
 		virtual ~IScriptable() = default;
-		virtual void Validate() = 0;
 		virtual bool IsValid() const = 0;
 	};
 }

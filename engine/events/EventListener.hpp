@@ -9,7 +9,7 @@ namespace engine::events
 	public:
 
 		virtual ~IEventListener() = default;
-		virtual void OnEvent(IEvent* _event) = 0;
+		virtual void OnEvent(const IEvent* _event) = 0;
 	};
 
 }

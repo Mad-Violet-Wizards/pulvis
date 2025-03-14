@@ -147,7 +147,7 @@ namespace engine
       }
     }
 
-    void CAssertManager::OnEvent(engine::events::IEvent* _event)
+    void CAssertManager::OnEvent(const engine::events::IEvent* _event)
     {
 
     }

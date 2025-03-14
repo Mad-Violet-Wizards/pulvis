@@ -47,6 +47,13 @@ namespace engine
 			}
 		}
 
+		void Application::SimulateFrame()
+		{
+			PreFrame();
+			Frame();
+			PostFrame();
+		}
+
 		void Application::PreFrame()
 		{
 			m_AppContext.m_FrameNumber++;

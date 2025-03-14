@@ -47,8 +47,7 @@ public:
 
 			ETileType GetTileType() const override { return ETileType::Regular; }
 
-			void Validate() override;
-			bool IsValid() const override { return m_Valid; }
+			bool IsValid() const override;
 
 private:
 
@@ -83,8 +82,7 @@ public:
 
 			ETileType GetTileType() const override { return ETileType::Atlas; }
 
-			void Validate() override;
-			bool IsValid() const override { return m_Valid; }
+			bool IsValid() const override { return false; }
 
 private:
 

@@ -71,7 +71,7 @@ namespace engine
 
       void Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code);
 
-      void OnEvent(engine::events::IEvent* _event) override;
+      void OnEvent(const engine::events::IEvent* _event) override;
 
 			void SetActive(bool _is_active);
 			bool IsActive() const;

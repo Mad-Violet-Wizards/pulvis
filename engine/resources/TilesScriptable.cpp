@@ -46,7 +46,6 @@ namespace engine::resources
 
 				tileFunc(tile_table);
 
-				tile->Validate();
 				if (tile->IsValid())
 				{
 					CResourceService::GetInstance().LoadTile(tile);
@@ -58,9 +57,9 @@ namespace engine::resources
 		});
 	}
 
-	void CTile::Validate()
+	bool CTile::IsValid() const
 	{
-		m_Valid = m_TileHeight > 0 && m_TileWidth > 0 && !m_TilePath.empty();
+		return m_TileHeight > 0 && m_TileWidth > 0 && !m_TilePath.empty();
 	}
 
 	CAtlasTile::CAtlasTile()
@@ -83,8 +82,5 @@ namespace engine::resources
 			"m_AtlasPositionY", &CAtlasTile::m_AtlasPositionY,
 			"m_Valid", &CAtlasTile::m_Valid
 		);
-	}
-	void CAtlasTile::Validate()
-	{
 	}
 }

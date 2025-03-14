@@ -5,7 +5,7 @@ namespace engine::rtti
 	class CRTTITypeName
 	{
 		public:
-#ifdef WINDOWS_OS
+
 	template<typename T>
 	static constexpr std::string_view GetTypename() noexcept
 	{
@@ -47,12 +47,5 @@ namespace engine::rtti
 		const size_t end = rawTypename.size() - start;
 		return rawTypename.substr(start, end);
 	}
-#else
-	template<typename T>
-	static constexpr std::string_view GetTypename() noexcept
-	{
-		return "";
-	}
-#endif
 	};
 }

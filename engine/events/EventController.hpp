@@ -13,8 +13,6 @@ namespace engine::events
 
 		CEventController();
 		
-		friend class Singleton<CEventController>;
-
 		void Frame();
 		void ClearListeners();
 
