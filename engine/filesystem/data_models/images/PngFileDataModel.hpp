@@ -14,6 +14,11 @@ namespace engine::fs::data_models
 			void Deserialize(std::fstream& _file_stream);
 			EFileDataModelType GetFileDataModelType() const override { return EFileDataModelType::Png; }
 
+			void* GetBuffer() const { return m_Buffer; }
+			int GetWidth() const { return m_Width; }
+			int GetHeight() const { return m_Height; }
+			int GetChannels() const { return m_Channels; }
+
 		private:
 
 			void* m_Buffer;

@@ -3,6 +3,7 @@
 #include "ContextOpenGL.hpp"
 #include "engine/core/Application.hpp"
 #include "ShaderOpenGL.hpp"
+#include "TextureOpenGL.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -47,36 +48,54 @@ namespace engine::rendering::opengl
 	void RendererOpenGL::Frame()
 	{
 		CShaderOpenGL* base_shader = m_Context->FindShader("triangle");
+		CTextureOpenGL* empty_texture = m_Context->FindTexture("hamster");
 
-		if (base_shader)
+		if (base_shader && empty_texture)
 		{
-			float triangleVert[] = {
-				0.0f, 0.0f, 0.0f,
-				0.5f, 0.5f, 0.0f,
-				0.5f, 0.0f, 0.0f
+			float vertices[] = {
+				// positions          // colors           // texture coords
+				 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+				 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+				-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+				-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
 			};
+			unsigned int indices[] = {
+					0, 1, 3, // first triangle
+					1, 2, 3  // second triangle
+			};
+			unsigned int VBO, VAO, EBO;
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+			glGenBuffers(1, &EBO);
 
-			glViewport(0, 0, 800, 600);
+			glBindVertexArray(VAO);
 
-			GLuint tempVAO, tempVBO;
-			glGenVertexArrays(1, &tempVAO);
-			glGenBuffers(1, &tempVBO);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-			glBindVertexArray(tempVAO);
-			glBindBuffer(GL_ARRAY_BUFFER, tempVBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVert), triangleVert, GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			// position attribute
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
+			// color attribute
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+			// texture coord attribute
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glEnableVertexAttribArray(2);
+
+			glActiveTexture(GL_TEXTURE0);
+			empty_texture->BindTexture();
 
 			base_shader->Bind();
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			glBindVertexArray(VAO);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-
-			glDeleteVertexArrays(1, &tempVAO);
-			glDeleteBuffers(1, &tempVBO);
+			glDeleteVertexArrays(1, &VAO);
+			glDeleteBuffers(1, &VBO);
+			glDeleteBuffers(1, &EBO);
 		}
 	}
 
@@ -101,8 +120,12 @@ namespace engine::rendering::opengl
 		return false;
 	}
 
-	void RendererOpenGL::SetupShaders(const std::vector<CShaderOpenGL*>& _shaders_vec)
+	void RendererOpenGL::SetupShaders(std::vector<CShaderOpenGL*>&& _shaders_vec)
 	{
-		m_Context->SetupShaders(_shaders_vec);
+		m_Context->SetupShaders(std::move(_shaders_vec));
+	}
+	void RendererOpenGL::SetupTextures(std::vector<CTextureOpenGL*>&& _textures_vec)
+	{
+		m_Context->SetupTextures(std::move(_textures_vec));
 	}
 }

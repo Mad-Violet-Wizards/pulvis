@@ -8,6 +8,7 @@
 #include "engine/rendering/opengl/RendererOpenGL.hpp"
 #include "engine/scriptable/ScriptableService.hpp"
 #include "engine/resources/ResourceService.hpp"
+#include "engine/rendering/opengl/TextureOpenGL.hpp"
 
 namespace engine::game
 {
@@ -219,11 +220,15 @@ namespace engine::game
 			texture_file_handle.Deserialize();
 			texture_file_handle.Close();
 
-			m_TexturesLoadThreadTaskData.m_PngTextureFileDataModels[texture_path] = std::dynamic_pointer_cast<engine::fs::data_models::CPngFileDataModel>(texture_data);
 
-			m_TexturesLoadInProgress.store(false);
-			m_TexturesLoadThreadTaskFinished.store(true);
+			const std::string filename = engine::fs::Filesystem::GetFilename(texture_path);
+			const std::string texture_name = filename.substr(0, filename.find_last_of('.'));
+
+			m_TexturesLoadThreadTaskData.m_PngTextureFileDataModels[texture_name] = std::dynamic_pointer_cast<engine::fs::data_models::CPngFileDataModel>(texture_data);
 		}
+
+		m_TexturesLoadInProgress.store(false);
+		m_TexturesLoadThreadTaskFinished.store(true);
 	}
 
 	void CGameService::ThreadTask_UnloadTextures()
@@ -268,7 +273,7 @@ namespace engine::game
 		}
 
 		engine::rendering::opengl::RendererOpenGL* opengl_renderer = static_cast<engine::rendering::opengl::RendererOpenGL*>(engine::rendering::RenderingService::GetInstance().GetRenderer());
-		opengl_renderer->SetupShaders(shaders);
+		opengl_renderer->SetupShaders(std::move(shaders));
 	}
 
 	void CGameService::SetupScripts()
@@ -302,7 +307,19 @@ namespace engine::game
 	{
 		return m_TexturesLoadInProgress.load();
 	}
+
 	void CGameService::SetupTextures() const
 	{
+		std::vector<engine::rendering::opengl::CTextureOpenGL*> textures;
+
+		for (const auto& [texture_path, png_file_data_model] : m_TexturesLoadThreadTaskData.m_PngTextureFileDataModels)
+		{
+			engine::rendering::opengl::CTextureOpenGL* texture = new engine::rendering::opengl::CTextureOpenGL(texture_path);
+			texture->LoadTexture(png_file_data_model.get());
+			textures.push_back(texture);
+		}
+
+		engine::rendering::opengl::RendererOpenGL* opengl_renderer = static_cast<engine::rendering::opengl::RendererOpenGL*>(engine::rendering::RenderingService::GetInstance().GetRenderer());
+		opengl_renderer->SetupTextures(std::move(textures));
 	}
 };

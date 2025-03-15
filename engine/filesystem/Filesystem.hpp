@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <optional>
+#include <mutex>
 
 #include "FileHandle.hpp"
 
@@ -38,6 +39,8 @@ namespace fs
 			bool GetCreateFileIfNotExists(EFileMode _open_mode) const;
 
 		private:
+
+			mutable std::mutex m_Mutex;
 
 			bool m_Mounted;
 			std::string m_Name;

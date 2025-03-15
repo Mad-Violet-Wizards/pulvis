@@ -33,6 +33,7 @@ namespace engine::fs::data_models
 		const unsigned int size = static_cast<unsigned int>(l);
 		std::vector<char> buffer(size);
 		_file_stream.read(buffer.data(), l);
+		stbi_set_flip_vertically_on_load(true);
 		m_Buffer = stbi_load_from_memory(reinterpret_cast<unsigned char*>(buffer.data()), size, &m_Width, &m_Height, &m_Channels, 0);
 	}
 }

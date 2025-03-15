@@ -22,6 +22,8 @@ namespace engine::fs
 
 		void Filesystem::Mount()
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			if (!std::filesystem::exists(m_AbsolutePath))
 			{
 				std::cout << "[Filesystem] " << m_Name << " creating directory : " << m_AbsolutePath << "\n";
@@ -55,6 +57,8 @@ namespace engine::fs
 
 		std::optional<CFileHandle> engine::fs::Filesystem::OpenFile(const std::string& _relative_path, std::shared_ptr<IFileDataModel>* _file_data_model, EFileMode _open_mode)
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			std::filesystem::path file_path = m_AbsolutePath;
 			file_path /= _relative_path;
 
@@ -85,6 +89,8 @@ namespace engine::fs
 
 		std::optional<CFileHandle> engine::fs::Filesystem::OpenFile(const std::string& _relative_path, EFileMode _open_mode)
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			const std::filesystem::path file_path = m_AbsolutePath / _relative_path;
 			
 			const bool create_if_no_exists = GetCreateFileIfNotExists(_open_mode);
@@ -112,6 +118,8 @@ namespace engine::fs
 
 		void Filesystem::GetFilenamesInDirectory(const std::string& _relative_path, std::vector<std::string>& _out_filenames_list) const
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			const std::filesystem::path directory_path = m_AbsolutePath / _relative_path;
 
 			for (const auto& entry : std::filesystem::directory_iterator(directory_path))
@@ -129,6 +137,8 @@ namespace engine::fs
 
 		bool Filesystem::GetFileExists(const std::string& _relative_path) const
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			const std::filesystem::path file_path = m_AbsolutePath / _relative_path;
 
 			return std::filesystem::exists(file_path);
@@ -136,11 +146,15 @@ namespace engine::fs
 
 		std::vector<std::string>::const_iterator Filesystem::FileListBegin() const
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			return m_MountedFilelist.cbegin();
 		}
 
 		std::vector<std::string>::const_iterator Filesystem::FileListEnd() const
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			return m_MountedFilelist.cend();
 		}
 

@@ -123,7 +123,6 @@ namespace engine::core
 		}
 		engine::scriptable::CScriptableService::GetInstance().Initialize();
 		m_StateMachine->QueueState(EApplicationState::GameLoad);
-
 	}
 
 	void AppState_Initialize::OnExit()
@@ -170,6 +169,7 @@ namespace engine::core
 
 		if (engine::game::CGameService::GetInstance().ConsumeTexturesLoaded())
 		{
+			engine::game::CGameService::GetInstance().SetupTextures();
 			m_TexturesLoaded = true;
 		}
 

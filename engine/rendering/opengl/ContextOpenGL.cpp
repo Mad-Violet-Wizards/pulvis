@@ -1,6 +1,7 @@
 #include "engine/engine_pch.hpp"
 #include "ContextOpenGL.hpp"
 #include "ShaderOpenGL.hpp"
+#include "TextureOpenGL.hpp"
 
 namespace engine::rendering::opengl
 {
@@ -17,7 +18,7 @@ namespace engine::rendering::opengl
 	{
 	}
 
-	CShaderOpenGL* CContext::FindShader(const std::string& _shader_name)
+	CShaderOpenGL* CContext::FindShader(const std::string& _shader_name) const
 	{
 		for (CShaderOpenGL* shader : m_Shaders)
 		{
@@ -30,8 +31,26 @@ namespace engine::rendering::opengl
 		return nullptr;
 	}
 
-	void CContext::SetupShaders(const std::vector<CShaderOpenGL*>& _shaders_vec)
+	void CContext::SetupShaders(std::vector<CShaderOpenGL*>&& _shaders_vec)
 	{
-		m_Shaders = _shaders_vec;
+		m_Shaders = std::move(_shaders_vec);
+	}
+
+	CTextureOpenGL* CContext::FindTexture(const std::string& _texture_name) const
+	{
+		for (CTextureOpenGL* texture : m_Textures)
+		{
+			if (texture->GetTextureName() == _texture_name)
+			{
+				return texture;
+			}
+		}
+
+		return nullptr;
+	}
+
+	void CContext::SetupTextures(std::vector<CTextureOpenGL*>&& _textures_vec)
+	{
+		m_Textures = std::move(_textures_vec);
 	}
 }
