@@ -23,7 +23,7 @@ namespace engine::scriptable
 		resources::CAtlasTile::ExportScriptable(m_LuaState);
 	}
 
-	void CScriptableService::SetupScripts(std::unordered_map<std::string, std::shared_ptr<fs::CScriptFileDataModel>>* _scripts)
+	void CScriptableService::SetupScripts(std::unordered_map<std::string, std::shared_ptr<engine::fs::data_models::CScriptFileDataModel>>* _scripts)
 	{
 		m_Scripts = _scripts;
 	}
@@ -33,20 +33,20 @@ namespace engine::scriptable
 		auto script = m_Scripts->find(_script_name);
 		if (script != m_Scripts->end())
 		{
-			sol::load_result result = m_LuaState.load(script->second->GetScript());
+			const sol::load_result result = m_LuaState.load(script->second->GetScript());
 			if (result.valid())
 			{
-				sol::protected_function script_function = result;
-				sol::protected_function_result script_result = script_function();
+				const sol::protected_function script_function = result;
+				const sol::protected_function_result script_result = script_function();
 				if (!script_result.valid())
 				{
-					sol::error err = script_result;
+					const sol::error err = script_result;
 					PULVIS_ERROR_LOG("Error invoking script: {0}", err.what());
 				}
 			}
 			else
 			{
-				sol::error err = result;
+				const sol::error err = result;
 				PULVIS_ERROR_LOG("Error loading script: {0}", err.what());
 			}
 		}

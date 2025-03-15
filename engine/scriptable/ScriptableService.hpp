@@ -13,13 +13,13 @@ namespace engine::scriptable
 			~CScriptableService();
 
 			void Initialize();
-			void SetupScripts(std::unordered_map<std::string, std::shared_ptr<fs::CScriptFileDataModel>>* _scripts);
+			void SetupScripts(std::unordered_map<std::string, std::shared_ptr<engine::fs::data_models::CScriptFileDataModel>>* _scripts);
 
 			void InvokeScript(const std::string& _script_name);
 
 		private:
 
-			std::unordered_map<std::string, std::shared_ptr<fs::CScriptFileDataModel>>* m_Scripts;
+			std::unordered_map<std::string, std::shared_ptr<engine::fs::data_models::CScriptFileDataModel>>* m_Scripts;
 			sol::state m_LuaState;
 	};
 }

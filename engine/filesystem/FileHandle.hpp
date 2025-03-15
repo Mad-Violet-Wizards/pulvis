@@ -8,9 +8,6 @@
 
 #include "FileDataModel.hpp"
 #include "Serializable.hpp"
-#include "engine/filesystem/data_models/TextFileDataModel.hpp"
-#include "engine/filesystem/data_models/ShaderFileDataModel.hpp"
-#include "engine/filesystem/data_models/ScriptFileDataModel.hpp"
 
 namespace engine
 {
@@ -18,12 +15,12 @@ namespace engine
 	{
 		enum class EFileMode
 		{
-			Read = 0x01,
-			Write = 0x02,
-			ReadWrite = 0x04,
-			Append = 0x08,
-			Truncate = 0x16,
-			Binary = 0x32
+			Read = 1,
+			Write = 2,
+			ReadWrite = 4,
+			Append = 8,
+			Truncate = 16,
+			Binary = 32
 		};
 
 		inline EFileMode operator|(EFileMode _lhs, EFileMode _rhs)
@@ -34,6 +31,11 @@ namespace engine
 		inline int operator&(EFileMode _lhs, EFileMode _rhs)
 		{
 			return static_cast<int>(_lhs) & static_cast<int>(_rhs);
+		}
+
+		inline EFileMode operator~(EFileMode _mode)
+		{
+			return static_cast<EFileMode>(~static_cast<int>(_mode));
 		}
 
 		class CFileHandle

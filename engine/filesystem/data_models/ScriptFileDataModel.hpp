@@ -2,9 +2,9 @@
 
 #include "engine/filesystem/FileDataModel.hpp"
 
-namespace engine::fs
+namespace engine::fs::data_models
 {
-	class CScriptFileDataModel : public IFileDataModel
+	class CScriptFileDataModel : public engine::fs::IFileDataModel
 	{
 		public:
 

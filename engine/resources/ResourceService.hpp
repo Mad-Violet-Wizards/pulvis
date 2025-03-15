@@ -16,7 +16,7 @@ namespace engine::resources
 			void LoadTileDefinitions();
 			void LoadTileDefinition(ITile* _tile);
 
-			void LoadTilesTextures();
+			const CTilesContext& GetTilesContext() const { return m_TilesContext; }
 
 		private:
 

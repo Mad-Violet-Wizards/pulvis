@@ -1,7 +1,7 @@
 #include "engine/engine_pch.hpp"
 #include "GameFileDataModel.hpp"
 
-namespace engine::game
+namespace engine::fs::data_models
 {
 	CGameFileDataModel::CGameFileDataModel()
 		: m_Name("Unkown")

@@ -4,7 +4,7 @@
 #include <fstream>
 
 
-namespace engine::fs
+namespace engine::fs::data_models
 {
 	void CTextFileDataModel::Serialize(std::fstream& _file_stream)
 	{

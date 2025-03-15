@@ -2,7 +2,7 @@
 
 #include "engine/filesystem/FileDataModel.hpp"
 
-namespace engine::fs
+namespace engine::fs::data_models
 {
 	class CTextFileDataModel : public IFileDataModel
 	{

@@ -19,6 +19,8 @@ namespace engine::resources
 			const std::vector<CTile*>& GetTilesConstRef() const;
 			const std::vector<CAtlasTile*>& GetAtlasTilesConstRef() const;
 
+			void FillTilesToLoad(std::vector<ITile*>& _tiles) const;
+
 		private:
 
 			std::vector<CTile*> m_TilesDefinitions;

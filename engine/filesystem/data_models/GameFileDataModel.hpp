@@ -3,7 +3,7 @@
 #include "engine/filesystem/Serializable.hpp"
 #include "engine/filesystem/FileDataModel.hpp"
 
-namespace engine::game
+namespace engine::fs::data_models
 {
 	class CGameFileDataModel : public engine::fs::IFileDataModel
 	{
@@ -34,5 +34,5 @@ namespace engine::game
 	};
 }
 
-using namespace engine::game;
+using namespace engine::fs::data_models;
 REGISTER_SERIALIZABLE(CGameFileDataModel);

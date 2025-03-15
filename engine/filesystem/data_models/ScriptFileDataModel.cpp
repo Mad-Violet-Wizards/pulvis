@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-namespace engine::fs
+namespace engine::fs::data_models
 {
 	void CScriptFileDataModel::Deserialize(std::fstream& _file_stream)
 	{

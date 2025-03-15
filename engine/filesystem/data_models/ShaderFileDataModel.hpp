@@ -7,7 +7,7 @@ namespace engine::rendering::opengl
 	enum class EShaderType;
 }
 
-namespace engine::fs
+namespace engine::fs::data_models
 {
 	class CShaderFileDataModel : public IFileDataModel
 	{

@@ -3,7 +3,7 @@
 #include "ShaderFileDataModel.hpp"
 #include <fstream>
 
-namespace engine::fs
+namespace engine::fs::data_models
 {
 	CShaderFileDataModel::CShaderFileDataModel(engine::rendering::opengl::EShaderType _shader_type)
 		: m_ShaderType(_shader_type)

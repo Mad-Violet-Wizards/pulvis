@@ -142,6 +142,8 @@ namespace engine::core
 	//////////////////////////////////////////////////////////////////////////
 	AppState_GameLoad::AppState_GameLoad(ApplicationStateMachine* _stateMachine)
 		: IApplicationState(_stateMachine)
+		, m_ProjectLoaded(false)
+		, m_TexturesLoaded(false)
 	{
 	}
 
@@ -161,7 +163,18 @@ namespace engine::core
 			engine::game::CGameService::GetInstance().SetupShaders();
 			engine::game::CGameService::GetInstance().SetupScripts();
 			engine::resources::CResourceService::GetInstance().LoadTileDefinitions();
+			engine::game::CGameService::GetInstance().StartTexturesLoadThreadTask();
 
+			m_ProjectLoaded = true;
+		}
+
+		if (engine::game::CGameService::GetInstance().ConsumeTexturesLoaded())
+		{
+			m_TexturesLoaded = true;
+		}
+
+		if (m_ProjectLoaded && m_TexturesLoaded)
+		{
 			m_StateMachine->QueueState(EApplicationState::GameLoop);
 		}
 	}

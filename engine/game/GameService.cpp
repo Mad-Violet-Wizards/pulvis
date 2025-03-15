@@ -1,10 +1,8 @@
 #include "engine/engine_pch.hpp"
 #include "GameService.hpp"
+#include "engine/resources/TilesScriptable.hpp"
 #include "engine/core/Application.hpp"
-#include "engine/filesystem/data_models/GameFileDataModel.hpp"
 #include "engine/filesystem/data_models/TextFileDataModel.hpp"
-#include "engine/filesystem/data_models/ShaderFileDataModel.hpp"
-#include "engine/filesystem/data_models/ScriptFileDataModel.hpp"
 #include "engine/rendering/opengl/ShaderOpenGL.hpp"
 #include "engine/rendering/RenderingService.hpp"
 #include "engine/rendering/opengl/RendererOpenGL.hpp"
@@ -20,11 +18,23 @@ namespace engine::game
 		m_ScriptDataModels.clear();
 	}
 
+	void STexturesLoadThreadTaskData::Clear()
+	{
+		m_PngTextureFileDataModels.clear();
+	}
 	////////////////////////////////////////////////////////////////////////////////
 	CGameService::CGameService()
+		: m_GameContext{ nullptr }
+		, m_LoadProjectTask{ nullptr }
+		, m_GameLoadInProgress { false }
+		, m_GameLoadThreadTaskFinished { false }
+		, m_LoadTexturesTask { nullptr }
+		, m_TexturesLoadInProgress { false }
+		, m_TexturesLoadThreadTaskFinished { false }
 	{
-		m_GameLoadInProgress = false;
+		m_GameLoadInProgress;
 		m_GameLoadThreadTaskFinished = false;
+
 	}
 
 	CGameService::~CGameService()
@@ -56,6 +66,7 @@ namespace engine::game
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
 	void CGameService::StartGameLoadThreadTask()
 	{
 		if (!m_GameContext)
@@ -100,8 +111,6 @@ namespace engine::game
 	{
 		engine::fs::Filesystem* game_fs = m_GameContext->GetFilesystem();
 		game_fs->Mount();
-
-		std::unordered_map<std::string, std::vector<std::shared_ptr<CShaderFileDataModel>>> shader_data_models;
 
 		for (auto it = game_fs->FileListBegin(); it != game_fs->FileListEnd(); ++it)
 		{
@@ -149,7 +158,79 @@ namespace engine::game
 
 	void CGameService::ThreadTask_UnloadProject()
 	{
+		// TODO.
 	}
+
+	void CGameService::ThreadTask_LoadTextures()
+	{
+		// Game filesystem should be mount already.
+		engine::fs::Filesystem* game_fs = m_GameContext->GetFilesystem();
+
+		std::vector<engine::resources::ITile*> tiles;
+		engine::resources::CResourceService::GetInstance().GetTilesContext().FillTilesToLoad(tiles);
+		//
+		for (const engine::resources::ITile* tile : tiles)
+		{
+			std::string texture_path;
+			switch (tile->GetTileType())
+			{
+				case engine::resources::ETileType::Regular:
+				{
+					const engine::resources::CTile* regular_tile = static_cast<const engine::resources::CTile*>(tile);
+					texture_path = regular_tile->m_TilePath;
+					break;
+				}
+				case engine::resources::ETileType::Atlas:
+				{
+					// TODO.
+					break;
+				}
+				case engine::resources::ETileType::Animated:
+				{
+					// TODO.
+					break;
+				}
+				case engine::resources::ETileType::AtlasAnimated:
+				{
+					// TODO.
+					break;
+				}
+			}
+
+			if (texture_path.empty())
+			{
+				ASSERT(false, "Texture path parsed incorrectly or field is left empty!");
+				continue;
+			}
+
+			std::shared_ptr<IFileDataModel> texture_data = std::make_shared<engine::fs::data_models::CPngFileDataModel>();
+			const EFileMode open_mode = EFileMode::Read | EFileMode::Binary;
+			std::optional<CFileHandle> texture_file_handle_opt = game_fs->OpenFile(texture_path, &texture_data, open_mode);
+
+			if (!texture_file_handle_opt.has_value())
+			{
+				const std::string assert_msg = fmt::format("Failed to open texture file: {}", texture_path);
+				ASSERT(false, assert_msg);
+				continue;
+			}
+
+			CFileHandle& texture_file_handle = texture_file_handle_opt.value();
+				
+			texture_file_handle.Deserialize();
+			texture_file_handle.Close();
+
+			m_TexturesLoadThreadTaskData.m_PngTextureFileDataModels[texture_path] = std::dynamic_pointer_cast<engine::fs::data_models::CPngFileDataModel>(texture_data);
+
+			m_TexturesLoadInProgress.store(false);
+			m_TexturesLoadThreadTaskFinished.store(true);
+		}
+	}
+
+	void CGameService::ThreadTask_UnloadTextures()
+	{
+		// TODO.
+	}
+
 	void CGameService::SetupShaders() const
 	{
 		auto find_shader_model = [](const std::vector<std::shared_ptr<CShaderFileDataModel>>& _shaders_file_models_vec, engine::rendering::opengl::EShaderType _shader_type) -> CShaderFileDataModel*
@@ -193,5 +274,35 @@ namespace engine::game
 	void CGameService::SetupScripts()
 	{
 		engine::scriptable::CScriptableService::GetInstance().SetupScripts(&m_GameLoadThreadTaskData.m_ScriptDataModels);
+	}
+	////////////////////////////////////////////////////////////////////////////////
+
+	void CGameService::StartTexturesLoadThreadTask()
+	{
+		if (m_LoadTexturesTask)
+		{
+			delete m_LoadTexturesTask;
+			m_LoadTexturesTask = nullptr;
+		}
+
+		m_TexturesLoadThreadTaskData.Clear();
+		m_LoadTexturesTask = new engine::threads::CThreadTask(this, &CGameService::ThreadTask_LoadTextures);
+		engine::core::Application::GetContext().m_ThreadPool.EnqueueTask(m_LoadTexturesTask);
+		m_TexturesLoadInProgress.store(true);
+	}
+
+	bool CGameService::ConsumeTexturesLoaded()
+	{
+		const bool state = m_TexturesLoadThreadTaskFinished.load();
+		m_TexturesLoadThreadTaskFinished.store(false);
+		return state;
+	}
+
+	bool CGameService::GetIsTexturesLoadInProgress() const
+	{
+		return m_TexturesLoadInProgress.load();
+	}
+	void CGameService::SetupTextures() const
+	{
 	}
 };

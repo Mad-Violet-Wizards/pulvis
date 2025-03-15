@@ -51,8 +51,8 @@ namespace engine::rendering::opengl
 		public:
 
 			CShaderOpenGL(const std::string& _shader_name);
-			void LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model);
-			void LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model, engine::fs::CShaderFileDataModel* _geometry_file_model);
+			void LoadShader(engine::fs::data_models::CShaderFileDataModel* _vertex_file_model, engine::fs::data_models::CShaderFileDataModel* _fragment_file_model);
+			void LoadShader(engine::fs::data_models::CShaderFileDataModel* _vertex_file_model, engine::fs::data_models::CShaderFileDataModel* _fragment_file_model, engine::fs::data_models::CShaderFileDataModel* _geometry_file_model);
 			~CShaderOpenGL() = default;
 
 			void Bind();

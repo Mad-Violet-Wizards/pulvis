@@ -56,6 +56,11 @@ namespace engine::core
 			void OnExit() override;
 			void Update() override;
 			EApplicationState GetState() const override;
+
+		private:
+
+			bool m_ProjectLoaded;
+			bool m_TexturesLoaded;
 	};
 
 	//////////////////////////////////////////////////////////////////////////

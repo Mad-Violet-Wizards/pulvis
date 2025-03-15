@@ -1,6 +1,11 @@
 #include "engine/engine_pch.hpp"
 #include "FileHandle.hpp"
 
+#include "engine/filesystem/data_models/TextFileDataModel.hpp"
+#include "engine/filesystem/data_models/ShaderFileDataModel.hpp"
+#include "engine/filesystem/data_models/ScriptFileDataModel.hpp"
+#include "engine/filesystem/data_models/images/PngFileDataModel.hpp"
+
 namespace engine::fs
 {
 	CFileHandle::CFileHandle(const std::string& _relative_path)
@@ -20,40 +25,47 @@ namespace engine::fs
 	bool CFileHandle::Open(EFileMode _open_mode)
 	{
 		std::ios::openmode stream_open_mode = (std::ios_base::openmode)0x00;
+		EFileMode mode = _open_mode;
 
-		if (_open_mode & EFileMode::Read)
+		if (mode & EFileMode::Read)
 		{
 			m_ReadOnly = true;
 			stream_open_mode |= std::ios::in;
+			mode = static_cast<EFileMode>(mode & ~EFileMode::Read);
 		}
 
-		if (_open_mode & EFileMode::Write)
+		if (mode & EFileMode::Write)
 		{
 			m_ReadOnly = false;
 			stream_open_mode |= std::ios::out;
+			mode = static_cast<EFileMode>(mode & ~EFileMode::Write);
 		}
 
-		if (_open_mode & EFileMode::ReadWrite)
+		if (mode & EFileMode::ReadWrite)
 		{
 			m_ReadOnly = false;
 			stream_open_mode |= std::ios::out | std::ios::in;
+			mode = static_cast<EFileMode>(mode & ~EFileMode::ReadWrite);
 		}
 
-		if (_open_mode & EFileMode::Append)
+		if (mode & EFileMode::Append)
 		{
 			m_ReadOnly = false;
 			stream_open_mode |= std::ios::app;
+			mode = static_cast<EFileMode>(mode & ~EFileMode::Append);
 		}
 
-		if (_open_mode & EFileMode::Truncate)
+		if (mode & EFileMode::Truncate)
 		{
 			m_ReadOnly = false;
 			stream_open_mode |= std::ios::trunc;
+			mode = static_cast<EFileMode>(mode & ~EFileMode::Truncate);
 		}
 
-		if (_open_mode & EFileMode::Binary)
+		if (mode & EFileMode::Binary)
 		{
 			stream_open_mode |= std::ios::binary;
+			mode = static_cast<EFileMode>(mode & ~EFileMode::Binary);
 		}
 
 		m_FileStream.open(m_RelativePath, stream_open_mode);
@@ -121,7 +133,7 @@ namespace engine::fs
 		}
 		case EFileDataModelType::Text:
 		{
-			CTextFileDataModel* text_model = dynamic_cast<CTextFileDataModel*>(m_FileDataModel->get());
+			data_models::CTextFileDataModel* text_model = dynamic_cast<data_models::CTextFileDataModel*>(m_FileDataModel->get());
 			text_model->Serialize(m_FileStream);
 			break;
 		}
@@ -149,21 +161,28 @@ namespace engine::fs
 		}
 		case EFileDataModelType::Text:
 		{
-			CTextFileDataModel* text_model = dynamic_cast<CTextFileDataModel*>(m_FileDataModel->get());
+			data_models::CTextFileDataModel* text_model = dynamic_cast<data_models::CTextFileDataModel*>(m_FileDataModel->get());
 			text_model->Deserialize(m_FileStream);
 			break;
 		}
 		case EFileDataModelType::Shader:
 		{
-			CShaderFileDataModel* shader_model = dynamic_cast<CShaderFileDataModel*>(m_FileDataModel->get());
+			data_models::CShaderFileDataModel* shader_model = dynamic_cast<data_models::CShaderFileDataModel*>(m_FileDataModel->get());
 			shader_model->Deserialize(m_FileStream);
 			break;
 		}
 		case EFileDataModelType::Script:
 		{
-			CScriptFileDataModel* script_model = dynamic_cast<CScriptFileDataModel*>(m_FileDataModel->get());
+			data_models::CScriptFileDataModel* script_model = dynamic_cast<data_models::CScriptFileDataModel*>(m_FileDataModel->get());
 			script_model->Deserialize(m_FileStream);
 			break;
+		}
+		case EFileDataModelType::Png:
+		{
+			data_models::CPngFileDataModel* png_model = dynamic_cast<data_models::CPngFileDataModel*>(m_FileDataModel->get());
+			png_model->Deserialize(m_FileStream);
+			break;
+
 		}
 		default:
 			ASSERT(true, "Unsupported data type.");

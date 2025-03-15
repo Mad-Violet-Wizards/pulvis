@@ -64,4 +64,19 @@ namespace engine::resources
 	{
 		return m_AtlasTilesDefinitions;
 	}
+
+	void CTilesContext::FillTilesToLoad(std::vector<ITile*>& _tiles) const
+	{
+		_tiles.reserve(m_TilesDefinitions.size() + m_AtlasTilesDefinitions.size());
+
+		for (CTile* tile : m_TilesDefinitions)
+		{
+			_tiles.push_back(tile);
+		}
+
+		for (CAtlasTile* tile : m_AtlasTilesDefinitions)
+		{
+			_tiles.push_back(tile);
+		}
+	}
 }

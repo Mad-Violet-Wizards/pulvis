@@ -9,7 +9,7 @@ namespace engine::rendering::opengl
 		, m_ID(-1)
 	{
 	}
-	void CShaderOpenGL::LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model)
+	void CShaderOpenGL::LoadShader(engine::fs::data_models::CShaderFileDataModel* _vertex_file_model, engine::fs::data_models::CShaderFileDataModel* _fragment_file_model)
 	{
 		const char* vertex_shader_source = _vertex_file_model->GetShaderSource();
 		const char* fragment_shader_source = _fragment_file_model->GetShaderSource();
@@ -38,7 +38,7 @@ namespace engine::rendering::opengl
 		glDeleteShader(vertex_shader_id);
 		glDeleteShader(fragment_shader_id);
 	}
-	void CShaderOpenGL::LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model, engine::fs::CShaderFileDataModel* _geometry_file_model)
+	void CShaderOpenGL::LoadShader(engine::fs::data_models::CShaderFileDataModel* _vertex_file_model, engine::fs::data_models::CShaderFileDataModel* _fragment_file_model, engine::fs::data_models::CShaderFileDataModel* _geometry_file_model)
 	{
 	}
 
