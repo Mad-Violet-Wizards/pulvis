@@ -1,6 +1,6 @@
 #include "engine/engine_pch.hpp"
 #include "ContextOpenGL.hpp"
-#include "Shader.hpp"
+#include "ShaderOpenGL.hpp"
 
 namespace engine::rendering::opengl
 {
@@ -17,9 +17,9 @@ namespace engine::rendering::opengl
 	{
 	}
 
-	CShader* CContext::FindShader(const std::string& _shader_name)
+	CShaderOpenGL* CContext::FindShader(const std::string& _shader_name)
 	{
-		for (CShader* shader : m_Shaders)
+		for (CShaderOpenGL* shader : m_Shaders)
 		{
 			if (shader->GetShaderName() == _shader_name)
 			{
@@ -30,7 +30,7 @@ namespace engine::rendering::opengl
 		return nullptr;
 	}
 
-	void CContext::SetupShaders(const std::vector<CShader*>& _shaders_vec)
+	void CContext::SetupShaders(const std::vector<CShaderOpenGL*>& _shaders_vec)
 	{
 		m_Shaders = _shaders_vec;
 	}

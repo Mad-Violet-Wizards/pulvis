@@ -1,4 +1,5 @@
 #pragma once
+#include "RTTITypeInfo.hpp"
 #include "detail/RTTIFieldDetail.hpp"
 
 namespace engine::rtti
@@ -12,6 +13,8 @@ namespace engine::rtti
 			CRTTIField()
 				: m_Name(s_RttiInvalidField)
 				, m_FieldImpl(nullptr)
+				, m_FieldType(ERTTIFieldType::Unknown)
+				, m_FieldAccess(ERTTIFieldAccess::Unknown)
 			{
 			}
 			
@@ -20,6 +23,8 @@ namespace engine::rtti
 				: m_Name(_name)
 			{
 				m_FieldImpl = std::make_unique<detail::RTTIField<C, T>>(_field);
+				m_FieldType = CRTTITypeInfo<T>::GetFieldType();
+				m_FieldAccess = CRTTITypeInfo<T>::GetFieldAccess();
 			}
 
 			template<class C, typename T>
@@ -48,9 +53,22 @@ namespace engine::rtti
 				return m_Name;
 			}
 
+			ERTTIFieldType GetFieldType() const
+			{
+				return m_FieldType;
+			}
+
+			ERTTIFieldAccess GetFieldAccess() const
+			{
+				return m_FieldAccess;
+			}
+
 		private:
 
 			std::string m_Name;
 			std::unique_ptr<detail::IRTTIField> m_FieldImpl;
+			ERTTIFieldType m_FieldType;
+			ERTTIFieldAccess m_FieldAccess;
+
 	};
 }

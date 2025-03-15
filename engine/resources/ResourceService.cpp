@@ -26,8 +26,8 @@ namespace engine::resources
 		scriptable::CScriptableService::GetInstance().InvokeScript("tile_definitions.lua");
 	}
 
-	void CResourceService::LoadTile(ITile* _tile)
+	void CResourceService::LoadTileDefinition(ITile* _tile)
 	{
-		m_TilesContext.LoadTile(_tile);
+		m_TilesContext.LoadTileDefinition(_tile);
 	}
 }

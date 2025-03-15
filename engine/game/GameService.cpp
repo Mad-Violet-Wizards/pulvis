@@ -5,7 +5,7 @@
 #include "engine/filesystem/TextFileDataModel.hpp"
 #include "engine/filesystem/ShaderFileDataModel.hpp"
 #include "engine/filesystem/ScriptFileDataModel.hpp"
-#include "engine/rendering/opengl/Shader.hpp"
+#include "engine/rendering/opengl/ShaderOpenGL.hpp"
 #include "engine/rendering/RenderingService.hpp"
 #include "engine/rendering/opengl/RendererOpenGL.hpp"
 #include "engine/scriptable/ScriptableService.hpp"
@@ -165,10 +165,10 @@ namespace engine::game
 				return nullptr;
 			};
 
-		std::vector<engine::rendering::opengl::CShader*> shaders;
+		std::vector<engine::rendering::opengl::CShaderOpenGL*> shaders;
 		for (const auto& [shader_name, shader_file_model_vec] : m_GameLoadThreadTaskData.m_ShaderDataModels)
 		{
-			engine::rendering::opengl::CShader* shader = new engine::rendering::opengl::CShader(shader_name);
+			engine::rendering::opengl::CShaderOpenGL* shader = new engine::rendering::opengl::CShaderOpenGL(shader_name);
 
 			CShaderFileDataModel* vertex_shader = find_shader_model(shader_file_model_vec, engine::rendering::opengl::EShaderType::Vertex);
 			CShaderFileDataModel* fragment_shader = find_shader_model(shader_file_model_vec, engine::rendering::opengl::EShaderType::Fragment);

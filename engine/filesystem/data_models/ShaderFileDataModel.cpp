@@ -1,5 +1,5 @@
 #include "engine/engine_pch.hpp"
-#include "engine/rendering/opengl/Shader.hpp"
+#include "engine/rendering/opengl/ShaderOpenGL.hpp"
 #include "ShaderFileDataModel.hpp"
 #include <fstream>
 

@@ -6,7 +6,7 @@
 namespace engine::rendering::opengl
 {
 	class CContext;
-	class CShader;
+	class CShaderOpenGL;
 
 	class RendererOpenGL : public IRenderer
 	{
@@ -24,7 +24,7 @@ namespace engine::rendering::opengl
 			bool ShouldClose() const override;
 
 			const engine::rendering::opengl::CContext& GetContext() const { return *m_Context; }
-			void SetupShaders(const std::vector<CShader*>& _shaders_vec);
+			void SetupShaders(const std::vector<CShaderOpenGL*>& _shaders_vec);
 
 	private:
 

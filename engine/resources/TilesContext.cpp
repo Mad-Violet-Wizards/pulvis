@@ -6,26 +6,45 @@ namespace engine::resources
 {
 	CTilesContext::CTilesContext()
 	{
-		m_Tiles.reserve(256);
-		m_AtlasTiles.reserve(256);
+		m_TilesDefinitions.reserve(256);
+		m_AtlasTilesDefinitions.reserve(256);
+	}
+
+	CTilesContext::~CTilesContext()
+	{
+		Clear();
 	}
 
 	void CTilesContext::Clear()
 	{
+		for (CTile* tile : m_TilesDefinitions)
+		{
+			delete tile;
+			tile = nullptr;
+		}
+
+		for (CAtlasTile* tile : m_AtlasTilesDefinitions)
+		{
+			delete tile;
+			tile = nullptr;
+		}
+
+		m_TilesDefinitions.clear();
+		m_AtlasTilesDefinitions.clear();
 	}
 
-	void CTilesContext::LoadTile(ITile* _tile)
+	void CTilesContext::LoadTileDefinition(ITile* _tile)
 	{
 		switch (_tile->GetTileType())
 		{
 		case ETileType::Regular:
 		{
-			m_Tiles.push_back(static_cast<CTile*>(_tile));
+			m_TilesDefinitions.push_back(static_cast<CTile*>(_tile));
 			break;
 		}
 		case ETileType::Atlas:
 		{
-			m_AtlasTiles.push_back(static_cast<CAtlasTile*>(_tile));
+			m_AtlasTilesDefinitions.push_back(static_cast<CAtlasTile*>(_tile));
 			break;
 		}
 		default:
@@ -38,11 +57,11 @@ namespace engine::resources
 
 	const std::vector<CTile*>& CTilesContext::GetTilesConstRef() const
 	{
-		return m_Tiles;
+		return m_TilesDefinitions;
 	}
 
 	const std::vector<CAtlasTile*>& CTilesContext::GetAtlasTilesConstRef() const
 	{
-		return m_AtlasTiles;
+		return m_AtlasTilesDefinitions;
 	}
 }

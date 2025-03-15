@@ -2,7 +2,7 @@
 #include "RendererOpenGL.hpp"
 #include "ContextOpenGL.hpp"
 #include "engine/core/Application.hpp"
-#include "Shader.hpp"
+#include "ShaderOpenGL.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -46,7 +46,7 @@ namespace engine::rendering::opengl
 
 	void RendererOpenGL::Frame()
 	{
-		CShader* base_shader = m_Context->FindShader("triangle");
+		CShaderOpenGL* base_shader = m_Context->FindShader("triangle");
 
 		if (base_shader)
 		{
@@ -101,7 +101,7 @@ namespace engine::rendering::opengl
 		return false;
 	}
 
-	void RendererOpenGL::SetupShaders(const std::vector<CShader*>& _shaders_vec)
+	void RendererOpenGL::SetupShaders(const std::vector<CShaderOpenGL*>& _shaders_vec)
 	{
 		m_Context->SetupShaders(_shaders_vec);
 	}

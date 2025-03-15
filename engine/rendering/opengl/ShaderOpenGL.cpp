@@ -1,14 +1,15 @@
 #include "engine/engine_pch.hpp"
-#include "Shader.hpp"
+#include "ShaderOpenGL.hpp"
 #include <vendor/common/include/glad/glad.h>
 
 namespace engine::rendering::opengl
 {
-	CShader::CShader(const std::string& _shader_name)
+	CShaderOpenGL::CShaderOpenGL(const std::string& _shader_name)
 		: m_ShaderName(_shader_name)
+		, m_ID(-1)
 	{
 	}
-	void CShader::LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model)
+	void CShaderOpenGL::LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model)
 	{
 		const char* vertex_shader_source = _vertex_file_model->GetShaderSource();
 		const char* fragment_shader_source = _fragment_file_model->GetShaderSource();
@@ -37,21 +38,21 @@ namespace engine::rendering::opengl
 		glDeleteShader(vertex_shader_id);
 		glDeleteShader(fragment_shader_id);
 	}
-	void CShader::LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model, engine::fs::CShaderFileDataModel* _geometry_file_model)
+	void CShaderOpenGL::LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model, engine::fs::CShaderFileDataModel* _geometry_file_model)
 	{
 	}
 
-	void CShader::Bind()
+	void CShaderOpenGL::Bind()
 	{
 		glUseProgram(m_ID);
 	}
 
-	void CShader::Unbind()
+	void CShaderOpenGL::Unbind()
 	{
 		glUseProgram(0);
 	}
 
-	unsigned int CShader::CompileShader(const char* _shader_source, EShaderType _shader_type) const
+	unsigned int CShaderOpenGL::CompileShader(const char* _shader_source, EShaderType _shader_type) const
 	{
 		const auto gl_shader_type = [_shader_type]()
 		{

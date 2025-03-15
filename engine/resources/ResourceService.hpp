@@ -14,7 +14,9 @@ namespace engine::resources
 			void RegisterRTTI();
 
 			void LoadTileDefinitions();
-			void LoadTile(ITile* _tile);
+			void LoadTileDefinition(ITile* _tile);
+
+			void LoadTilesTextures();
 
 		private:
 

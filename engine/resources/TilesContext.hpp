@@ -11,16 +11,17 @@ namespace engine::resources
 		public:
 
 			CTilesContext();
+			~CTilesContext();
 
 			void Clear();
-			void LoadTile(ITile* _tile);
+			void LoadTileDefinition(ITile* _tile);
 
 			const std::vector<CTile*>& GetTilesConstRef() const;
 			const std::vector<CAtlasTile*>& GetAtlasTilesConstRef() const;
 
 		private:
 
-			std::vector<CTile*> m_Tiles;
-			std::vector<CAtlasTile*> m_AtlasTiles;
+			std::vector<CTile*> m_TilesDefinitions;
+			std::vector<CAtlasTile*> m_AtlasTilesDefinitions;
 	};
 }

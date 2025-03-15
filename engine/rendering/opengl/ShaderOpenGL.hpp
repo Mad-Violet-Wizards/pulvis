@@ -46,14 +46,14 @@ namespace engine::rendering::opengl
 	}
 	
 
-	class CShader
+	class CShaderOpenGL
 	{
 		public:
 
-			CShader(const std::string& _shader_name);
+			CShaderOpenGL(const std::string& _shader_name);
 			void LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model);
 			void LoadShader(engine::fs::CShaderFileDataModel* _vertex_file_model, engine::fs::CShaderFileDataModel* _fragment_file_model, engine::fs::CShaderFileDataModel* _geometry_file_model);
-			~CShader() = default;
+			~CShaderOpenGL() = default;
 
 			void Bind();
 			void Unbind();
