@@ -8,9 +8,9 @@
 
 #include "FileDataModel.hpp"
 #include "Serializable.hpp"
-#include "TextFileDataModel.hpp"
-#include "ShaderFileDataModel.hpp"
-#include "ScriptFileDataModel.hpp"
+#include "engine/filesystem/data_models/TextFileDataModel.hpp"
+#include "engine/filesystem/data_models/ShaderFileDataModel.hpp"
+#include "engine/filesystem/data_models/ScriptFileDataModel.hpp"
 
 namespace engine
 {

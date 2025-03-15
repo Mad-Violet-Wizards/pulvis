@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameFileDataModel.hpp"
+#include "engine/filesystem/data_models/GameFileDataModel.hpp"
 #include "GameContext.hpp"
 #include "engine/threads/ThreadTask.hpp"
 

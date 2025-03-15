@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FileDataModel.hpp"
+#include "engine/filesystem/FileDataModel.hpp"
 
 namespace engine::fs
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/filesystem/ShaderFileDataModel.hpp"
+#include "engine/filesystem/data_models/ShaderFileDataModel.hpp"
 
 namespace engine::rendering::opengl
 {

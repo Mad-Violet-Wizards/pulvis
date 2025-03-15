@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/filesystem/Filesystem.hpp"
-#include "GameFileDataModel.hpp"
+#include "engine/filesystem/data_models/GameFileDataModel.hpp"
 
 namespace engine::game
 {
