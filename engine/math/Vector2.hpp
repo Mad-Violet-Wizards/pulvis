@@ -16,41 +16,41 @@ namespace engine::math
 
 			}
 
-			constexpr Vector2(T a, T b)
-				: m_X(a)
-				, m_Y(b)
+			constexpr Vector2(T _x, T _y)
+				: m_X(_x)
+				, m_Y(_y)
 			{
 
 			}
 
-			Vector2(const Vector2<T>& other)
-				: m_X(other.m_X)
-				, m_Y(other.m_Y)
+			Vector2(const Vector2<T>& _other)
+				: m_X(_other.m_X)
+				, m_Y(_other.m_Y)
 			{
 
 			}
 
-			Vector2(Vector2<T>&& other) noexcept
-				: m_X(other.m_A)
-				, m_Y(other.m_B)
+			Vector2(Vector2<T>&& _other) noexcept
+				: m_X(_other.m_X)
+				, m_Y(_other.m_Y)
 			{
-				other.m_X = 0;
-				other.m_Y = 0;
+				_other.m_X = 0;
+				_other.m_Y = 0;
 			}
 
-			Vector2<T>& operator= (const Vector2<T>& other)
+			Vector2<T>& operator= (const Vector2<T>& _other)
 			{
-				m_X = other.m_X;
-				m_Y = other.m_Y;
+				m_X = _other.m_X;
+				m_Y = _other.m_Y;
 				return *this;
 			}
 
-			Vector2<T>& operator= (Vector2<T>&& other) noexcept
+			Vector2<T>& operator= (Vector2<T>&& _other) noexcept
 			{
-				m_X = other.m_A;
-				m_Y = other.m_B;
-				other.m_A = 0;
-				other.m_B = 0;
+				m_X = _other.m_X;
+				m_Y = _other.m_Y;
+				_other.m_X = 0;
+				_other.m_Y = 0;
 				return *this;
 			}
 
@@ -70,19 +70,23 @@ namespace engine::math
 				return Pow(m_X, 2) + Pow(m_Y, 2);
 			}
 
-			T Dot(const Vector2<T>& other) const
+			T Dot(const Vector2<T>& _other) const
 			{
-				return m_X * other.m_X + m_Y * other.m_Y;
+				return m_X * _other.m_X + m_Y * _other.m_Y;
 			}
 
-			T Cross(const Vector2<T>& other) const
+			T Cross(const Vector2<T>& _other) const
 			{
-				return m_X * other.m_Y - m_Y * other.m_X;
+				return m_X * _other.m_Y - m_Y * _other.m_X;
 			}
 
 			Vector2<T> Normalize() const
 			{
 				const T length = Length();
+
+				if (length == 0)
+					return { 0, 0 };
+
 				return { m_X / length, m_Y / length };
 			}
 
@@ -120,130 +124,130 @@ namespace engine::math
 
 		public:
 
-			constexpr Vector2<T> operator+(const Vector2<T>& other) const
+			constexpr Vector2<T> operator+(const Vector2<T>& _other) const
 			{
-				return { m_X + other.m_X, m_Y + other.m_Y };
+				return { m_X + _other.m_X, m_Y + _other.m_Y };
 			}
 
-			constexpr Vector2<T> operator-(const Vector2<T>& other) const
+			constexpr Vector2<T> operator-(const Vector2<T>& _other) const
 			{
-				return { m_X - other.m_X, m_Y - other.m_Y };
+				return { m_X - _other.m_X, m_Y - _other.m_Y };
 			}
 
-			constexpr Vector2<T> operator*(const Vector2<T>& other) const
+			constexpr Vector2<T> operator*(const Vector2<T>& _other) const
 			{
-				return { m_X * other.m_X, m_Y * other.m_Y };
+				return { m_X * _other.m_X, m_Y * _other.m_Y };
 			}
 
-			constexpr Vector2<T> operator/(const Vector2<T>& other) const
+			constexpr Vector2<T> operator/(const Vector2<T>& _other) const
 			{
-				return { m_X / other.m_X, m_Y / other.m_Y };
+				return { m_X / _other.m_X, m_Y / _other.m_Y };
 			}
 
-			constexpr Vector2<T>& operator+=(const Vector2<T>& other)
+			constexpr Vector2<T>& operator+=(const Vector2<T>& _other)
 			{
-				m_X += other.m_X;
-				m_Y += other.m_Y;
+				m_X += _other.m_X;
+				m_Y += _other.m_Y;
 				return *this;
 			}
 
-			constexpr Vector2<T>& operator-=(const Vector2<T>& other)
+			constexpr Vector2<T>& operator-=(const Vector2<T>& _other)
 			{
-				m_X -= other.m_X;
-				m_Y -= other.m_Y;
+				m_X -= _other.m_X;
+				m_Y -= _other.m_Y;
 				return *this;
 			}
 
-			constexpr Vector2<T>& operator*=(const Vector2<T>& other)
+			constexpr Vector2<T>& operator*=(const Vector2<T>& _other)
 			{
-				m_X *= other.m_X;
-				m_Y *= other.m_Y;
+				m_X *= _other.m_X;
+				m_Y *= _other.m_Y;
 				return *this;
 			}
 
-			constexpr Vector2<T>& operator/=(const Vector2<T>& other)
+			constexpr Vector2<T>& operator/=(const Vector2<T>& _other)
 			{
-				m_X /= other.m_X;
-				m_Y /= other.m_Y;
+				m_X /= _other.m_X;
+				m_Y /= _other.m_Y;
 				return *this;
 			}
 
-			constexpr Vector2<T> operator+(T scalar) const
+			constexpr Vector2<T> operator+(T _scalar) const
 			{
-				return { m_X + scalar, m_Y + scalar };
+				return { m_X + _scalar, m_Y + _scalar };
 			}
 
-			constexpr Vector2<T> operator-(T scalar) const
+			constexpr Vector2<T> operator-(T _scalar) const
 			{
-				return { m_X - scalar, m_Y - scalar };
+				return { m_X - _scalar, m_Y - _scalar };
 			}
 
-			constexpr Vector2<T> operator*(T scalar) const
+			constexpr Vector2<T> operator*(T _scalar) const
 			{
-				return { m_X * scalar, m_Y * scalar };
+				return { m_X * _scalar, m_Y * _scalar };
 			}
 
-			constexpr Vector2<T> operator/(T scalar) const
+			constexpr Vector2<T> operator/(T _scalar) const
 			{
-				return { m_X / scalar, m_Y / scalar };
+				return { m_X / _scalar, m_Y / _scalar };
 			}
 
-			constexpr Vector2<T>& operator+=(T scalar)
+			constexpr Vector2<T>& operator+=(T _scalar)
 			{
-				m_X += scalar;
-				m_Y += scalar;
+				m_X += _scalar;
+				m_Y += _scalar;
 				return *this;
 			}
 
-			constexpr Vector2<T>& operator-=(T scalar)
+			constexpr Vector2<T>& operator-=(T _scalar)
 			{
-				m_X -= scalar;
-				m_Y -= scalar;
+				m_X -= _scalar;
+				m_Y -= _scalar;
 				return *this;
 			}
 
-			constexpr Vector2<T>& operator*=(T scalar)
+			constexpr Vector2<T>& operator*=(T _scalar)
 			{
-				m_X *= scalar;
-				m_Y *= scalar;
+				m_X *= _scalar;
+				m_Y *= _scalar;
 				return *this;
 			}
 
-			constexpr Vector2<T>& operator/=(T scalar)
+			constexpr Vector2<T>& operator/=(T _scalar)
 			{
-				m_X /= scalar;
-				m_Y /= scalar;
+				m_X /= _scalar;
+				m_Y /= _scalar;
 				return *this;
 			}
 
-			constexpr bool operator==(const Vector2<T>& other) const
+			constexpr bool operator==(const Vector2<T>& _other) const
 			{
-				return m_X == other.m_X && m_Y == other.m_Y;
+				return m_X == _other.m_X && m_Y == _other.m_Y;
 			}
 
-			constexpr bool operator!=(const Vector2<T>& other) const
+			constexpr bool operator!=(const Vector2<T>& _other) const
 			{
-				return m_X != other.m_X || m_Y != other.m_Y;
+				return m_X != _other.m_X || m_Y != _other.m_Y;
 			}
 
-			constexpr bool operator<(const Vector2<T>& other) const
+			constexpr bool operator<(const Vector2<T>& _other) const
 			{
-				return m_X < other.m_X && m_Y < other.m_Y;
+				return m_X < _other.m_X && m_Y < _other.m_Y;
 			}
 
-			constexpr bool operator<=(const Vector2<T>& other) const
+			constexpr bool operator<=(const Vector2<T>& _other) const
 			{
-				return m_X <= other.m_X && m_Y <= other.m_Y;
+				return m_X <= _other.m_X && m_Y <= _other.m_Y;
 			}
 
-			constexpr bool operator>(const Vector2<T>& other) const
+			constexpr bool operator>(const Vector2<T>& _other) const
 			{
-				return m_X > other.m_X && m_Y > other.m_Y;
+				return m_X > _other.m_X && m_Y > _other.m_Y;
 			}
 
-			constexpr bool operator>=(const Vector2<T>& other) const
+			constexpr bool operator>=(const Vector2<T>& _other) const
 			{
-				return m_X >= other.m_X && m_Y >= other.m_Y;
+				return m_X >= _other.m_X && m_Y >= _other.m_Y;
 			}
 
 		public:

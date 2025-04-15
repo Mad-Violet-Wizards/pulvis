@@ -17,48 +17,48 @@ namespace engine::math
 
 		}
 
-		constexpr Vector3(T a, T b, T c)
-			: m_X(a)
-			, m_Y(b)
-			, m_Z(c)
+		constexpr Vector3(T _x, T _y, T _z)
+			: m_X(_x)
+			, m_Y(_y)
+			, m_Z(_z)
 		{
 
 		}
 
-		Vector3(const Vector3<T>& other)
-			: m_X(other.m_X)
-			, m_Y(other.m_Y)
-			, m_Z(other.m_Z)
+		Vector3(const Vector3<T>& _other)
+			: m_X(_other.m_X)
+			, m_Y(_other.m_Y)
+			, m_Z(_other.m_Z)
 		{
 
 		}
 
-		Vector3(Vector3<T>&& other) noexcept
-			: m_X(other.m_X)
-			, m_Y(other.m_Y)
-			, m_Z(other.m_Z)
+		Vector3(Vector3<T>&& _other) noexcept
+			: m_X(_other.m_X)
+			, m_Y(_other.m_Y)
+			, m_Z(_other.m_Z)
 		{
-			other.m_X = 0;
-			other.m_Y = 0;
-			other.m_Z = 0;
+			_other.m_X = 0;
+			_other.m_Y = 0;
+			_other.m_Z = 0;
 		}
 
-		Vector3<T>& operator= (const Vector3<T>& other)
+		Vector3<T>& operator= (const Vector3<T>& _other)
 		{
-			m_X = other.m_X;
-			m_Y = other.m_Y;
-			m_Z = other.m_Z;
+			m_X = _other.m_X;
+			m_Y = _other.m_Y;
+			m_Z = _other.m_Z;
 			return *this;
 		}
 
-		Vector3<T>& operator= (Vector3<T>&& other) noexcept
+		Vector3<T>& operator= (Vector3<T>&& _other) noexcept
 		{
-			m_X = other.m_X;
-			m_Y = other.m_Y;
-			m_Z = other.m_Z;
-			other.m_X = 0;
-			other.m_Y = 0;
-			other.m_Z = 0;
+			m_X = _other.m_X;
+			m_Y = _other.m_Y;
+			m_Z = _other.m_Z;
+			_other.m_X = 0;
+			_other.m_Y = 0;
+			_other.m_Z = 0;
 			return *this;
 		}
 
@@ -78,19 +78,23 @@ namespace engine::math
 			return Pow(m_X, 2) + Pow(m_Y, 2) + Pow(m_Z, 2);
 		}
 
-		T Dot(const Vector3<T>& other) const
+		T Dot(const Vector3<T>& _other) const
 		{
-			return m_X * other.m_X + m_Y * other.m_Y + m_Z * other.m_Z;
+			return m_X * _other.m_X + m_Y * _other.m_Y + m_Z * _other.m_Z;
 		}
 
-		Vector3<T> Cross(const Vector3<T>& other) const
+		Vector3<T> Cross(const Vector3<T>& _other) const
 		{
-			return Vector3<T>(m_Y * other.m_Z - m_Z * other.m_Y, m_Z * other.m_X - m_X * other.m_Z, m_X * other.m_Y - m_Y * other.m_X);
+			return Vector3<T>(m_Y * _other.m_Z - m_Z * _other.m_Y, m_Z * _other.m_X - m_X * _other.m_Z, m_X * _other.m_Y - m_Y * _other.m_X);
 		}
 
 		Vector3<T> Normalize() const
 		{
 			const T length = Length();
+
+			if (length == 0)
+				return Vector3<T>(0, 0, 0);
+
 			return Vector3<T>(m_X / length, m_Y / length, m_Z / length);
 		}
 
@@ -138,138 +142,138 @@ namespace engine::math
 	
 	public:
 
-		constexpr Vector3<T> operator+(const Vector3<T>& other) const
+		constexpr Vector3<T> operator+(const Vector3<T>& _other) const
 		{
-			return Vector3<T>(m_X + other.m_X, m_Y + other.m_Y, m_Z + other.m_Z);
+			return Vector3<T>(m_X + _other.m_X, m_Y + _other.m_Y, m_Z + _other.m_Z);
 		}
 
-		constexpr Vector3<T> operator-(const Vector3<T>& other) const
+		constexpr Vector3<T> operator-(const Vector3<T>& _other) const
 		{
-			return Vector3<T>(m_X - other.m_X, m_Y - other.m_Y, m_Z - other.m_Z);
+			return Vector3<T>(m_X - _other.m_X, m_Y - _other.m_Y, m_Z - _other.m_Z);
 		}
 
-		constexpr Vector3<T> operator*(const Vector3<T>& other) const
+		constexpr Vector3<T> operator*(const Vector3<T>& _other) const
 		{
-			return Vector3<T>(m_X * other.m_X, m_Y * other.m_Y, m_Z * other.m_Z);
+			return Vector3<T>(m_X * _other.m_X, m_Y * _other.m_Y, m_Z * _other.m_Z);
 		}
 
-		constexpr Vector3<T> operator/(const Vector3<T>& other) const
+		constexpr Vector3<T> operator/(const Vector3<T>& _other) const
 		{
-			return Vector3<T>(m_X / other.m_X, m_Y / other.m_Y, m_Z / other.m_Z);
+			return Vector3<T>(m_X / _other.m_X, m_Y / _other.m_Y, m_Z / _other.m_Z);
 		}
 
-		constexpr Vector3<T>& operator+=(const Vector3<T>& other)
+		constexpr Vector3<T>& operator+=(const Vector3<T>& _other)
 		{
-			m_X += other.m_X;
-			m_Y += other.m_Y;
-			m_Z += other.m_Z;
+			m_X += _other.m_X;
+			m_Y += _other.m_Y;
+			m_Z += _other.m_Z;
 			return *this;
 		}
 
-		constexpr Vector3<T>& operator-=(const Vector3<T>& other)
+		constexpr Vector3<T>& operator-=(const Vector3<T>& _other)
 		{
-			m_X -= other.m_X;
-			m_Y -= other.m_Y;
-			m_Z -= other.m_Z;
+			m_X -= _other.m_X;
+			m_Y -= _other.m_Y;
+			m_Z -= _other.m_Z;
 			return *this;
 		}
 
-		constexpr Vector3<T>& operator*=(const Vector3<T>& other)
+		constexpr Vector3<T>& operator*=(const Vector3<T>& _other)
 		{
-			m_X *= other.m_X;
-			m_Y *= other.m_Y;
-			m_Z *= other.m_Z;
+			m_X *= _other.m_X;
+			m_Y *= _other.m_Y;
+			m_Z *= _other.m_Z;
 			return *this;
 		}
 
-		constexpr Vector3<T>& operator/=(const Vector3<T>& other)
+		constexpr Vector3<T>& operator/=(const Vector3<T>& _other)
 		{
-			m_X /= other.m_X;
-			m_Y /= other.m_Y;
-			m_Z /= other.m_Z;
+			m_X /= _other.m_X;
+			m_Y /= _other.m_Y;
+			m_Z /= _other.m_Z;
 			return *this;
 		}
 
-		constexpr Vector3<T> operator+(T scalar) const
+		constexpr Vector3<T> operator+(T _scalar) const
 		{
-			return Vector3<T>(m_X + scalar, m_Y + scalar, m_Z + scalar);
+			return Vector3<T>(m_X + _scalar, m_Y + _scalar, m_Z + _scalar);
 		}
 
-		constexpr Vector3<T> operator-(T scalar) const
+		constexpr Vector3<T> operator-(T _scalar) const
 		{
-			return Vector3<T>(m_X - scalar, m_Y - scalar, m_Z - scalar);
+			return Vector3<T>(m_X - _scalar, m_Y - _scalar, m_Z - _scalar);
 		}
 
-		constexpr Vector3<T> operator*(T scalar) const
+		constexpr Vector3<T> operator*(T _scalar) const
 		{
-			return Vector3<T>(m_X * scalar, m_Y * scalar, m_Z * scalar);
+			return Vector3<T>(m_X * _scalar, m_Y * _scalar, m_Z * _scalar);
 		}
 
-		constexpr Vector3<T> operator/(T scalar) const
+		constexpr Vector3<T> operator/(T _scalar) const
 		{
-			return Vector3<T>(m_X / scalar, m_Y / scalar, m_Z / scalar);
+			return Vector3<T>(m_X / _scalar, m_Y / _scalar, m_Z / _scalar);
 		}
 
-		constexpr Vector3<T>& operator+=(T scalar)
+		constexpr Vector3<T>& operator+=(T _scalar)
 		{
-			m_X += scalar;
-			m_Y += scalar;
-			m_Z += scalar;
+			m_X += _scalar;
+			m_Y += _scalar;
+			m_Z += _scalar;
 			return *this;
 		}
 
-		constexpr Vector3<T>& operator-=(T scalar)
+		constexpr Vector3<T>& operator-=(T _scalar)
 		{
-			m_X -= scalar;
-			m_Y -= scalar;
-			m_Z -= scalar;
+			m_X -= _scalar;
+			m_Y -= _scalar;
+			m_Z -= _scalar;
 			return *this;
 		}
 
-		constexpr Vector3<T>& operator*=(T scalar)
+		constexpr Vector3<T>& operator*=(T _scalar)
 		{
-			m_X *= scalar;
-			m_Y *= scalar;
-			m_Z *= scalar;
+			m_X *= _scalar;
+			m_Y *= _scalar;
+			m_Z *= _scalar;
 			return *this;
 		}
 
-		constexpr Vector3<T>& operator/=(T scalar)
+		constexpr Vector3<T>& operator/=(T _scalar)
 		{
-			m_X /= scalar;
-			m_Y /= scalar;
-			m_Z /= scalar;
+			m_X /= _scalar;
+			m_Y /= _scalar;
+			m_Z /= _scalar;
 			return *this;
 		}
 
-		constexpr bool operator==(const Vector3<T>& other) const
+		constexpr bool operator==(const Vector3<T>& _other) const
 		{
-			return m_X == other.m_X && m_Y == other.m_Y && m_Z == other.m_Z;
+			return m_X == _other.m_X && m_Y == _other.m_Y && m_Z == _other.m_Z;
 		}
 
-		constexpr bool operator!=(const Vector3<T>& other) const
+		constexpr bool operator!=(const Vector3<T>& _other) const
 		{
-			return m_X != other.m_X || m_Y != other.m_Y || m_Z != other.m_Z;
+			return m_X != _other.m_X || m_Y != _other.m_Y || m_Z != _other.m_Z;
 		}
 
-		constexpr bool operator<(const Vector3<T>& other) const
+		constexpr bool operator<(const Vector3<T>& _other) const
 		{
-			return m_X < other.m_X && m_Y < other.m_Y && m_Z < other.m_Z;
+			return m_X < _other.m_X && m_Y < _other.m_Y && m_Z < _other.m_Z;
 		}
 
-		constexpr bool operator<=(const Vector3<T>& other) const
+		constexpr bool operator<=(const Vector3<T>& _other) const
 		{
-			return m_X <= other.m_X && m_Y <= other.m_Y && m_Z <= other.m_Z;
+			return m_X <= _other.m_X && m_Y <= _other.m_Y && m_Z <= _other.m_Z;
 		}
 
-		constexpr bool operator>(const Vector3<T>& other) const
+		constexpr bool operator>(const Vector3<T>& _other) const
 		{
-			return m_X > other.m_X && m_Y > other.m_Y && m_Z > other.m_Z;
+			return m_X > _other.m_X && m_Y > _other.m_Y && m_Z > _other.m_Z;
 		}
 
-		constexpr bool operator>=(const Vector3<T>& other) const
+		constexpr bool operator>=(const Vector3<T>& _other) const
 		{
-			return m_X >= other.m_X && m_Y >= other.m_Y && m_Z >= other.m_Z;
+			return m_X >= _other.m_X && m_Y >= _other.m_Y && m_Z >= _other.m_Z;
 		}
 
 	public:

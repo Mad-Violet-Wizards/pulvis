@@ -51,7 +51,7 @@ namespace engine::math
 	}
 
 	template<Arithmetic T>
-	T Sqrt(T _val, [[maybe_unused]] int _precision = 25)
+	T Sqrt(T _val, [[maybe_unused]] int _precision = 7)
 	{
 		if (_val == 0)
 			return 0;
