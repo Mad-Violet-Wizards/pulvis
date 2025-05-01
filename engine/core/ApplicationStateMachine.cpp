@@ -141,14 +141,13 @@ namespace engine::core
 	//////////////////////////////////////////////////////////////////////////
 	AppState_GameLoad::AppState_GameLoad(ApplicationStateMachine* _stateMachine)
 		: IApplicationState(_stateMachine)
-		, m_ProjectLoaded(false)
-		, m_TexturesLoaded(false)
+		, m_LoadingFinished(false)
 	{
 	}
 
 	void AppState_GameLoad::OnEnter()
 	{
-		engine::game::CGameService::GetInstance().StartGameLoadThreadTask();
+		engine::game::CGameService::GetInstance().ScheduleGameLoadThreadTask();
 	}
 
 	void AppState_GameLoad::OnExit()
@@ -157,23 +156,25 @@ namespace engine::core
 
 	void AppState_GameLoad::Update()
 	{
-		if (engine::game::CGameService::GetInstance().ConsumeProjectLoaded())
+		engine::game::CGameService& game_service = engine::game::CGameService::GetInstance();
+
+		if (game_service.IsGameLoadThreadTaskFinished() && !game_service.IsTexturesLoadThreadTaskStarted())
 		{
-			engine::game::CGameService::GetInstance().SetupShaders();
-			engine::game::CGameService::GetInstance().SetupScripts();
+			game_service.OnGameLoadThreadTaskFinished();
+			game_service.SetupShaders();
+			game_service.SetupScripts();
 			engine::resources::CResourceService::GetInstance().LoadTileDefinitions();
-			engine::game::CGameService::GetInstance().StartTexturesLoadThreadTask();
-
-			m_ProjectLoaded = true;
+			game_service.ScheduleTexturesLoadThreadTask();
 		}
 
-		if (engine::game::CGameService::GetInstance().ConsumeTexturesLoaded())
+		if (game_service.IsTexturesLoadThreadTaskFinished())
 		{
-			engine::game::CGameService::GetInstance().SetupTextures();
-			m_TexturesLoaded = true;
+			game_service.OnTexturesLoadThreadTaskFinished();
+			game_service.SetupTextures();
+			m_LoadingFinished = true;
 		}
 
-		if (m_ProjectLoaded && m_TexturesLoaded)
+		if (m_LoadingFinished)
 		{
 			m_StateMachine->QueueState(EApplicationState::GameLoop);
 		}

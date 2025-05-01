@@ -202,9 +202,9 @@ namespace engine::pstd
 			return m_Invoker(&m_StorageBuffer, std::forward<Args>(args)...);
 		}
 
-		R operator()(void* _instance, Args&&... args)
+		R operator()(void* _instance, Args&&... _args)
 		{
-			return m_InvokerNoInstance(&m_StorageBuffer, _instance, std::forward<Args>(args)...);
+			return m_InvokerNoInstance(&m_StorageBuffer, _instance, std::forward<Args>(_args)...);
 		}
 
 	private:

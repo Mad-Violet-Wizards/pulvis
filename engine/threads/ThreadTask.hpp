@@ -1,9 +1,10 @@
 #pragma once
 
-#include <future>
 #include <functional>
 #include <type_traits>
 
+#include "ThreadTaskHandle.hpp"
+#include "ThreadTaskState.hpp"
 #include "engine/pstd/FastFunction.hpp"
 
 /* engine::threads::detail */
@@ -14,27 +15,60 @@ namespace engine::threads::detail
 	{
 		public:
 
+			IThreadTask(std::shared_ptr<SThreadTaskState> _state)
+				: m_State(std::move(_state))
+			{
+			}
+
 			virtual ~IThreadTask() = default;
 			virtual void Execute() = 0;
+
+			virtual std::shared_ptr<SThreadTaskState> GetState() const
+			{
+				return m_State;
+			}
+		
+		protected:
+
+			std::shared_ptr<SThreadTaskState> m_State;
 	};
-//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 	template<typename R>
-	class IThreadTaskFuture : public IThreadTask
+	class IThreadTaskWithResult : public IThreadTask
 	{
-		public:
+	public:
 
-			virtual ~IThreadTaskFuture() = default;
-			virtual std::future<R> GetFuture() = 0;
+		IThreadTaskWithResult(std::shared_ptr<SThreadTaskState> _state,
+			std::shared_ptr<CThreadTaskHandle<R>> _handle)
+			: IThreadTask(std::move(_state))
+			, m_Handle(std::move(_handle))
+		{
+		}
+
+		virtual ~IThreadTaskWithResult() = default;
+
+		virtual std::shared_ptr<CThreadTaskHandle<R>> GetHandle() const
+		{
+			return m_Handle;
+		}
+
+	protected:
+
+		std::shared_ptr<CThreadTaskHandle<R>> m_Handle;
 	};
 
+	//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
 	template<typename R, typename C, typename... Args>
-	class CThreadTaskClassMethodImpl : public IThreadTaskFuture<R>
+	class CThreadTaskClassMethodImpl : public IThreadTaskWithResult<R>
 	{
 		public:
 
-			CThreadTaskClassMethodImpl(C* _instance, R(C::* _method)(Args...), Args&&... _args)
+			CThreadTaskClassMethodImpl(std::shared_ptr<SThreadTaskState> _state, std::shared_ptr<CThreadTaskHandle<R>> _handle, C* _instance, R(C::* _method)(Args...), Args&&... _args)
 				: m_Function(_instance, _method)
 				, m_Args(std::forward<Args>(_args)...)
+				, IThreadTaskWithResult<R>(std::move(_state), std::move(_handle))
 			{
 			}
 
@@ -43,17 +77,14 @@ namespace engine::threads::detail
 				if constexpr (std::is_void_v<R>)
 				{
 					ExecuteImpl(std::index_sequence_for<Args...>());
-					m_Promise.set_value();
+					IThreadTaskWithResult<R>::GetHandle()->m_Promise.set_value();
 				}
 				else
 				{
-					m_Promise.set_value(ExecuteImpl(std::index_sequence_for<Args...>()));
+					IThreadTaskWithResult<R>::GetHandle()->m_Promise.set_value(ExecuteImpl(std::index_sequence_for<Args...>()));
 				}
-			}
 
-			std::future<R> GetFuture() override final
-			{
-				return m_Promise.get_future();
+				IThreadTask::GetState()->m_Completed.store(true);
 			}
 
 		private:
@@ -75,37 +106,34 @@ namespace engine::threads::detail
 
 			pstd::FastFunction<R, Args...> m_Function;
 			std::tuple<Args...> m_Args;
-			std::promise<std::decay_t<R>> m_Promise;
 	};
 
 //////////////////////////////////////////////////////////////////////////
 	template<typename R, typename Func, typename... Args>
-	class CThreadTaskFunctionImpl : public IThreadTaskFuture<R>
+	class CThreadTaskFunctionImpl : public IThreadTaskWithResult<R>
 	{
 	public:
 
-		CThreadTaskFunctionImpl(Func&& _func, Args&&... _args)
+		CThreadTaskFunctionImpl(std::shared_ptr<SThreadTaskState> _state, std::shared_ptr<CThreadTaskHandle<R>> _handle, Func&& _func, Args&&... _args)
 			: m_Function(std::forward<Func>(_func))
 			, m_Args(std::forward_as_tuple(_args...))
+			, IThreadTaskWithResult<R>(std::move(_state), std::move(_handle))
 		{
 		}
 
-		virtual void Execute() override final
+		void Execute() override final
 		{
 			if constexpr (std::is_void_v<R>)
 			{
 				ExecuteImpl(std::index_sequence_for<Args...>());
-				m_Promise.set_value();
+				IThreadTaskWithResult<R>::GetHandle()->m_Promise.set_value();
 			}
 			else
 			{
-				m_Promise.set_value(ExecuteImpl(std::index_sequence_for<Args...>()));
+				IThreadTaskWithResult<R>::GetHandle()->m_Promise.set_value(ExecuteImpl(std::index_sequence_for<Args...>()));
 			}
-		}
 
-		std::future<R> GetFuture() override final
-		{
-			return m_Promise.get_future();
+			IThreadTask::GetState()->m_Completed.store(true);
 		}
 
 	private:
@@ -127,29 +155,31 @@ namespace engine::threads::detail
 
 		pstd::FastFunction<R, Args...> m_Function;
 		std::tuple<Args...> m_Args;
-		std::promise<std::decay_t<R>> m_Promise;
 	};
 //////////////////////////////////////////////////////////////////////////
 } /* engine::threads::detail */
 
 namespace engine::threads
 {
-	class IThreadTaskImpl;
-
 	class CThreadTask
 	{
 	public:
 
-		CThreadTask() : m_Impl(nullptr) {}
 		~CThreadTask() { delete m_Impl; }
 
 		// Function pointer
 		template <typename R, typename... Args>
-		CThreadTask(R(*_func)(Args...), Args&&... _args)
+		CThreadTask(const char* _task_name, R(*_func)(Args...), Args&&... _args)
 		{
 			using Func = R(*)(Args...);
+
+			std::shared_ptr<SThreadTaskState> state = std::make_shared<SThreadTaskState>(_task_name);
+			std::shared_ptr<CThreadTaskHandle<R>> handle = std::make_shared<CThreadTaskHandle<R>>(state);
+
 			m_Impl = new detail::CThreadTaskFunctionImpl<R, Func, Args...>
 			(
+				std::move(state),
+				std::move(handle),
 				std::forward<Func>(_func),
 				std::forward<Args>(_args)...
 			);
@@ -157,26 +187,36 @@ namespace engine::threads
 
 		// Class method
 		template <typename R, typename C, typename... Args>
-		CThreadTask(C* _instance, R(C::* _method)(Args...), Args&&... _args)
+		CThreadTask(const char* _task_name, C* _instance, R(C::* _method)(Args...), Args&&... _args)
 		{
 			using Func = R(C::*)(Args...);
+
+			std::shared_ptr<SThreadTaskState> state = std::make_shared<SThreadTaskState>(_task_name);
+			std::shared_ptr<CThreadTaskHandle<R>> handle = std::make_shared<CThreadTaskHandle<R>>(state);
+
 			m_Impl = new detail::CThreadTaskClassMethodImpl<R, C, Args...>
 				(
+					std::move(state),
+					std::move(handle),
 					_instance,
 					std::forward<Func>(_method),
 					std::forward<Args>(_args)...
 				);
-
-
 		}
 
 		// Function object or lambda
 		template <typename Func, typename... Args>
-			CThreadTask(Func&& _func, Args&&... _args)
+			CThreadTask(const char* _task_name, Func&& _func, Args&&... _args)
 		{
 			using R = std::decay_t<decltype(_func(std::declval<Args>()...))>;
+
+			std::shared_ptr<SThreadTaskState> state = std::make_shared<SThreadTaskState>(_task_name);
+			std::shared_ptr<CThreadTaskHandle<R>> handle = std::make_shared<CThreadTaskHandle<R>>(state);
+
 			m_Impl = new detail::CThreadTaskFunctionImpl<R, Func, Args...>
 			(
+				std::move(state),
+				std::move(handle),
 				std::forward<Func>(_func),
 				std::forward<Args>(_args)...
 			);
@@ -199,19 +239,28 @@ namespace engine::threads
 			return *this;
 		}
 
-		template<typename R>
-		std::future<R> GetFuture() 
-		{
-			return static_cast<detail::IThreadTaskFuture<R>*>(m_Impl)->GetFuture();
-		}
-
 		void Execute()
 		{
 			m_Impl->Execute();
 		}
 
+		std::shared_ptr<SThreadTaskState> GetState() const
+		{
+			return m_Impl->GetState();
+		}
+
+		template<typename R>
+		std::shared_ptr<CThreadTaskHandle<R>> GetHandle() const
+		{
+			if (auto task = dynamic_cast<detail::IThreadTaskWithResult<R>*>(m_Impl))
+			{
+				return task->GetHandle();
+			}
+			return nullptr;
+		}
+
 		private:
 
-			detail::IThreadTask* m_Impl;
+			detail::IThreadTask* m_Impl{ nullptr };
 	};
 } 

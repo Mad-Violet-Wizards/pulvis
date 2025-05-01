@@ -59,8 +59,7 @@ namespace engine::core
 
 		private:
 
-			bool m_ProjectLoaded;
-			bool m_TexturesLoaded;
+			bool m_LoadingFinished;
 	};
 
 	//////////////////////////////////////////////////////////////////////////

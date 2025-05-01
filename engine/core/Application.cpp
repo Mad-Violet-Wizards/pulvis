@@ -70,6 +70,7 @@ namespace engine
 			engine::game::CGameService::GetInstance().Frame();
 			engine::events::CEventController::GetInstance().Frame();
 			engine::rendering::RenderingService::GetInstance().Frame();
+			m_AppContext.m_ThreadTaskScheduler.Process();
 		}
 
 		void Application::PostFrame()

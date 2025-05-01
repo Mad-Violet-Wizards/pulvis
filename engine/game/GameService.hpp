@@ -5,7 +5,7 @@
 #include "engine/filesystem/data_models/ScriptFileDataModel.hpp"
 #include "engine/filesystem/data_models/images/PngFileDataModel.hpp"
 #include "GameContext.hpp"
-#include "engine/threads/ThreadTask.hpp"
+#include "engine/threads/ThreadTaskHandle.hpp"
 
 namespace engine::resources
 {
@@ -47,17 +47,18 @@ namespace engine::game
 
 			////////////////////////////////////////////////////////////////////////////////
 			// Initial game loading
-			void StartGameLoadThreadTask();
-			bool ConsumeProjectLoaded();
-			bool GetIsProjectLoadInProgress() const;
+			void ScheduleGameLoadThreadTask();
+			bool IsGameLoadThreadTaskFinished() const;
+			void OnGameLoadThreadTaskFinished();
 
 			void SetupShaders() const;
 			void SetupScripts();
 			////////////////////////////////////////////////////////////////////////////////
 			// Textures loading
-			void StartTexturesLoadThreadTask();
-			bool ConsumeTexturesLoaded();
-			bool GetIsTexturesLoadInProgress() const;
+			void ScheduleTexturesLoadThreadTask();
+			bool IsTexturesLoadThreadTaskStarted() const;
+			bool IsTexturesLoadThreadTaskFinished() const;
+			void OnTexturesLoadThreadTaskFinished();
 
 			void SetupTextures() const;
 
@@ -72,17 +73,12 @@ namespace engine::game
 		friend class Singleton<CGameService>;
 
 		std::unique_ptr<CGameContext> m_GameContext{ nullptr };
-		engine::threads::CThreadTask* m_LoadProjectTask{ nullptr };
-		engine::threads::CThreadTask* m_LoadTexturesTask{ nullptr };
+
+		std::shared_ptr<engine::threads::CThreadTaskHandle<void>> m_LoadProjectTaskHandle{ nullptr };
+		std::shared_ptr<engine::threads::CThreadTaskHandle<void>> m_LoadTexturesTaskHandle{ nullptr };
 
 		SGameLoadThreadTaskData m_GameLoadThreadTaskData;
 		STexturesLoadThreadTaskData m_TexturesLoadThreadTaskData;
-
-		std::atomic<bool> m_GameLoadInProgress;
-		std::atomic<bool> m_GameLoadThreadTaskFinished;
-
-		std::atomic<bool> m_TexturesLoadInProgress;
-		std::atomic<bool> m_TexturesLoadThreadTaskFinished;
 
 
 	};

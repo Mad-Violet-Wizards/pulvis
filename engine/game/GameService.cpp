@@ -25,16 +25,7 @@ namespace engine::game
 	}
 	////////////////////////////////////////////////////////////////////////////////
 	CGameService::CGameService()
-		: m_GameContext{ nullptr }
-		, m_LoadProjectTask{ nullptr }
-		, m_GameLoadInProgress { false }
-		, m_GameLoadThreadTaskFinished { false }
-		, m_LoadTexturesTask { nullptr }
-		, m_TexturesLoadInProgress { false }
-		, m_TexturesLoadThreadTaskFinished { false }
 	{
-		m_GameLoadInProgress;
-		m_GameLoadThreadTaskFinished = false;
 
 	}
 
@@ -68,23 +59,31 @@ namespace engine::game
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
-	void CGameService::StartGameLoadThreadTask()
+	void CGameService::ScheduleGameLoadThreadTask()
 	{
 		if (!m_GameContext)
 		{
 			return;
 		}
 
-		if (m_LoadProjectTask)
+		m_GameLoadThreadTaskData.Clear();
+		engine::threads::CThreadTaskScheduler& tasks_scheduler = engine::core::Application::GetContext().m_ThreadTaskScheduler;
+		m_LoadProjectTaskHandle = tasks_scheduler.ScheduleTask("game_load", engine::threads::ETaskPriority::High, this, &CGameService::ThreadTask_LoadProject);
+	}
+
+	bool CGameService::IsGameLoadThreadTaskFinished() const
+	{
+		if (m_LoadProjectTaskHandle == nullptr)
 		{
-				delete m_LoadProjectTask;
-				m_LoadProjectTask = nullptr;
+			return false;
 		}
 
-		m_GameLoadThreadTaskData.Clear();
-		m_LoadProjectTask = new engine::threads::CThreadTask(this, &CGameService::ThreadTask_LoadProject);
-		engine::core::Application::GetContext().m_ThreadPool.EnqueueTask(m_LoadProjectTask);
-		m_GameLoadInProgress.store(true);
+		return m_LoadProjectTaskHandle->GetIsCompleted();
+	}
+
+	void CGameService::OnGameLoadThreadTaskFinished()
+	{
+		m_LoadProjectTaskHandle->GetResult();
 	}
 
 	CGameContext* const CGameService::GetGameContext() const
@@ -94,18 +93,6 @@ namespace engine::game
 
 	void CGameService::Frame()
 	{
-	}
-
-	bool CGameService::ConsumeProjectLoaded()
-	{
-		const bool state = m_GameLoadThreadTaskFinished.load();
-		m_GameLoadThreadTaskFinished.store(false);
-		return state;
-	}
-
-	bool CGameService::GetIsProjectLoadInProgress() const
-	{
-		return m_GameLoadInProgress.load();
 	}
 
 	void CGameService::ThreadTask_LoadProject()
@@ -152,9 +139,6 @@ namespace engine::game
 			}
 			}
 		}
-
-		m_GameLoadInProgress.store(false);
-		m_GameLoadThreadTaskFinished.store(true);
 	}
 
 	void CGameService::ThreadTask_UnloadProject()
@@ -226,9 +210,6 @@ namespace engine::game
 
 			m_TexturesLoadThreadTaskData.m_PngTextureFileDataModels[texture_name] = std::dynamic_pointer_cast<engine::fs::data_models::CPngFileDataModel>(texture_data);
 		}
-
-		m_TexturesLoadInProgress.store(false);
-		m_TexturesLoadThreadTaskFinished.store(true);
 	}
 
 	void CGameService::ThreadTask_UnloadTextures()
@@ -282,30 +263,36 @@ namespace engine::game
 	}
 	////////////////////////////////////////////////////////////////////////////////
 
-	void CGameService::StartTexturesLoadThreadTask()
+	void CGameService::ScheduleTexturesLoadThreadTask()
 	{
-		if (m_LoadTexturesTask)
+		m_TexturesLoadThreadTaskData.Clear();
+		engine::threads::CThreadTaskScheduler& tasks_scheduler = engine::core::Application::GetContext().m_ThreadTaskScheduler;
+		m_LoadTexturesTaskHandle = tasks_scheduler.ScheduleTask("game_load_textures", engine::threads::ETaskPriority::High, this, &CGameService::ThreadTask_LoadTextures);
+	}
+
+	bool CGameService::IsTexturesLoadThreadTaskStarted() const
+	{
+		if (m_LoadTexturesTaskHandle == nullptr)
 		{
-			delete m_LoadTexturesTask;
-			m_LoadTexturesTask = nullptr;
+			return false;
 		}
 
-		m_TexturesLoadThreadTaskData.Clear();
-		m_LoadTexturesTask = new engine::threads::CThreadTask(this, &CGameService::ThreadTask_LoadTextures);
-		engine::core::Application::GetContext().m_ThreadPool.EnqueueTask(m_LoadTexturesTask);
-		m_TexturesLoadInProgress.store(true);
+		return m_LoadTexturesTaskHandle->GetIsStarted();
 	}
 
-	bool CGameService::ConsumeTexturesLoaded()
+	bool CGameService::IsTexturesLoadThreadTaskFinished() const
 	{
-		const bool state = m_TexturesLoadThreadTaskFinished.load();
-		m_TexturesLoadThreadTaskFinished.store(false);
-		return state;
+		if (m_LoadTexturesTaskHandle == nullptr)
+		{
+			return false;
+		}
+
+		return m_LoadTexturesTaskHandle->GetIsCompleted();
 	}
 
-	bool CGameService::GetIsTexturesLoadInProgress() const
+	void CGameService::OnTexturesLoadThreadTaskFinished()
 	{
-		return m_TexturesLoadInProgress.load();
+		m_LoadTexturesTaskHandle->GetResult();
 	}
 
 	void CGameService::SetupTextures() const

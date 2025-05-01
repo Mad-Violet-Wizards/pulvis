@@ -97,27 +97,27 @@ TEST_CASE("Thread Task", "[Threads]")
 {
 	SECTION("Simple functions")
 	{
-		CThreadTask task(MocAddTwoValues, 64, 64);
+		CThreadTask task("moc_function_1", MocAddTwoValues, 64, 64);
 		task.Execute();
-		const int result = task.GetFuture<int>().get();
+		const int result = task.GetHandle<int>()->GetResult();
 		REQUIRE(result == 128);
 
 		int a = 1;
 		int b = 3;
 		int c = 0;
 
-		CThreadTask task2(RefAddTwoValues, a, b, c);
+		CThreadTask task2("moc_function_2", RefAddTwoValues, a, b, c);
 		task2.Execute();
-		task2.GetFuture<void>().get();
+		task2.GetHandle<void>()->GetResult();
 		REQUIRE(c == 4);
 	}
 
 	SECTION("Class methods")
 	{
 		MocThreadNotSharedClass instance;
-		CThreadTask task(&instance, &MocThreadNotSharedClass::MocAddTwoValues, 64, 64);
+		CThreadTask task("moc_class_method_1", &instance, &MocThreadNotSharedClass::MocAddTwoValues, 64, 64);
 		task.Execute();
-		const int result = task.GetFuture<int>().get();
+		const int result = task.GetHandle<int>()->GetResult();
 		REQUIRE(result == 128);
 
 		int a = 1;
@@ -125,28 +125,85 @@ TEST_CASE("Thread Task", "[Threads]")
 		int c = 0;
 
 		MocThreadNotSharedClass instance2;
-		CThreadTask task2(&instance2, &MocThreadNotSharedClass::RefAddTwoValues, a, b, c);
+		CThreadTask task2("moc_class_method_2", &instance2, &MocThreadNotSharedClass::RefAddTwoValues, a, b, c);
 
 		task2.Execute();
-		task2.GetFuture<void>().get();
+		task2.GetHandle<void>()->GetResult();
 		REQUIRE(c == 4);
 	}
 
 	SECTION("Lambdas")
 	{
-		CThreadTask task([](int _a, int _b) { return _a + _b; }, 64, 64);
+		CThreadTask task("moc_lambda_1", [](int _a, int _b) { return _a + _b; }, 64, 64);
 		task.Execute();
-		const int result = task.GetFuture<int>().get();
+		const int result = task.GetHandle<int>()->GetResult();
 		REQUIRE(result == 128);
 
 		int a = 1;
 		int b = 3;
 		int c = 0;
 
-		CThreadTask task2([&a, &b, &c]() { c = a + b; });
+		CThreadTask task2("moc_lambda_2", [&a, &b, &c]() { c = a + b; });
 		task2.Execute();
-		task2.GetFuture<void>().get();
+
+		task2.GetHandle<void>()->GetResult();
 		REQUIRE(c == 4);
+	}
+}
+
+TEST_CASE("Thread Task Scheduler", "[Threads]")
+{
+	SECTION("Regular processing")
+	{
+		std::cout << "Thread Task Scheduler" << std::endl;
+		SThreadPoolSettings settings;
+		settings.m_NumThreads = 4;
+
+		CThreadPool threadPool(settings);
+		CThreadTaskScheduler scheduler(threadPool);
+
+		std::vector<std::shared_ptr<CThreadTaskHandle<int>>> handles;
+
+		auto sleep_function_100ms_1 = scheduler.ScheduleTask<int>("sleep_function_100ms_1", ETaskPriority::High, MocSleepThread100ms);
+		auto sleep_function_100ms_2 = scheduler.ScheduleTask<int>("sleep_function_100ms_2", ETaskPriority::Normal, MocSleepThread100ms);
+		auto sleep_function_100ms_3 = scheduler.ScheduleTask<int>("sleep_function_100ms_3", ETaskPriority::Low, MocSleepThread100ms);
+		auto sleep_function_1s = scheduler.ScheduleTask<int>("sleep_function_1s", ETaskPriority::High, MocSleepThread1s);
+		auto sleep_function_1s_2 = scheduler.ScheduleTask<int>("sleep_function_1s_2", ETaskPriority::Normal, MocSleepThread1s);
+		auto sleep_function_5s = scheduler.ScheduleTask<int>("sleep_function_5s", ETaskPriority::High, MocSleepThread5s);
+
+		handles.push_back(sleep_function_100ms_1);
+		handles.push_back(sleep_function_100ms_2);
+		handles.push_back(sleep_function_100ms_3);
+		handles.push_back(sleep_function_1s);
+		handles.push_back(sleep_function_1s_2);
+		handles.push_back(sleep_function_5s);
+
+		scheduler.Process();
+
+		const int result = sleep_function_100ms_1->GetResult();
+		const int result2 = sleep_function_100ms_2->GetResult();
+		const int result3 = sleep_function_100ms_3->GetResult();
+		const int result4 = sleep_function_1s->GetResult();
+		const int result5 = sleep_function_1s_2->GetResult();
+		const int result6 = sleep_function_5s->GetResult();
+
+		REQUIRE(result == s_MocReturnValue);
+		REQUIRE(result2 == s_MocReturnValue);
+		REQUIRE(result3 == s_MocReturnValue);
+		REQUIRE(result4 == s_MocReturnValue);
+		REQUIRE(result5 == s_MocReturnValue);
+		REQUIRE(result6 == s_MocReturnValue);
+		std::cout << "Thread Task Scheduler finished processing." << std::endl;
+	}
+
+	SECTION("Tasks overload -- low tasks not processed.")
+	{
+// TODO
+	}
+
+	SECTION("Tasks overload -- low & normal tasks not processed.")
+	{
+// TODO
 	}
 }
 
