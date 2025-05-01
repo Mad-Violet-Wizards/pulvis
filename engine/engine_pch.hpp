@@ -35,4 +35,10 @@
 #include "engine/pstd/Intersects.hpp"
 //	-pstd
 
+//	+Math
+#include "engine/math/Vector2.hpp"
+#include "engine/math/Vector3.hpp"
+#include "engine/math/Vector4.hpp"
+
+
 // -Engine

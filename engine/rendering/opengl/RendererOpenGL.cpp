@@ -34,7 +34,6 @@ namespace engine::rendering::opengl
 			window_name.c_str());
 
 		m_Context = new CContext(m_Window);
-		// Initialize OpenGL
 
 		m_Initialized = true;
 	}

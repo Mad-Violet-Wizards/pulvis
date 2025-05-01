@@ -3,7 +3,7 @@
 
 namespace engine::rendering::opengl
 {
-	class RenderSubLayerOpenGL;
+	class CRenderSubLayerOpenGL;
 
 	enum class ERenderLayerOpenGL
 	{
@@ -12,23 +12,24 @@ namespace engine::rendering::opengl
 		GameEntities,
 		GameSuffix,
 		HUD,
-		UI
+		UI,
+		Count
 	};
 
-	class RenderLayerOpenGL
+	class CRenderLayerOpenGL
 	{
 		public:
 
-			RenderLayerOpenGL(ERenderLayerOpenGL _layer);
+			CRenderLayerOpenGL(ERenderLayerOpenGL _layer);
+			~CRenderLayerOpenGL();
 
 			void CreateSublayer(unsigned int _sublayer_index);
-
 			ERenderLayerOpenGL GetLayerType() const;
 
 	private:
 
 			ERenderLayerOpenGL m_Layer;
-			std::vector<RenderSubLayerOpenGL*> m_Sublayers;
+			std::vector<CRenderSubLayerOpenGL*> m_Sublayers;
 
 	};
 }

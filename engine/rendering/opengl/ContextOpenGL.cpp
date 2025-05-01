@@ -5,13 +5,9 @@
 
 namespace engine::rendering::opengl
 {
-	CContext::CContext()
-	{
-
-	}
-
 	CContext::CContext(engine::rendering::CWindow* _window)
 	{
+		InitializeRenderLayers();
 	}
 
 	CContext::~CContext()
@@ -52,5 +48,13 @@ namespace engine::rendering::opengl
 	void CContext::SetupTextures(std::vector<CTextureOpenGL*>&& _textures_vec)
 	{
 		m_Textures = std::move(_textures_vec);
+	}
+
+	void CContext::InitializeRenderLayers()
+	{
+		for (size_t i = 0; i < s_RenderLayersCount; ++i)
+		{
+			m_RenderLayers[i] = new CRenderLayerOpenGL(static_cast<ERenderLayerOpenGL>(i));
+		}
 	}
 }
