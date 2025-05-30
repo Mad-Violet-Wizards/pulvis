@@ -1,70 +1,38 @@
 #pragma once
 
-#include <math.h>
+#include <functional>
+
+#include "MathConstans.hpp"
 
 namespace engine::math
 {
+	//////////////////////////////////////////////////////////////////////////
 	template<typename T>
-	concept Arithmetic = requires(T a)
+	concept Arithmetic = requires(T a, T b)
 	{
-		std::is_arithmetic_v<T>;
+		{ a + b } -> std::convertible_to<T>;
+		{ a - b } -> std::convertible_to<T>;
+		{ a* b } -> std::convertible_to<T>;
+		{ a / b } -> std::convertible_to<T>;
+		{ -a }    -> std::convertible_to<T>;
 	};
 
+	//////////////////////////////////////////////////////////////////////////
 	template<Arithmetic T>
-	T Pow(T _val, unsigned int _power)
+	constexpr T NormalizeRadians(T _radians)
 	{
-		if (_power == 0)
-			return 1;
-
-		if (_power == 1)
-			return _val;
-
-		if (_val == 0)
-			return 0;
-
-		if (_val == 1)
-			return 1;
-
-		T final_val = 1;
-		T temp_val = _val;
-		while (_power > 0)
-		{
-			if (_power % 2 == 0)
-			{
-				_power /= 2;
-				temp_val *= temp_val;
-			}
-			else
-			{
-				_power -= 1;
-				final_val *= temp_val;
-			}
-		}
-
-		return final_val;
+		return ((_radians + PI) % TWO_PI) - PI;
+	}
+	//////////////////////////////////////////////////////////////////////////
+	template<Arithmetic T>
+	constexpr T DegreesToRadians(T _degrees)
+	{
+		return _degrees * DEG_TO_RAD;
 	}
 
 	template<Arithmetic T>
-	T Abs(T _val)
+	constexpr T RadiansToDegrees(T _radians)
 	{
-		return _val < 0 ? -_val : _val;
-	}
-
-	template<Arithmetic T>
-	T Sqrt(T _val, [[maybe_unused]] int _precision = 7)
-	{
-		if (_val == 0)
-			return 0;
-
-		if (_val == 1)
-			return 1;
-
-		double final_val = _val / 2;
-		while(_precision--)
-		{
-			final_val = (final_val + _val / final_val) / 2;
-		}
-
-		return static_cast<T>(final_val);
+		return _radians * RAD_TO_DEG;
 	}
 }

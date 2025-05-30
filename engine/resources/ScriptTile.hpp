@@ -5,6 +5,8 @@
 
 namespace engine::resources
 {
+	static constexpr unsigned int s_InvalidTileID = std::numeric_limits<unsigned int>::max();
+
 	//////////////////////////////////////////////////////////////////////////
 	enum class ETileType
 	{
@@ -15,35 +17,38 @@ namespace engine::resources
 	};
 
 	//////////////////////////////////////////////////////////////////////////
-	class ITile : public scriptable::IScriptable
+	class IScriptTile : public scriptable::IScriptable
 	{
-		RTTI_CLASS_API(ITile, IScriptable);
+		RTTI_CLASS_API(IScriptTile, IScriptable);
 
 public:
 
-			virtual ~ITile() = default;
+			virtual ~IScriptTile() = default;
 			virtual ETileType GetTileType() const = 0;
 	};
 
 	//////////////////////////////////////////////////////////////////////////
-	class CTile : public ITile
+	class CScriptTile : public IScriptTile
 	{
-		RTTI_CLASS_API(CTile, ITile);
+		RTTI_CLASS_API(CScriptTile, IScriptTile);
 
 public:
 
-			CTile();
+			CScriptTile();
 
 			static void ExportScriptable(sol::state& _lua_state);
 
 			unsigned int m_TileWidth;
-			RTTI_FIELD_API(CTile, m_TileWidth);
+			RTTI_FIELD_API(CScriptTile, m_TileWidth);
 
 			unsigned int m_TileHeight;
-			RTTI_FIELD_API(CTile, m_TileHeight);
+			RTTI_FIELD_API(CScriptTile, m_TileHeight);
+
+			unsigned int m_TileID;
+			RTTI_FIELD_API(CScriptTile, m_TileID);
 
 			std::string m_TilePath;
-			RTTI_FIELD_API(CTile, m_TilePath);
+			RTTI_FIELD_API(CScriptTile, m_TilePath);
 
 			ETileType GetTileType() const override { return ETileType::Regular; }
 
@@ -55,30 +60,33 @@ private:
 	};
 
 	//////////////////////////////////////////////////////////////////////////
-	class CAtlasTile : public ITile
+	class CScriptAtlasTile : public IScriptTile
 	{
-		RTTI_CLASS_API(CAtlasTile, ITile);
+		RTTI_CLASS_API(CScriptAtlasTile, IScriptTile);
 
 public:
 
-			CAtlasTile();
+			CScriptAtlasTile();
 
 			static void ExportScriptable(sol::state& _lua_state);
 
 			unsigned int m_TileWidth;
-			RTTI_FIELD_API(CAtlasTile, m_TileWidth);
+			RTTI_FIELD_API(CScriptAtlasTile, m_TileWidth);
 
 			unsigned int m_TileHeight;
-			RTTI_FIELD_API(CAtlasTile, m_TileHeight);
+			RTTI_FIELD_API(CScriptAtlasTile, m_TileHeight);
 
-			std::string m_TilePath;
-			RTTI_FIELD_API(CAtlasTile, m_TilePath);
+			unsigned int m_TileID;
+			RTTI_FIELD_API(CScriptAtlasTile, m_TileID);
 
 			unsigned int m_AtlasPositionX;
-			RTTI_FIELD_API(CAtlasTile, m_AtlasPositionX);
+			RTTI_FIELD_API(CScriptAtlasTile, m_AtlasPositionX);
 
 			unsigned int m_AtlasPositionY;
-			RTTI_FIELD_API(CAtlasTile, m_AtlasPositionY);
+			RTTI_FIELD_API(CScriptAtlasTile, m_AtlasPositionY);
+
+			std::string m_TilePath;
+			RTTI_FIELD_API(CScriptAtlasTile, m_TilePath);
 
 			ETileType GetTileType() const override { return ETileType::Atlas; }
 

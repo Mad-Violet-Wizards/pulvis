@@ -3,7 +3,7 @@
 
 #include "engine/rtti/RTTIClass.hpp"
 
-#include "engine/resources/TilesScriptable.hpp"
+#include "engine/resources/ScriptTile.hpp"
 
 namespace engine::scriptable
 {
@@ -19,19 +19,22 @@ namespace engine::scriptable
 	{
 		m_LuaState.open_libraries(sol::lib::base, sol::lib::package, sol::lib::string, sol::lib::table, sol::lib::math, sol::lib::os);
 
-		resources::CTile::ExportScriptable(m_LuaState);
-		resources::CAtlasTile::ExportScriptable(m_LuaState);
+		resources::CScriptTile::ExportScriptable(m_LuaState);
+		resources::CScriptAtlasTile::ExportScriptable(m_LuaState);
+
+		(void)resources::CScriptTile::s_ClassRegistrar_CScriptTile;
+		(void)resources::CScriptAtlasTile::s_ClassRegistrar_CScriptAtlasTile;
 	}
 
-	void CScriptableService::SetupScripts(std::unordered_map<std::string, std::shared_ptr<engine::fs::data_models::CScriptFileDataModel>>* _scripts)
+	void CScriptableService::SetupScripts(std::unordered_map<std::string, std::shared_ptr<engine::fs::data_models::CScriptFileDataModel>>&& _scripts)
 	{
-		m_Scripts = _scripts;
+		m_Scripts = std::move(_scripts);
 	}
 
 	void CScriptableService::InvokeScript(const std::string& _script_name)
 	{
-		auto script = m_Scripts->find(_script_name);
-		if (script != m_Scripts->end())
+		auto script = m_Scripts.find(_script_name);
+		if (script != m_Scripts.end())
 		{
 			const sol::load_result result = m_LuaState.load(script->second->GetScript());
 			if (result.valid())

@@ -9,6 +9,12 @@ class Singleton
 {
 
 public:
+
+	~Singleton()
+	{
+		Destroy();
+	}
+
 	static void Destroy()
 	{
 		if (s_Instance)
@@ -34,9 +40,5 @@ public:
 protected:
 	static inline C* s_Instance{ nullptr };
 
-	Singleton()
-	{
-	}
-
-	~Singleton() noexcept = default;
+	Singleton() noexcept = default;
 };

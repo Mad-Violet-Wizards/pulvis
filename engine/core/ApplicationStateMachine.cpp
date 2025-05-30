@@ -5,7 +5,7 @@
 #include "engine/game/GameService.hpp"
 #include "engine/rendering/RenderingService.hpp"
 #include "engine/scriptable/ScriptableService.hpp"
-#include "engine/resources/TilesScriptable.hpp"
+#include "engine/resources/ScriptTile.hpp"
 #include "engine/resources/ResourceService.hpp"
 
 namespace engine::core

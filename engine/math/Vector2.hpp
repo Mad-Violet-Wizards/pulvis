@@ -10,74 +10,45 @@ namespace engine::math
 		public:
 
 			constexpr Vector2()
-				: m_X(0)
-				, m_Y(0)
 			{
 
 			}
 
 			constexpr Vector2(T _x, T _y)
-				: m_X(_x)
-				, m_Y(_y)
 			{
-
+				m_v[0] = _x;
+				m_v[1] = _y;
 			}
 
-			Vector2(const Vector2<T>& _other)
-				: m_X(_other.m_X)
-				, m_Y(_other.m_Y)
-			{
-
-			}
-
-			Vector2(Vector2<T>&& _other) noexcept
-				: m_X(_other.m_X)
-				, m_Y(_other.m_Y)
-			{
-				_other.m_X = 0;
-				_other.m_Y = 0;
-			}
-
-			Vector2<T>& operator= (const Vector2<T>& _other)
-			{
-				m_X = _other.m_X;
-				m_Y = _other.m_Y;
-				return *this;
-			}
-
-			Vector2<T>& operator= (Vector2<T>&& _other) noexcept
-			{
-				m_X = _other.m_X;
-				m_Y = _other.m_Y;
-				_other.m_X = 0;
-				_other.m_Y = 0;
-				return *this;
-			}
+			Vector2(const Vector2<T>& _other) = default;
+			Vector2(Vector2<T>&& _other) noexcept = default;
+			Vector2<T>& operator= (const Vector2<T>& _other) = default;
+			Vector2<T>& operator= (Vector2<T>&& _other) = default;
 
 			template<typename U>
 			constexpr Vector2<U> Cast() const
 			{
-				return Vector2<U>(static_cast<U>(m_X), static_cast<U>(m_Y));
+				return Vector2<U>(static_cast<U>(m_v[0]), static_cast<U>(m_v[1]));
 			}
 
 			T Length() const
 			{
-				return Sqrt(Pow(m_X, 2) + Pow(m_Y, 2));
+				return std::sqrt(std::pow(m_v[0], 2) + std::pow(m_v[1], 2));
 			}
 
 			T LengthSquared() const
 			{
-				return Pow(m_X, 2) + Pow(m_Y, 2);
+				return std::pow(m_v[0], 2) + std::pow(m_v[1], 2);
 			}
 
 			T Dot(const Vector2<T>& _other) const
 			{
-				return m_X * _other.m_X + m_Y * _other.m_Y;
+				return m_v[0] * _other[0] + m_v[1] * _other[1];
 			}
 
 			T Cross(const Vector2<T>& _other) const
 			{
-				return m_X * _other.m_Y - m_Y * _other.m_X;
+				return m_v[0] * _other[1] - m_v[1] * _other[0];
 			}
 
 			Vector2<T> Normalize() const
@@ -87,7 +58,7 @@ namespace engine::math
 				if (length == 0)
 					return { 0, 0 };
 
-				return { m_X / length, m_Y / length };
+				return { m_v[0] / length, m_v[1] / length };
 			}
 
 		public:
@@ -124,135 +95,144 @@ namespace engine::math
 
 		public:
 
+			T operator[](size_t _index) const
+			{
+				return m_v[_index];
+			}
+
+			T& operator[](size_t _index)
+			{
+				return m_v[_index];
+			}
+
 			constexpr Vector2<T> operator+(const Vector2<T>& _other) const
 			{
-				return { m_X + _other.m_X, m_Y + _other.m_Y };
+				return { m_v[0] + _other[0], m_v[1] + _other[1] };
 			}
 
 			constexpr Vector2<T> operator-(const Vector2<T>& _other) const
 			{
-				return { m_X - _other.m_X, m_Y - _other.m_Y };
+				return { m_v[0] - _other[0], m_v[1] - _other[1] };
 			}
 
 			constexpr Vector2<T> operator*(const Vector2<T>& _other) const
 			{
-				return { m_X * _other.m_X, m_Y * _other.m_Y };
+				return { m_v[0] * _other[0], m_v[1] * _other[1] };
 			}
 
 			constexpr Vector2<T> operator/(const Vector2<T>& _other) const
 			{
-				return { m_X / _other.m_X, m_Y / _other.m_Y };
+				return { m_v[0] / _other[0], m_v[1] / _other[1] };
 			}
 
 			constexpr Vector2<T>& operator+=(const Vector2<T>& _other)
 			{
-				m_X += _other.m_X;
-				m_Y += _other.m_Y;
+				m_v[0] += _other[0];
+				m_v[1] += _other[1];
 				return *this;
 			}
 
 			constexpr Vector2<T>& operator-=(const Vector2<T>& _other)
 			{
-				m_X -= _other.m_X;
-				m_Y -= _other.m_Y;
+				m_v[0] -= _other[0];
+				m_v[1] -= _other[1];
 				return *this;
 			}
 
 			constexpr Vector2<T>& operator*=(const Vector2<T>& _other)
 			{
-				m_X *= _other.m_X;
-				m_Y *= _other.m_Y;
+				m_v[0] *= _other[0];
+				m_v[1] *= _other[1];
 				return *this;
 			}
 
 			constexpr Vector2<T>& operator/=(const Vector2<T>& _other)
 			{
-				m_X /= _other.m_X;
-				m_Y /= _other.m_Y;
+				m_v[0] /= _other[0];
+				m_v[1] /= _other[1];
 				return *this;
 			}
 
 			constexpr Vector2<T> operator+(T _scalar) const
 			{
-				return { m_X + _scalar, m_Y + _scalar };
+				return { m_v[0] + _scalar, m_v[1] + _scalar };
 			}
 
 			constexpr Vector2<T> operator-(T _scalar) const
 			{
-				return { m_X - _scalar, m_Y - _scalar };
+				return { m_v[0] - _scalar, m_v[1] - _scalar };
 			}
 
 			constexpr Vector2<T> operator*(T _scalar) const
 			{
-				return { m_X * _scalar, m_Y * _scalar };
+				return { m_v[0] * _scalar, m_v[1] * _scalar };
 			}
 
 			constexpr Vector2<T> operator/(T _scalar) const
 			{
-				return { m_X / _scalar, m_Y / _scalar };
+				return { m_v[0] / _scalar, m_v[1] / _scalar };
 			}
 
 			constexpr Vector2<T>& operator+=(T _scalar)
 			{
-				m_X += _scalar;
-				m_Y += _scalar;
+				m_v[0] += _scalar;
+				m_v[1] += _scalar;
 				return *this;
 			}
 
 			constexpr Vector2<T>& operator-=(T _scalar)
 			{
-				m_X -= _scalar;
-				m_Y -= _scalar;
+				m_v[0] -= _scalar;
+				m_v[1] -= _scalar;
 				return *this;
 			}
 
 			constexpr Vector2<T>& operator*=(T _scalar)
 			{
-				m_X *= _scalar;
-				m_Y *= _scalar;
+				m_v[0] *= _scalar;
+				m_v[1] *= _scalar;
 				return *this;
 			}
 
 			constexpr Vector2<T>& operator/=(T _scalar)
 			{
-				m_X /= _scalar;
-				m_Y /= _scalar;
+				m_v[0] /= _scalar;
+				m_v[1] /= _scalar;
 				return *this;
 			}
 
 			constexpr bool operator==(const Vector2<T>& _other) const
 			{
-				return m_X == _other.m_X && m_Y == _other.m_Y;
+				return m_v[0] == _other[0] && m_v[1] == _other[1];
 			}
 
 			constexpr bool operator!=(const Vector2<T>& _other) const
 			{
-				return m_X != _other.m_X || m_Y != _other.m_Y;
+				return m_v[0] != _other[0] || m_v[1] != _other[1];
 			}
 
 			constexpr bool operator<(const Vector2<T>& _other) const
 			{
-				return m_X < _other.m_X && m_Y < _other.m_Y;
+				return m_v[0] < _other[0] && m_v[1] < _other[1];
 			}
 
 			constexpr bool operator<=(const Vector2<T>& _other) const
 			{
-				return m_X <= _other.m_X && m_Y <= _other.m_Y;
+				return m_v[0] <= _other[0] && m_v[1] <= _other[1];
 			}
 
 			constexpr bool operator>(const Vector2<T>& _other) const
 			{
-				return m_X > _other.m_X && m_Y > _other.m_Y;
+				return m_v[0] > _other[0] && m_v[1] > _other[1];
 			}
 
 			constexpr bool operator>=(const Vector2<T>& _other) const
 			{
-				return m_X >= _other.m_X && m_Y >= _other.m_Y;
+				return m_v[0] >= _other[0] && m_v[1] >= _other[1];
 			}
 
 		public:
 
-			T m_X;
-			T m_Y;
+			std::array<T, 2> m_v;
 	};
 }

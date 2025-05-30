@@ -11,10 +11,8 @@ namespace engine::resources
 			CResourceService();
 			~CResourceService();
 			
-			void RegisterRTTI();
-
 			void LoadTileDefinitions();
-			void LoadTileDefinition(ITile* _tile);
+			void LoadTileDefinition(IScriptTile* _tile);
 
 			const CTilesContext& GetTilesContext() const { return m_TilesContext; }
 

@@ -1,6 +1,6 @@
 #include "engine/engine_pch.hpp"
 #include "GameService.hpp"
-#include "engine/resources/TilesScriptable.hpp"
+#include "engine/resources/ScriptTile.hpp"
 #include "engine/core/Application.hpp"
 #include "engine/filesystem/data_models/TextFileDataModel.hpp"
 #include "engine/rendering/opengl/ShaderOpenGL.hpp"
@@ -35,8 +35,6 @@ namespace engine::game
 
 	void CGameService::Initialize(engine::fs::Filesystem* _filesystem)
 	{
-		resources::CResourceService::GetInstance().RegisterRTTI();
-
 		std::vector<std::string> files;
 		_filesystem->GetFilenamesInDirectory(".", files);
 
@@ -151,17 +149,17 @@ namespace engine::game
 		// Game filesystem should be mount already.
 		engine::fs::Filesystem* game_fs = m_GameContext->GetFilesystem();
 
-		std::vector<engine::resources::ITile*> tiles;
+		std::vector<engine::resources::IScriptTile*> tiles;
 		engine::resources::CResourceService::GetInstance().GetTilesContext().FillTilesToLoad(tiles);
 		//
-		for (const engine::resources::ITile* tile : tiles)
+		for (const engine::resources::IScriptTile* tile : tiles)
 		{
 			std::string texture_path;
 			switch (tile->GetTileType())
 			{
 				case engine::resources::ETileType::Regular:
 				{
-					const engine::resources::CTile* regular_tile = static_cast<const engine::resources::CTile*>(tile);
+					const engine::resources::CScriptTile* regular_tile = static_cast<const engine::resources::CScriptTile*>(tile);
 					texture_path = regular_tile->m_TilePath;
 					break;
 				}
@@ -259,7 +257,7 @@ namespace engine::game
 
 	void CGameService::SetupScripts()
 	{
-		engine::scriptable::CScriptableService::GetInstance().SetupScripts(&m_GameLoadThreadTaskData.m_ScriptDataModels);
+		engine::scriptable::CScriptableService::GetInstance().SetupScripts(std::move(m_GameLoadThreadTaskData.m_ScriptDataModels));
 	}
 	////////////////////////////////////////////////////////////////////////////////
 

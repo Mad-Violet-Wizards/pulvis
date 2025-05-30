@@ -12,7 +12,7 @@ namespace engine::rendering::opengl
 	}
 	void CRenderTargetOpenGL::Clear(const engine::math::Vector4<float>& _color)
 	{
-		glClearColor(_color.m_X, _color.m_Y, _color.m_Z, _color.m_A);
+		glClearColor(_color[0], _color[1], _color[2], _color[3]);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 

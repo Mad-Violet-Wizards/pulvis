@@ -1,11 +1,8 @@
 #pragma once
+#include "ScriptTile.hpp"
 
 namespace engine::resources
 {
-	class ITile;
-	class CTile;
-	class CAtlasTile;
-
 	class CTilesContext
 	{
 		public:
@@ -14,16 +11,16 @@ namespace engine::resources
 			~CTilesContext();
 
 			void Clear();
-			void LoadTileDefinition(ITile* _tile);
+			void LoadTileDefinition(IScriptTile* _tile);
 
-			const std::vector<CTile*>& GetTilesConstRef() const;
-			const std::vector<CAtlasTile*>& GetAtlasTilesConstRef() const;
+			const std::vector<CScriptTile*>& GetTilesConstRef() const;
+			const std::vector<CScriptAtlasTile*>& GetAtlasTilesConstRef() const;
 
-			void FillTilesToLoad(std::vector<ITile*>& _tiles) const;
+			void FillTilesToLoad(std::vector<IScriptTile*>& _tiles) const;
 
 		private:
 
-			std::vector<CTile*> m_TilesDefinitions;
-			std::vector<CAtlasTile*> m_AtlasTilesDefinitions;
+			std::vector<CScriptTile*> m_TilesDefinitions;
+			std::vector<CScriptAtlasTile*> m_AtlasTilesDefinitions;
 	};
 }

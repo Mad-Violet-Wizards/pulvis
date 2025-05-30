@@ -1,6 +1,5 @@
 #include "engine/engine_pch.hpp"
 #include "TilesContext.hpp"
-#include "TilesScriptable.hpp"
 
 namespace engine::resources
 {
@@ -17,13 +16,13 @@ namespace engine::resources
 
 	void CTilesContext::Clear()
 	{
-		for (CTile* tile : m_TilesDefinitions)
+		for (CScriptTile* tile : m_TilesDefinitions)
 		{
 			delete tile;
 			tile = nullptr;
 		}
 
-		for (CAtlasTile* tile : m_AtlasTilesDefinitions)
+		for (CScriptAtlasTile* tile : m_AtlasTilesDefinitions)
 		{
 			delete tile;
 			tile = nullptr;
@@ -33,18 +32,18 @@ namespace engine::resources
 		m_AtlasTilesDefinitions.clear();
 	}
 
-	void CTilesContext::LoadTileDefinition(ITile* _tile)
+	void CTilesContext::LoadTileDefinition(IScriptTile* _tile)
 	{
 		switch (_tile->GetTileType())
 		{
 		case ETileType::Regular:
 		{
-			m_TilesDefinitions.push_back(static_cast<CTile*>(_tile));
+			m_TilesDefinitions.push_back(static_cast<CScriptTile*>(_tile));
 			break;
 		}
 		case ETileType::Atlas:
 		{
-			m_AtlasTilesDefinitions.push_back(static_cast<CAtlasTile*>(_tile));
+			m_AtlasTilesDefinitions.push_back(static_cast<CScriptAtlasTile*>(_tile));
 			break;
 		}
 		default:
@@ -55,26 +54,26 @@ namespace engine::resources
 		}
 	}
 
-	const std::vector<CTile*>& CTilesContext::GetTilesConstRef() const
+	const std::vector<CScriptTile*>& CTilesContext::GetTilesConstRef() const
 	{
 		return m_TilesDefinitions;
 	}
 
-	const std::vector<CAtlasTile*>& CTilesContext::GetAtlasTilesConstRef() const
+	const std::vector<CScriptAtlasTile*>& CTilesContext::GetAtlasTilesConstRef() const
 	{
 		return m_AtlasTilesDefinitions;
 	}
 
-	void CTilesContext::FillTilesToLoad(std::vector<ITile*>& _tiles) const
+	void CTilesContext::FillTilesToLoad(std::vector<IScriptTile*>& _tiles) const
 	{
 		_tiles.reserve(m_TilesDefinitions.size() + m_AtlasTilesDefinitions.size());
 
-		for (CTile* tile : m_TilesDefinitions)
+		for (CScriptTile* tile : m_TilesDefinitions)
 		{
 			_tiles.push_back(tile);
 		}
 
-		for (CAtlasTile* tile : m_AtlasTilesDefinitions)
+		for (CScriptAtlasTile* tile : m_AtlasTilesDefinitions)
 		{
 			_tiles.push_back(tile);
 		}

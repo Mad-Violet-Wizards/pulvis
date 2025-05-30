@@ -1,8 +1,9 @@
 #pragma once
 
+#include "pipelines/RenderPipelineOpenGL.hpp"
+
 namespace engine::rendering::opengl
 {
-	class IRenderableGroupOpenGL;
 	enum class ERenderLayerOpenGL;
 
 	class CRenderSubLayerOpenGL
@@ -16,5 +17,6 @@ namespace engine::rendering::opengl
 
 		ERenderLayerOpenGL m_ParentLayer;
 		unsigned int m_SublayerIndex;
+		std::vector<engine::rendering::opengl::pipeline::IRenderPipelineOpenGL*> m_Pipelines;
 	};
 }
