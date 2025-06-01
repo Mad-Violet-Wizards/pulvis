@@ -71,7 +71,7 @@ namespace engine::rendering::vulkan
 		ASSERT(windows_surface_extension, "Windows surface extension not enabled!");
 		if (windows_surface_extension)
 		{
-			GLFWwindow* glfw_window = _window->GetWindow();
+			GLFWwindow* glfw_window = _window->GetNativeWindow();
 			HWND window_os_handle = glfwGetWin32Window(glfw_window);
 
 			VkWin32SurfaceCreateInfoKHR surface_create_info

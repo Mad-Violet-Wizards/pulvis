@@ -38,7 +38,7 @@ namespace engine::math
 
 			T LengthSquared() const
 			{
-				return std::pow(m_v[0], 2) + std::pow(m_v[1], 2);
+				return std::pow<T>(m_v[0], 2) + std::pow(m_v[1], 2);
 			}
 
 			T Dot(const Vector2<T>& _other) const
