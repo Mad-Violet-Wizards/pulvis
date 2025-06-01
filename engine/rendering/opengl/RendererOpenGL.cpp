@@ -100,7 +100,7 @@ namespace engine::rendering::opengl
 
 	void RendererOpenGL::EndFrame()
 	{
-		glfwSwapBuffers(m_Window->GetWindow());
+		glfwSwapBuffers(m_Window->GetNativeWindow());
 		glfwPollEvents();
 	}
 

@@ -18,7 +18,7 @@ namespace engine::rendering
 
 			bool ShouldClose() const;
 
-			GLFWwindow* GetWindow() { return m_Window; }
+			GLFWwindow* GetNativeWindow() { return m_Window; }
 
 		private:
 

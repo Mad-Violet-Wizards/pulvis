@@ -28,10 +28,13 @@ namespace engine::rendering::opengl
 			void SetupShaders(std::vector<CShaderOpenGL*>&& _shaders_vec);
 			void SetupTextures(std::vector<CTextureOpenGL*>&& _textures_vec);
 
+			engine::rendering::CWindow* GetWindow() const { return m_Window; }
+
 	private:
 
 		engine::rendering::CWindow* m_Window;
 		engine::rendering::opengl::CContext* m_Context;
+
 
 		bool m_Initialized;
 	};

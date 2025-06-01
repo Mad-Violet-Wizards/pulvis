@@ -4,6 +4,8 @@
 #include "vulkan/RendererVulkan.hpp"
 #include "opengl/RendererOpenGL.hpp"
 
+#include "engine/tools/imgui/ImGuiOpenGLRenderer.hpp"
+
 namespace engine::rendering
 {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +23,12 @@ namespace engine::rendering
 		{
 		case ERendererType::OpenGL:
 		{
-			m_Renderer = new opengl::RendererOpenGL();
+			opengl::RendererOpenGL* rendererOpenGL = new opengl::RendererOpenGL();
+			m_Renderer = rendererOpenGL;
 			m_Renderer->Initialize();
+
+			m_ImGuiRenderer = new tools::imgui::ImGuiOpenGLRenderer();
+			m_ImGuiRenderer->Initialize(rendererOpenGL->GetWindow()->GetNativeWindow());
 			break;
 		}
 		case ERendererType::Vulkan:
@@ -44,6 +50,11 @@ namespace engine::rendering
 		{
 			GetRenderer()->BeginFrame();
 		}
+
+		if (GetImGuiRenderer())
+		{
+			GetImGuiRenderer()->BeginFrame();
+		}
 	}
 
 	void RenderingService::Frame()
@@ -52,10 +63,22 @@ namespace engine::rendering
 		{
 			GetRenderer()->Frame();
 		}
+
+		if (GetImGuiRenderer())
+		{
+			ImGui::Begin("Debug");
+			ImGui::Text("Hello, World!");
+			ImGui::End();
+		}
 	}
 
 	void RenderingService::EndFrame()
 	{
+		if (GetImGuiRenderer())
+		{
+			GetImGuiRenderer()->EndFrame();
+		}
+
 		if (GetRenderer())
 		{
 			GetRenderer()->EndFrame();
@@ -75,6 +98,11 @@ namespace engine::rendering
 	IRenderer* RenderingService::GetRenderer() const
 	{
 		return m_Renderer;
+	}
+
+	tools::imgui::IImGuiRenderer* RenderingService::GetImGuiRenderer() const
+	{
+		return m_ImGuiRenderer;
 	}
 }
 

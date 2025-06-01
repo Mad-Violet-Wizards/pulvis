@@ -2,6 +2,7 @@
 
 #include "RendererType.hpp"
 #include "Renderer.hpp"
+#include "engine/tools/imgui/ImGuiRenderer.hpp"
 
 namespace engine::rendering
 {
@@ -21,6 +22,7 @@ namespace engine::rendering
 			bool IsInitialized() const;
 
 			IRenderer* GetRenderer() const;
+			tools::imgui::IImGuiRenderer* GetImGuiRenderer() const;
 
 		private:
 
@@ -29,5 +31,6 @@ namespace engine::rendering
 			RenderingService();
 
 			IRenderer* m_Renderer{ nullptr };
+			tools::imgui::IImGuiRenderer* m_ImGuiRenderer{ nullptr };
 	};
 }
