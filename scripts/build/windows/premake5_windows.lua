@@ -79,8 +79,8 @@ project "Game"
 
     filter "configurations:Release"
         defines { "RELEASE" }
-        optimize "On"      
-
+        optimize "On"
+        
 project "Playground"
     defines { "FMT_HEADER_ONLY" }
     kind "ConsoleApp"
@@ -89,8 +89,45 @@ project "Playground"
     targetdir("%{wks.location}/build/%{cfg.buildcfg}")
     basedir("../../../")
     buildoptions{ "/utf-8", "/Zc:preprocessor" }
+    linkoptions { "/ignore:4006" }
 
     files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp", "%{wks.location}/playground/**.h", "%{wks.location}/playground/**.c" }
+
+    filter "configurations:*"
+        includedirs { 
+            "$(VULKAN_SDK)/Include/", 
+            "%{wks.location}/vendor/windows/include/", 
+            "%{wks.location}/vendor/common/include/",
+            "%{wks.location}" 
+        }
+
+        libdirs { 
+            "$(VULKAN_SDK)/Lib32/", 
+            "%{wks.location}/vendor/windows/lib/",
+            "%{cfg.targetdir}"
+        }
+
+        links { "Engine", "vulkan-1", "glfw3dll" }
+
+    filter "configurations:Debug"
+        defines { "DEBUG" }
+        symbols "On"
+        buildoptions { "/ZI", "/MP" }
+
+    filter "configurations:Release"
+        defines { "RELEASE" }
+        optimize "On"
+
+project "Tests"
+    defines { "FMT_HEADER_ONLY" }
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++latest"
+    targetdir("%{wks.location}/build/%{cfg.buildcfg}")
+    basedir("../../../")
+    buildoptions{ "/utf-8", "/Zc:preprocessor" }
+
+    files { "%{wks.location}/tests/**.hpp", "%{wks.location}/tests/**.cpp", "%{wks.location}/tests/**.h", "%{wks.location}/tests/**.c" }
 
     filter "configurations:*"
         includedirs {
