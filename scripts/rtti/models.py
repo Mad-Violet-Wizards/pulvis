@@ -21,10 +21,16 @@ class ModelClass:
     fields: List[ModelField]
     methods: List[ModelMethod]
 
+    def __str__(self):
+        return f"ModelClass(name={self.name}, parents={self.parents}, fields={self.fields}, methods={self.methods})"
+
 @dataclass
 class ModelEnum:
     name: str
     values: List[str]
+
+    def __str__(self):
+        return f"ModelEnum(name={self.name}, values={self.values})"
 
 @dataclass
 class Model:
