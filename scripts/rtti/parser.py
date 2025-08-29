@@ -53,6 +53,7 @@ def parse_file(path: Path) -> List[Model]:
 
         idx_line += 1
 
+    print(f"Parsed {len(models)} models from {path}.")
     return models
 
 def parse_enum_scope(scope: List[str]) -> ModelEnum:
