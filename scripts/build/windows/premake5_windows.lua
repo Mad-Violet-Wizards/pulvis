@@ -18,10 +18,6 @@ project "Engine"
         flags { "NoPCH" }
 
     filter "configurations:*"
-        prebuildcommands {
-            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/engine --generate"
-        }
-
         includedirs { 
             "$(VULKAN_SDK)/Include/", 
             "%{wks.location}/vendor/common/include/", 
@@ -61,10 +57,6 @@ project "Game"
     files { "%{wks.location}/game/**.hpp", "%{wks.location}/game/**.cpp", "%{wks.location}/game/**.h", "%{wks.location}/game/**.c" }
 
     filter "configurations:*"
-        prebuildcommands {
-            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/game --generate"
-        }
-
         includedirs { 
             "$(VULKAN_SDK)/Include/", 
             "%{wks.location}/vendor/windows/include/", 
@@ -102,10 +94,6 @@ project "Playground"
     files { "%{wks.location}/playground/**.hpp", "%{wks.location}/playground/**.cpp", "%{wks.location}/playground/**.h", "%{wks.location}/playground/**.c" }
 
     filter "configurations:*"
-        prebuildcommands {
-            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/playground --generate"
-        }
-
         includedirs { 
             "$(VULKAN_SDK)/Include/", 
             "%{wks.location}/vendor/windows/include/", 
@@ -142,10 +130,6 @@ project "Tests"
     files { "%{wks.location}/tests/**.hpp", "%{wks.location}/tests/**.cpp", "%{wks.location}/tests/**.h", "%{wks.location}/tests/**.c" }
 
     filter "configurations:*"
-        prebuildcommands {
-            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/tests --generate"
-        }
-
         includedirs {
             "$(VULKAN_SDK)/Include/", 
             "%{wks.location}/vendor/windows/include/", 

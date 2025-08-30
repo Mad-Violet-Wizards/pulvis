@@ -26,7 +26,6 @@ def generate_rtti_code(root_path, path, models: list[Model]):
 
     # Write the generated code to the respective files
     autogen_file_hpp_path = path.parent / autogen_filename_hpp
-    print(autogen_file_hpp_path)
     with open(autogen_file_hpp_path, "w") as hpp_file:
         hpp_file.write(hpp_code)
 

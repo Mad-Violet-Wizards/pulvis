@@ -1,5 +1,4 @@
 #pragma once
-#pragma warning(disable: 5030)
 
 #include "engine/rtti/RTTIBase.hpp"
 #include "engine/rtti/RTTIMacros.hpp"
