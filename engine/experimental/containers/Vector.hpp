@@ -145,7 +145,7 @@ namespace engine::experimental::containers
 			{
 				if (_size > m_Capacity)
 				{
-					T* new_data = m_Allocator.Allocate<T>(_size);
+					T* new_data = m_Allocator.template Allocate<T>(_size);
 
 					for (size_t i = 0; i < m_Size; ++i)
 					{

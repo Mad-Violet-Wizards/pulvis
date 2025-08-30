@@ -1,11 +1,9 @@
 #pragma once
-#pragma warning(disable: 5030)
 
 #include "engine/rtti/RTTIBase.hpp"
 #include "engine/rtti/RTTIMacros.hpp"
 
-
-namespace tests::rtti
+namespace engine::experimental::rtti_autogen
 {
 //////////////////////////////////////////////////////////////////////////
 		enum class [[Reflection::Enum]] EMocRttiEnumExplicit
@@ -58,8 +56,6 @@ namespace tests::rtti
 //////////////////////////////////////////////////////////////////////////
 		class [[Reflection::Class]] IBase : public engine::rtti::IRTTIBase
 		{
-			RTTI_CLASS_API(IBase);
-
 			public:
 			
 				virtual ~IBase() = default;
@@ -94,8 +90,6 @@ namespace tests::rtti
 //////////////////////////////////////////////////////////////////////////
 		class [[Reflection::Class]] IBase2 : public engine::rtti::IRTTIBase
 		{
-			RTTI_CLASS_API(IBase2);
-
 			public:
 			
 				virtual ~IBase2() = default;
@@ -125,10 +119,8 @@ namespace tests::rtti
 				}
 		};
 
-		class [[Reflection::Class]] CDerived : public tests::rtti::IBase
-		{
-			RTTI_CLASS_API(CDerived, IBase);
-		
+		class [[Reflection::Class]] CDerived : public engine::experimental::rtti_autogen::IBase
+		{		
 			public:
 
 				int GetPrivateInt() const
@@ -144,11 +136,9 @@ namespace tests::rtti
 				[[Reflection::Field]]
 				int m_PrivateInt = 0;
 		};
-//////////////////////////////////////////////////////////////////////////
-		class [[Reflection::Class]] CDerived2 : public tests::rtti::IBase
-		{
-			RTTI_CLASS_API(CDerived2, IBase);
 
+		class [[Reflection::Class]] CDerived2 : public engine::experimental::rtti_autogen::IBase
+		{
 		public:
 
 			int GetPrivateInt() const
@@ -162,10 +152,8 @@ namespace tests::rtti
 			int m_PrivateInt = 0;
 		};
 
-		class [[Reflection::Class]] CDerivedBoth : public tests::rtti::IBase, public tests::rtti::IBase2
+		class [[Reflection::Class]] CDerivedBoth : public engine::experimental::rtti_autogen::IBase, public engine::experimental::rtti_autogen::IBase2
 		{
-			RTTI_CLASS_API(CDerivedBoth, IBase, IBase2);
-
 		public:
 
 			int GetPrivateInt() const
@@ -173,7 +161,7 @@ namespace tests::rtti
 				return m_PrivateInt;
 			}
 
-			public:
+		public:
 
 				[[Reflection::Field]]
 				int m_PrivateInt = 0;

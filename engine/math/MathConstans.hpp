@@ -1,7 +1,5 @@
 #pragma once
 
-#include <math.h>
-
 namespace engine::math
 {
 	static constexpr float PI = 3.1415927f;

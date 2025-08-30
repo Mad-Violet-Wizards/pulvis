@@ -1,6 +1,7 @@
 #include "engine/engine_pch.hpp"
 
 #include "Application.hpp"
+#include "engine/engine_rtti_autogen.hpp"
 #include "engine/filesystem/Utils.hpp"
 #include "engine/events/EventController.hpp"
 #include "engine/rendering/RenderingService.hpp"
@@ -20,6 +21,8 @@ namespace engine
 			: m_FrameTime(0.f)
 		{
 			ASSERT(_app_setup.m_ClientApp != EClientApp::Unknown, "Client application not set!");
+
+			RegisterRTTI_engine();
 
 			const std::string fs_absolute_path = engine::fs::GetEnginePath() + "/pulvis/";
 			m_AppContext.m_Filesystem = new engine::fs::Filesystem("Engine", fs_absolute_path);

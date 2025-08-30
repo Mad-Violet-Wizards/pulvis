@@ -17,7 +17,7 @@ namespace engine::resources
 	};
 
 	//////////////////////////////////////////////////////////////////////////
-	class IScriptTile : public scriptable::IScriptable
+	class [[Reflection::Class]] IScriptTile : public engine::scriptable::IScriptable
 	{
 		RTTI_CLASS_API(IScriptTile, IScriptable);
 
@@ -28,7 +28,7 @@ public:
 	};
 
 	//////////////////////////////////////////////////////////////////////////
-	class CScriptTile : public IScriptTile
+	class [[Reflection::Class]] CScriptTile : public engine::resources::IScriptTile
 	{
 		RTTI_CLASS_API(CScriptTile, IScriptTile);
 
@@ -38,17 +38,17 @@ public:
 
 			static void ExportScriptable(sol::state& _lua_state);
 
+			[[Reflection::Field]]
 			unsigned int m_TileWidth;
-			RTTI_FIELD_API(CScriptTile, m_TileWidth);
 
+			[[Reflection::Field]]
 			unsigned int m_TileHeight;
-			RTTI_FIELD_API(CScriptTile, m_TileHeight);
 
+			[[Reflection::Field]]
 			unsigned int m_TileID;
-			RTTI_FIELD_API(CScriptTile, m_TileID);
 
+			[[Reflection::Field]]
 			std::string m_TilePath;
-			RTTI_FIELD_API(CScriptTile, m_TilePath);
 
 			ETileType GetTileType() const override { return ETileType::Regular; }
 
@@ -60,7 +60,7 @@ private:
 	};
 
 	//////////////////////////////////////////////////////////////////////////
-	class CScriptAtlasTile : public IScriptTile
+	class [[Reflection::Class]] CScriptAtlasTile : public engine::resources::IScriptTile
 	{
 		RTTI_CLASS_API(CScriptAtlasTile, IScriptTile);
 
@@ -70,23 +70,23 @@ public:
 
 			static void ExportScriptable(sol::state& _lua_state);
 
+			[[Reflection::Field]]
 			unsigned int m_TileWidth;
-			RTTI_FIELD_API(CScriptAtlasTile, m_TileWidth);
 
+			[[Reflection::Field]]
 			unsigned int m_TileHeight;
-			RTTI_FIELD_API(CScriptAtlasTile, m_TileHeight);
 
+			[[Reflection::Field]]
 			unsigned int m_TileID;
-			RTTI_FIELD_API(CScriptAtlasTile, m_TileID);
 
+			[[Reflection::Field]]
 			unsigned int m_AtlasPositionX;
-			RTTI_FIELD_API(CScriptAtlasTile, m_AtlasPositionX);
 
+			[[Reflection::Field]]
 			unsigned int m_AtlasPositionY;
-			RTTI_FIELD_API(CScriptAtlasTile, m_AtlasPositionY);
 
+			[[Reflection::Field]]
 			std::string m_TilePath;
-			RTTI_FIELD_API(CScriptAtlasTile, m_TilePath);
 
 			ETileType GetTileType() const override { return ETileType::Atlas; }
 
