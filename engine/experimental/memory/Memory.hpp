@@ -12,8 +12,8 @@ namespace engine::experimental::memory
 	template<typename T, class Alloc, typename... Args>
 	T* New(Alloc& _alloc, Args&&... _args)
 	{
-		T* ptr = _alloc.Allocate<T>(sizeof(T));
-		_alloc.construct(ptr, std::forward<Args>(_args)...);
+		T* ptr = _alloc.template Allocate<T>(sizeof(T));
+		_alloc.template construct<T>(ptr, std::forward<Args>(_args)...);
 		return ptr;
 	}
 

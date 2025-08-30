@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-##################
+###############################################################################
 @dataclass
 class FileContentCacheNode:
     path: Path
     content: str
 
-##################
+###############################################################################
 class FileContentCache:
     def __init__(self):
         self.cache: List[FileContentCacheNode] = []
@@ -25,5 +25,5 @@ class FileContentCache:
     def clear(self):
         self.cache.clear()
 
-##################
+###############################################################################
 file_content_cache: FileContentCache = FileContentCache()

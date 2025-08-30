@@ -19,7 +19,7 @@ project "Engine"
 
     filter "configurations:*"
         prebuildcommands {
-            "py %{wks.location}/scripts/rtti/main.py"
+            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/engine --generate"
         }
 
         includedirs { 
@@ -62,7 +62,7 @@ project "Game"
 
     filter "configurations:*"
         prebuildcommands {
-            -- "python %{wks.location}/scripts/rtti/main.py %{wks.location}/game"
+            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/game --generate"
         }
 
         includedirs { 
@@ -103,7 +103,7 @@ project "Playground"
 
     filter "configurations:*"
         prebuildcommands {
-            -- "python %{wks.location}/scripts/rtti/main.py %{wks.location}/playground"
+            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/playground --generate"
         }
 
         includedirs { 
@@ -143,7 +143,7 @@ project "Tests"
 
     filter "configurations:*"
         prebuildcommands {
-            -- "python %{wks.location}/scripts/rtti/main.py %{wks.location}/engine"
+            "py %{wks.location}/scripts/rtti/main.py %{wks.location}/tests --generate"
         }
 
         includedirs {

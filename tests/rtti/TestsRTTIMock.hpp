@@ -1,18 +1,14 @@
 #pragma once
+#pragma warning(disable: 5030)
 
-#include "engine/rtti/RTTITypeName.hpp"
-#include "engine/rtti/RTTITypeTraits.hpp"
-#include "engine/rtti/RTTIHash.hpp"
-#include "engine/rtti/RTTITypeInfo.hpp"
 #include "engine/rtti/RTTIBase.hpp"
 #include "engine/rtti/RTTIMacros.hpp"
-#include "engine/rtti/RTTIEnum.hpp"
-#include "engine/rtti/detail/RTTIEnumDetail.hpp"
+
 
 namespace tests::rtti
 {
 //////////////////////////////////////////////////////////////////////////
-		enum class EMocRttiEnumExplicit
+		enum class [[Reflection::Enum]] EMocRttiEnumExplicit
 		{
 			A = 0,
 			B = 1,
@@ -21,9 +17,8 @@ namespace tests::rtti
 			E = 4,
 			Count = 5
 		};		
-		RTTI_ENUM_API(EMocRttiEnumExplicit);
 //////////////////////////////////////////////////////////////////////////
-		enum class EMocRttiEnumImplicit
+		enum class [[Reflection::Enum]] EMocRttiEnumImplicit
 		{
 			A,
 			B,
@@ -34,9 +29,8 @@ namespace tests::rtti
 			G,
 			H
 		};
-		RTTI_ENUM_API(EMocRttiEnumImplicit);
 //////////////////////////////////////////////////////////////////////////
-		enum class EMocRttiLongValuesNames
+		enum class [[Reflection::Enum]] EMocRttiLongValuesNames
 		{
 			ThisIsFirstValueOfThisEnum,
 			ChcialbymZjescPaczkaZMusemCzekoladowym,
@@ -45,7 +39,6 @@ namespace tests::rtti
 			ToJestPiataWartosc,
 			NoTakWlasnieBywaZeWZyciuNiewielePrzybywaAleZaToWieleOdplywa
 		};
-		RTTI_ENUM_API(EMocRttiLongValuesNames);
 //////////////////////////////////////////////////////////////////////////
 		struct SSimpleStruct {};
 //////////////////////////////////////////////////////////////////////////
@@ -63,42 +56,43 @@ namespace tests::rtti
 				virtual int GetInt() const override { return 105; }
 		};
 //////////////////////////////////////////////////////////////////////////
-		class IBase : public engine::rtti::IRTTIBase
+		class [[Reflection::Class]] IBase : public engine::rtti::IRTTIBase
 		{
 			RTTI_CLASS_API(IBase);
 
 			public:
 			
 				virtual ~IBase() = default;
-				int GetVirtualBase() { return 0; }
-				RTTI_METHOD_API(IBase, GetVirtualBase);
 
+				[[Reflection::Method]]
+				int GetVirtualBase() { return 0; }
+
+				[[Reflection::Method]]
 				int Add(int _a, int _b)
 				{
 					return _a + _b;
 				}
-				RTTI_METHOD_API(IBase, Add);
 
+				[[Reflection::Method]]
 				int Subtract(int _a, int _b)
 				{
 					return _a - _b;
 				}
-				RTTI_METHOD_API(IBase, Subtract);
 
+				[[Reflection::Method]]
 				int AddConst(int _a, int _b) const
 				{
 					return _a + _b;
 				}
-				RTTI_METHOD_API(IBase, AddConst);
 
+				[[Reflection::Method]]
 				int SubtractConst(int _a, int _b) const
 				{
 					return _a - _b;
 				}
-				RTTI_METHOD_API(IBase, SubtractConst);
 		};
 //////////////////////////////////////////////////////////////////////////
-		class IBase2 : public engine::rtti::IRTTIBase
+		class [[Reflection::Class]] IBase2 : public engine::rtti::IRTTIBase
 		{
 			RTTI_CLASS_API(IBase2);
 
@@ -106,32 +100,32 @@ namespace tests::rtti
 			
 				virtual ~IBase2() = default;
 
+				[[Reflection::Method]]
 				int Multiply(int _a, int _b)
 				{
 					return _a * _b;
 				}
-				RTTI_METHOD_API(IBase2, Multiply);
 
+				[[Reflection::Method]]
 				int Divide(int _a, int _b)
 				{
 					return _a / _b;
 				}
-				RTTI_METHOD_API(IBase2, Divide);
 
+				[[Reflection::Method]]
 				int MultiplyConst(int _a, int _b) const
 				{
 					return _a * _b;
 				}
-				RTTI_METHOD_API(IBase2, MultiplyConst);
 
+				[[Reflection::Method]]
 				int DivideConst(int _a, int _b) const
 				{
 					return _a / _b;
 				}
-				RTTI_METHOD_API(IBase2, DivideConst);
 		};
 
-		class CDerived : public IBase
+		class [[Reflection::Class]] CDerived : public tests::rtti::IBase
 		{
 			RTTI_CLASS_API(CDerived, IBase);
 		
@@ -142,16 +136,16 @@ namespace tests::rtti
 					return m_PrivateInt;
 				}
 
+				[[Reflection::Method]]
 				int GetVirtualBase() { return 1; }
-				RTTI_METHOD_API(CDerived, GetVirtualBase);
 
-			private:
+			public:
 
+				[[Reflection::Field]]
 				int m_PrivateInt = 0;
-				RTTI_FIELD_API(CDerived, m_PrivateInt);
 		};
 //////////////////////////////////////////////////////////////////////////
-		class CDerived2 : public IBase
+		class [[Reflection::Class]] CDerived2 : public tests::rtti::IBase
 		{
 			RTTI_CLASS_API(CDerived2, IBase);
 
@@ -162,12 +156,13 @@ namespace tests::rtti
 				return m_PrivateInt;
 			}
 
-		private:
+		public:
+
+			[[Reflection::Field]]
 			int m_PrivateInt = 0;
-			RTTI_FIELD_API(CDerived2, m_PrivateInt);
 		};
 
-		class CDerivedBoth : public IBase, public IBase2
+		class [[Reflection::Class]] CDerivedBoth : public tests::rtti::IBase, public tests::rtti::IBase2
 		{
 			RTTI_CLASS_API(CDerivedBoth, IBase, IBase2);
 
@@ -178,10 +173,10 @@ namespace tests::rtti
 				return m_PrivateInt;
 			}
 
-			private:
+			public:
 
+				[[Reflection::Field]]
 				int m_PrivateInt = 0;
-				RTTI_FIELD_API(CDerivedBoth, m_PrivateInt);
 		};
 //////////////////////////////////////////////////////////////////////////
 }

@@ -7,6 +7,7 @@ from markers import RTTI_CLASS_MARKER, RTTI_ENUM_MARKER, RTTI_FIELD_MARKER, RTTI
 from file_content_cache import file_content_cache
 from detector import file_contains_rtti_marker
 
+###############################################################################
 def parse_file(path: Path) -> List[Model]:
     content: str = file_content_cache.find(path)
 
@@ -16,14 +17,20 @@ def parse_file(path: Path) -> List[Model]:
 
     content = file_content_cache.find(path)
 
-    models: List[Model] = []
-    lines = content.splitlines()
-    idx_line = 0
+    models: list[Model] = []
+    lines: list[str] = content.splitlines()
+    namespace: str = ""
+    idx_line: int = 0
 
     while idx_line < len(lines):
         line = lines[idx_line].strip()
         # We expect field & method markers to be parsed in class scope.
-        if line.startswith(RTTI_CLASS_MARKER):
+        if line.startswith("inline namespace") or line.startswith("namespace"):
+            namespace = line.split(" ")[-1].strip("{}")
+            idx_line += 1
+            continue
+
+        if RTTI_CLASS_MARKER in line:
             class_scope = [line]
             idx_line_in_class_scope = idx_line
             while idx_line_in_class_scope < len(lines):
@@ -33,11 +40,12 @@ def parse_file(path: Path) -> List[Model]:
                 # Find '};' to determine the end of the class definition.
                 if next_line.endswith('};'):
                     break
-            class_model: ClassModel = parse_class_scope(class_scope)
+            class_model: ModelClass = parse_class_scope(class_scope)
             if class_model.name:
+                class_model.namespace = namespace
                 models.append(class_model)
 
-        if line.startswith(RTTI_ENUM_MARKER):
+        if RTTI_ENUM_MARKER in line:
             # Find '};' to determine the end of the enum definition.
             enum_scope = [line]
             idx_line_in_enum_scope = idx_line
@@ -49,21 +57,24 @@ def parse_file(path: Path) -> List[Model]:
                     break
             enum_model: ModelEnum = parse_enum_scope(enum_scope)
             if enum_model.name:
+                enum_model.namespace = namespace
                 models.append(enum_model)
 
         idx_line += 1
 
-    print(f"Parsed {len(models)} models from {path}.")
     return models
 
+###############################################################################
 def parse_enum_scope(scope: List[str]) -> ModelEnum:
-    enum_model: ModelEnum = ModelEnum(name="", values=[])
+    enum_model: ModelEnum = ModelEnum(namespace="", name="", values=[])
     idx_line: int = 0
 
     while idx_line < len(scope):
         line: str = scope[idx_line].strip()
-        if line.startswith(RTTI_ENUM_MARKER):
-            enum_declaration = scope[idx_line + 1].strip()
+        if RTTI_ENUM_MARKER in line:
+            line = line.replace(RTTI_ENUM_MARKER, "")
+            line = re.sub(' +', ' ', line)
+            enum_declaration = line
             enum_model.name = re.match(r'enum(?:\s+class)?\s+(\w+)(?:\s*:\s*([\w:]+))?', enum_declaration).group(1)
 
         elif line and not line.startswith('//') and not line.startswith('/*') and not line.startswith('enum class') and line not in ('{', '}', '};'):
@@ -76,14 +87,17 @@ def parse_enum_scope(scope: List[str]) -> ModelEnum:
         idx_line += 1
     return enum_model
 
+###############################################################################
 def parse_class_scope(scope: List[str]) -> ModelClass:
-    class_model: ClassModel = ModelClass(name="", parents=[], fields=[], methods=[])
+    class_model: ClassModel = ModelClass(namespace="", name="", parents=[], fields=[], methods=[])
     idx_line: int = 0
 
     while idx_line < len(scope):
         line: str = scope[idx_line].strip()
-        if line.startswith(RTTI_CLASS_MARKER):
-            class_declaration = scope[idx_line + 1].strip()
+        if RTTI_CLASS_MARKER in line:
+            line = line.replace(RTTI_CLASS_MARKER, "")
+            line = re.sub(' +', ' ', line)
+            class_declaration = line
             parse_class_declaration(class_declaration, class_model)
             if not class_model.name:
                 break
@@ -110,7 +124,8 @@ def parse_class_scope(scope: List[str]) -> ModelClass:
         
         idx_line += 1
     return class_model
-            
+
+###############################################################################
 def parse_class_declaration(declaration: str, out_model: ModelClass) -> None:
     class_match = re.match(r'class\s+(\w+)', declaration)
     if not class_match:
@@ -129,6 +144,7 @@ def parse_class_declaration(declaration: str, out_model: ModelClass) -> None:
     out_model.name = class_name
     out_model.parents = inheritance
 
+###############################################################################
 def parse_method_declaration(declaration: str, out_model: ModelMethod) -> None:
     method_match = re.match(r'(\w+)\s+(\w+)\((.*)\)', declaration)
     if not method_match:
@@ -153,6 +169,7 @@ def parse_method_declaration(declaration: str, out_model: ModelMethod) -> None:
     out_model.return_type = return_type
     out_model.parameters = parameters
 
+###############################################################################
 def parse_field_declaration(declaration: str, out_model: ModelField) -> None:
     field_match = re.match(r'([\w:\<\>\s&\*\[\]]+?)\s+(\w+)\s*(?:=[^;]*)?;', declaration.strip())
     if not field_match:
@@ -161,3 +178,7 @@ def parse_field_declaration(declaration: str, out_model: ModelField) -> None:
     field_type, field_name = field_match.groups()
     out_model.name = field_name
     out_model.type = field_type
+
+###############################################################################
+def parse_namespace(lines, dd):
+    print("OK")

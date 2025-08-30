@@ -21,9 +21,6 @@ namespace engine::scriptable
 
 		resources::CScriptTile::ExportScriptable(m_LuaState);
 		resources::CScriptAtlasTile::ExportScriptable(m_LuaState);
-
-		(void)resources::CScriptTile::s_ClassRegistrar_CScriptTile;
-		(void)resources::CScriptAtlasTile::s_ClassRegistrar_CScriptAtlasTile;
 	}
 
 	void CScriptableService::SetupScripts(std::unordered_map<std::string, std::shared_ptr<engine::fs::data_models::CScriptFileDataModel>>&& _scripts)

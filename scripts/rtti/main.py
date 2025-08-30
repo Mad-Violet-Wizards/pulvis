@@ -3,7 +3,7 @@ from pathlib import Path
 
 from collections import defaultdict
 from detector import file_contains_rtti_marker
-from scanner import find_cpp_headers
+from scanner import find_cpp_headers, find_autogen_files
 from parser import parse_file
 from models import Model
 from generate import generate_rtti_code
@@ -56,8 +56,8 @@ if __name__ == "__main__":
     if not validate_cli_arguments(sys.argv):
         sys.exit(1)
 
-    root: Path = Path(sys.argv[1])
-    if not validate_filesystem_path(root):
+    root_path: Path = Path(sys.argv[1])
+    if not validate_filesystem_path(root_path):
         sys.exit(1)
 
     action: str = sys.argv[2]
@@ -66,17 +66,20 @@ if __name__ == "__main__":
 
     match action:
         case "--help":
-            print("Help")
+            print("--help - Command display list of supported actions")
+            print("--generate - Generate code based on supported RTTI C++ attributes")
+            print("--clear - Clear all generated code files (_rtti_autogen.cpp/rtti_autogen.hpp)")
         case "--generate":
             data_to_autogen: defaultdict[str, list[Model]] = defaultdict(list)
-            for path in find_cpp_headers(root):
+            for path in find_cpp_headers(root_path):
                 if file_contains_rtti_marker(path):
                     data_to_autogen[path].extend(parse_file(path))
             for key in data_to_autogen:
-                generate_rtti_code(key, data_to_autogen[key])
+                generate_rtti_code(root_path, key, data_to_autogen[key])
             models_count = sum(len(models) for models in data_to_autogen.values())
-            print(f"RTTI code generation complete. Found {models_count} rtti atributes.")
+            print(f"RTTI code generation complete. Found {models_count} rtti attributes.")
         case "--clear":
-            print("Clear")
+            for path in find_autogen_files(root_path):
+                path.unlink(missing_ok=True)
         case _:
             print(f"Unknown action '{action}'.")    

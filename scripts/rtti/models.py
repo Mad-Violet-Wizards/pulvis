@@ -16,6 +16,7 @@ class ModelMethod:
 
 @dataclass
 class ModelClass:
+    namespace: str
     name: str
     parents: List[str]
     fields: List[ModelField]
@@ -26,6 +27,7 @@ class ModelClass:
 
 @dataclass
 class ModelEnum:
+    namespace: str
     name: str
     values: List[str]
 

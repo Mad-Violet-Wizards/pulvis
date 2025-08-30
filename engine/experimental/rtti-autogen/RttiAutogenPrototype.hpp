@@ -1,10 +1,13 @@
 #pragma once
+#pragma warning(disable: 5030)
+
+#include "engine/rtti/RTTIBase.hpp"
+#include "engine/rtti/RTTIMacros.hpp"
 
 namespace engine::experimental::rtti_autogen
 {
 //////////////////////////////////////////////////////////////////////////
-        [[rtti::enum]]
-		enum class EMocRttiEnumExplicit
+		enum class [[Reflection::Enum]] EMocRttiEnumExplicit
 		{
 			A = 0,
 			B = 1,
@@ -14,8 +17,7 @@ namespace engine::experimental::rtti_autogen
 			Count = 5
 		};		
 //////////////////////////////////////////////////////////////////////////
-        [[rtti::enum]]
-		enum class EMocRttiEnumImplicit
+		enum class [[Reflection::Enum]] EMocRttiEnumImplicit
 		{
 			A,
 			B,
@@ -27,8 +29,7 @@ namespace engine::experimental::rtti_autogen
 			H
 		};
 //////////////////////////////////////////////////////////////////////////
-        [[rtti::enum]]
-		enum class EMocRttiLongValuesNames
+		enum class [[Reflection::Enum]] EMocRttiLongValuesNames
 		{
 			ThisIsFirstValueOfThisEnum,
 			ChcialbymZjescPaczkaZMusemCzekoladowym,
@@ -54,75 +55,72 @@ namespace engine::experimental::rtti_autogen
 				virtual int GetInt() const override { return 105; }
 		};
 //////////////////////////////////////////////////////////////////////////
-        [[rtti::class]]
-		class IBase : public engine::rtti::IRTTIBase
+		class [[Reflection::Class]] IBase : public engine::rtti::IRTTIBase
 		{
 			public:
 			
 				virtual ~IBase() = default;
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int GetVirtualBase() { return 0; }
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int Add(int _a, int _b)
 				{
 					return _a + _b;
 				}
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int Subtract(int _a, int _b)
 				{
 					return _a - _b;
 				}
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int AddConst(int _a, int _b) const
 				{
 					return _a + _b;
 				}
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int SubtractConst(int _a, int _b) const
 				{
 					return _a - _b;
 				}
 		};
 //////////////////////////////////////////////////////////////////////////
-        [[rtti::class]]
-		class IBase2 : public engine::rtti::IRTTIBase
+		class [[Reflection::Class]] IBase2 : public engine::rtti::IRTTIBase
 		{
 			public:
 			
 				virtual ~IBase2() = default;
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int Multiply(int _a, int _b)
 				{
 					return _a * _b;
 				}
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int Divide(int _a, int _b)
 				{
 					return _a / _b;
 				}
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int MultiplyConst(int _a, int _b) const
 				{
 					return _a * _b;
 				}
 
-                [[rtti::method]]
+				[[Reflection::Method]]
 				int DivideConst(int _a, int _b) const
 				{
 					return _a / _b;
 				}
 		};
 
-        [[rtti::class]]
-		class CDerived : public IBase
+		class [[Reflection::Class]] CDerived : public engine::experimental::rtti_autogen::IBase
 		{		
 			public:
 
@@ -131,17 +129,16 @@ namespace engine::experimental::rtti_autogen
 					return m_PrivateInt;
 				}
 
-                [[rtti::method]]
-                int GetVirtualBase() { return 1; }
+				[[Reflection::Method]]
+				int GetVirtualBase() { return 1; }
 
-			private:
+			public:
 
-                [[rtti::field]]
+				[[Reflection::Field]]
 				int m_PrivateInt = 0;
 		};
 
-        [[rtti::class]]
-		class CDerived2 : public IBase
+		class [[Reflection::Class]] CDerived2 : public engine::experimental::rtti_autogen::IBase
 		{
 		public:
 
@@ -150,13 +147,13 @@ namespace engine::experimental::rtti_autogen
 				return m_PrivateInt;
 			}
 
-		private:
-            [[rtti::field]]
+		public:
+
+			[[Reflection::Field]]
 			int m_PrivateInt = 0;
 		};
 
-        [[rtti::class]]
-		class CDerivedBoth : public IBase, public IBase2
+		class [[Reflection::Class]] CDerivedBoth : public engine::experimental::rtti_autogen::IBase, public engine::experimental::rtti_autogen::IBase2
 		{
 		public:
 
@@ -165,11 +162,10 @@ namespace engine::experimental::rtti_autogen
 				return m_PrivateInt;
 			}
 
-			private:
+		public:
 
-                [[rtti::field]]
+				[[Reflection::Field]]
 				int m_PrivateInt = 0;
 		};
 //////////////////////////////////////////////////////////////////////////
-}
 }

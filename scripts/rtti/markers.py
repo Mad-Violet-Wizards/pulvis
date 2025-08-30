@@ -1,8 +1,8 @@
 RTTI_MARKERS = [
-    "[[rtti::class]]",
-    "[[rtti::field]]",
-    "[[rtti::method]]",
-    "[[rtti::enum]]"
+    "[[Reflection::Class]]",
+    "[[Reflection::Field]]",
+    "[[Reflection::Method]]",
+    "[[Reflection::Enum]]"
 ]
 
 RTTI_CLASS_MARKER = RTTI_MARKERS[0]
