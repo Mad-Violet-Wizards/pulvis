@@ -6,7 +6,7 @@ from detector import file_contains_rtti_marker
 from scanner import find_cpp_headers, find_autogen_files
 from parser import parse_file
 from models import Model
-from generate import generate_rtti_code
+from generate import generate_rtti_code, generate_project_register_script
 
 valid_actions = ["--help", "--generate", "--clear"]
 
@@ -77,6 +77,7 @@ if __name__ == "__main__":
             for key in data_to_autogen:
                 generate_rtti_code(root_path, key, data_to_autogen[key])
             models_count = sum(len(models) for models in data_to_autogen.values())
+            generate_project_register_script(root_path, data_to_autogen)
             print(f"RTTI code generation complete. Found {models_count} rtti attributes.")
         case "--clear":
             for path in find_autogen_files(root_path):

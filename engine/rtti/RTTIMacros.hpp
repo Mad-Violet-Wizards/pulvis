@@ -10,6 +10,8 @@
 #include "RTTIField.hpp"
 #include "detail/RTTIClassDetail.hpp"
 
+#pragma warning(disable: 5030)
+
 //////////////////////////////////////////////////////////////////////////
 static void AttachParent(const char* _class_name, const char* _parent_name)
 {

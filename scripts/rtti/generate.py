@@ -1,4 +1,6 @@
 from models import Model, ModelClass, ModelEnum, ModelField, ModelMethod
+from collections import defaultdict
+from pathlib import Path
 
 ###############################################################################
 def generate_rtti_code(root_path, path, models: list[Model]):
@@ -18,13 +20,13 @@ def generate_rtti_code(root_path, path, models: list[Model]):
                 autogen_hpp_code += generate_rtti_code_enum_hpp(autogen_filename_hpp, enum_model)
                 autogen_cpp_code += generate_rtti_code_enum_cpp(autogen_filename_cpp, enum_model)
 
-
     processed_header_path: str = f"{root_path.name}/{path.relative_to(root_path).as_posix()}"
     hpp_code = pack_hpp_code(autogen_hpp_code)
     cpp_code = pack_cpp_code(autogen_cpp_code, processed_header_path, autogen_filename_hpp)
 
     # Write the generated code to the respective files
     autogen_file_hpp_path = path.parent / autogen_filename_hpp
+    print(autogen_file_hpp_path)
     with open(autogen_file_hpp_path, "w") as hpp_file:
         hpp_file.write(hpp_code)
 
@@ -71,6 +73,36 @@ def generate_rtti_code_enum_cpp(path: str, enum_model: ModelEnum) -> str:
     src_code += f"\tstatic engine::rtti::CRTTIEnum<{enum_model.namespace}::{enum_model.name}> {enum_model.name}_rtti;\n"
     src_code += f"}}\n"
     return src_code
+###############################################################################
+def generate_project_register_script(root_path: str, autogen_data: defaultdict[str, list[Model]]):
+    autogen_filename_hpp: str = f"{root_path.name}_rtti_autogen.hpp"
+
+    include_paths: set[str] = set()
+    register_methods: str = ""
+    for key, models in autogen_data.items():
+        for model in models:
+            generated_filename_hpp = key.stem + "_rtti_autogen.hpp"
+            project_root = root_path.parent
+            relative_path = key.relative_to(project_root).as_posix()
+            include_path = Path(relative_path).parent / generated_filename_hpp
+            include_paths.add(include_path.as_posix())
+            match model:
+                case ModelClass() as class_model:
+                    register_methods += f"\tAutoGenRtti_RegisterClass_{class_model.name}();\n"
+                case ModelEnum() as enum_model:
+                    register_methods += f"\tAutoGenRtti_RegisterEnum_{enum_model.name}();\n"
+
+    hpp_code = f"#pragma once\n"
+    for include_path in include_paths:
+        hpp_code += f"#include \"{include_path}\"\n"
+
+    hpp_code += f"inline void RegisterRTTI_{root_path.name}()\n{{\n"
+    hpp_code += f"{register_methods}"
+    hpp_code += f"}}\n"
+
+    autogen_file_hpp_path = root_path / autogen_filename_hpp
+    with open(autogen_file_hpp_path, "w") as hpp_file:
+        hpp_file.write(hpp_code)
 
 ###############################################################################
 def pack_hpp_code(autogen_hpp_code: str) -> str:
