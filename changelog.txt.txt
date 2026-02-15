@@ -1,0 +1,10 @@
+build:
+
+Has been separated to standalone libraries
+
+rtti:
+* Method parsing regex is now compiled in verbose mode and supports optional qualifiers (virtual, override, final, const).
+* RTTI Method shadows template parameters without inheritance.
+
+template-library:
+* FastFunction unit can allocated without providing any template arguments (only initialization does)

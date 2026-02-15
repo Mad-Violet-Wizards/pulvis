@@ -1,8 +1,0 @@
-obj
-build
-.sln
-.user
-.vcxproj
-.filters
-.user
-.ini
