@@ -17,3 +17,4 @@ __pycache__
 
 *_rtti_autogen.hpp
 *_rtti_autogen.cpp
+.rtti_cache.json
