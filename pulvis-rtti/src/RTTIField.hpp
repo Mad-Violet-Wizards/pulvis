@@ -1,9 +1,9 @@
 #pragma once
 #include "RTTITypeInfo.hpp"
-#include "detail/RTTIFieldDetail.hpp"
 
 #include <string>
 #include <memory>
+#include <any>
 
 namespace pulvis::rtti
 {
@@ -15,7 +15,6 @@ namespace pulvis::rtti
 
 			CRTTIField()
 				: m_Name(s_RttiInvalidField)
-				, m_FieldImpl(nullptr)
 				, m_FieldType(ERTTIFieldType::Unknown)
 				, m_FieldAccess(ERTTIFieldAccess::Unknown)
 			{
@@ -24,8 +23,8 @@ namespace pulvis::rtti
 			template<class C, typename T>
 			CRTTIField(const std::string& _name, T(C::* _field))
 				: m_Name(_name)
+				, m_FieldPtr(_field)
 			{
-				m_FieldImpl = std::make_unique<detail::RTTIField<C, T>>(_field);
 				m_FieldType = CRTTITypeInfo<T>::GetFieldType();
 				m_FieldAccess = CRTTITypeInfo<T>::GetFieldAccess();
 			}
@@ -33,22 +32,22 @@ namespace pulvis::rtti
 			template<class C, typename T>
 			void Set(C* _instance, T _value) const
 			{
-				auto* field = static_cast<detail::RTTIField<C, T>*>(m_FieldImpl.get());
-				field->Set(_instance, _value);
+				auto field = std::any_cast<T C::*>(m_FieldPtr);
+				_instance->*field = _value;
 			}
 
 			template<class C, typename T>
 			void GetByRef(C* _instance, T& _out_val) const
 			{
-				auto* field = static_cast<detail::RTTIField<C, T>*>(m_FieldImpl.get());
-				_out_val = field->Get(_instance);
+				auto field = std::any_cast<T C::*>(m_FieldPtr);
+				_out_val = _instance->*field;
 			}
 
 			template<typename T, class C>
 			T Get(C* _instance) const
 			{
-				auto* field = static_cast<detail::RTTIField<C, T>*>(m_FieldImpl.get());
-				return field->Get(_instance);
+				auto field = std::any_cast<T C::*>(m_FieldPtr);
+				return _instance->*field;
 			}
 
 			const std::string& GetName() const
@@ -69,7 +68,7 @@ namespace pulvis::rtti
 		private:
 
 			std::string m_Name;
-			std::unique_ptr<detail::IRTTIField> m_FieldImpl;
+			std::any m_FieldPtr;
 			ERTTIFieldType m_FieldType;
 			ERTTIFieldAccess m_FieldAccess;
 

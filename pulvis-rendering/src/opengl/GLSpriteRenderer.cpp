@@ -15,7 +15,6 @@ namespace pulvis::rendering::gl
 		, m_Vao(0)
 		, m_Vbo(0)
 		, m_Ibo(0)
-		, m_ViewProj(1.f)
 		, m_Initialized(false)
 	{
 	}
@@ -94,23 +93,19 @@ namespace pulvis::rendering::gl
 		m_Initialized = false;
 	}
 
-	void CGLSpriteRenderer::Begin(const glm::mat4& _viewProj)
-	{
-		m_ViewProj = _viewProj;
-		m_Shader.Use();
-	}
-
-	void CGLSpriteRenderer::Draw(const glm::vec2& _pos, const glm::vec2& _size, SGLTextureHandle _texture)
+	void CGLSpriteRenderer::Draw(const CCamera2D& _camera, const glm::vec2& _pos, const glm::vec2& _size, SGLTextureHandle _texture)
 	{
 		if (!m_Initialized)
 			return;
+
+		m_Shader.Use();
 
 		// Model = translate(pos) * scale(size)
 		glm::mat4 model(1.0f);
 		model = glm::translate(model, glm::vec3(_pos, 0.0f));
 		model = glm::scale(model, glm::vec3(_size, 1.0f));
 
-		glm::mat4 mvp = m_ViewProj * model;
+		glm::mat4 mvp = _camera.GetViewProjMatrix() * model;
 
 		m_Shader.SetMat4("uMVP", mvp);
 		m_Shader.SetInt("uTexture", 0);
@@ -121,10 +116,6 @@ namespace pulvis::rendering::gl
 		glBindVertexArray(m_Vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
-	}
-
-	void CGLSpriteRenderer::End()
-	{
 	}
 }
 

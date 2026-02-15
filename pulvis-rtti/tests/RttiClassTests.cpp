@@ -161,6 +161,43 @@ TEST_CASE("Method", "[RTTI][Method]")
 		const int multiply_result = derived2_rtti_instance->FindMethodByName("Multiply")->Invoke<int>(&derived2, 3, 4);
 		CHECK(multiply_result == 12);
 	}
+
+#ifdef RUN_BENCHMARK
+	SECTION("Performance tests")
+	{
+		const char* derived_name = "pulvis::rtti::tests::CDerived";
+		const char* virtual_method_name = "GetVirtualBase";
+		const char* add_method_name = "Add";
+
+		BENCHMARK("Virtual method call (CRTTIMethod)")
+		{
+			CRTTIClass* derived_rtti_instance = CRTTIClass::FindInStorage(derived_name);
+			CRTTIMethod* method = derived_rtti_instance->FindMethodByName(virtual_method_name);
+			CDerived derived;
+			return method->Invoke<int>(&derived);
+		};
+
+		BENCHMARK("Virtual method call (direct)")
+		{
+			CDerived derived;
+			return derived.GetVirtualBase();
+		};
+
+		BENCHMARK("Non-virtual method call (CRTTIMethod)")
+		{
+			CRTTIClass* derived_rtti_instance = CRTTIClass::FindInStorage(derived_name);
+			CRTTIMethod* method = derived_rtti_instance->FindMethodByName(add_method_name);
+			CDerived derived;
+			return method->Invoke<int>(&derived, 1, 2);
+		};
+
+		BENCHMARK("Non-virtual method call (direct)")
+		{
+			CDerived derived;
+			return derived.Add(1, 2);
+		};
+	}
+#endif
 }
 
 TEST_CASE("Field", "[RTTI][Field]")
@@ -200,4 +237,28 @@ TEST_CASE("Field", "[RTTI][Field]")
 		derived_both_int_field->Set(&derived_both, 123);
 		CHECK(derived_both_int_field->Get<int>(&derived_both) == 123);
 	}
+
+#ifdef RUN_BENCHMARK
+	SECTION("Performance tests")
+	{
+		const char* derived_name = "pulvis::rtti::tests::CDerived";
+		const char* field_name = "IntField";
+
+		BENCHMARK("Field CRTTIField)")
+		{
+			CRTTIClass* derived_rtti_instance = CRTTIClass::FindInStorage(derived_name);
+			CRTTIField* field = derived_rtti_instance->FindFieldByName(field_name);
+			CDerived derived;
+			field->Set(&derived, 42);
+			return field->Get<int>(&derived);
+		};
+
+		BENCHMARK("Field (direct)")
+		{
+			CDerived derived;
+			derived.IntField = 42;
+			return derived.IntField;
+		};
+	}
+#endif
 }

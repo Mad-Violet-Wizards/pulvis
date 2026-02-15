@@ -15,13 +15,6 @@ namespace pulvis::rtti
 	{
 	public:
 
-		static CRTTIClass* FindInStorage(type_id_t _type_id);
-		static const CRTTIClass* FindConstInStorage(type_id_t _type_id);
-		static CRTTIClass* FindInStorage(const char* _name);
-		static const CRTTIClass* FindConstInStorage(const char* _name);
-		static CRTTIClass* FindInStorage(std::string_view _sv_name);
-		static const CRTTIClass* FindConstInStorage(std::string_view _sv_name);
-
 		CRTTIClass() = default;
 		CRTTIClass(const char* _name);
 		~CRTTIClass();
@@ -39,6 +32,13 @@ namespace pulvis::rtti
 		CRTTIField* FindFieldByName(const char* _field_name);
 		const CRTTIField* FindConstFieldByName(const char* _field_name) const;
 		const std::vector<CRTTIField*>& GetFields() const;
+
+	public:
+
+		static CRTTIClass* FindInStorage(type_id_t _type_id);
+		static const CRTTIClass* FindConstInStorage(type_id_t _type_id);
+		static CRTTIClass* FindInStorage(const char* _name);
+		static const CRTTIClass* FindConstInStorage(const char* _name);
 
 	private:
 

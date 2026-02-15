@@ -50,7 +50,35 @@ namespace pulvis::rendering::gl
 		m_Initialized = false;
 	}
 
-	void CGLTileRenderer::Draw(const std::vector<STileRenderBatch>& _batches, const CCamera2D& _camera)
+	void CGLTileRenderer::Draw(const std::vector<STileRenderBatch>& _batches,
+		const CCamera2D& _camera)
 	{
+		if (!m_Initialized)
+		{
+			Initialize();
+		}
+
+		const glm::mat4 vp = _camera.GetViewProjMatrix();
+
+		m_Shader.Use();
+		m_Shader.SetMat4("uMVP", vp);
+
+		glBindVertexArray(m_Vao);
+
+		for (const STileRenderBatch& batch : _batches)
+		{
+			if (batch.BufferHandle.ID == 0 || batch.VertexCount == 0)
+				continue;
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, batch.TextureHandle.ID);
+			m_Shader.SetInt("uTexture", 0);
+			m_Shader.SetVec2("uAtlasSize", batch.TextureSize);
+
+			glBindBuffer(GL_ARRAY_BUFFER, batch.BufferHandle.ID);
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(batch.VertexCount));
+		}
+
+		glBindVertexArray(0);
 	}
 }

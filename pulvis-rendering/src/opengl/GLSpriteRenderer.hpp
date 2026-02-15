@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "GLRenderDevice.hpp"
 #include "GLShader.hpp"
+#include "Camera2D.hpp"
 
 namespace pulvis::rendering::gl
 {
@@ -16,9 +17,7 @@ namespace pulvis::rendering::gl
 			void Initialize();
 			void Shutdown();
 
-			void Begin(const glm::mat4& _viewProj);
-			void Draw(const glm::vec2& _pos, const glm::vec2& _size, SGLTextureHandle _texture);
-			void End();
+			void Draw(const CCamera2D& _camera, const glm::vec2& _pos, const glm::vec2& _size, SGLTextureHandle _texture);
 
 		private:
 
@@ -28,7 +27,6 @@ namespace pulvis::rendering::gl
 			SGLBufferHandle m_Vbo;
 			SGLBufferHandle m_Ibo;
 
-			glm::mat4 m_ViewProj;
 			bool m_Initialized;
 	};
 }

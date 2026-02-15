@@ -66,4 +66,24 @@ TEST_CASE("Enum", "[RTTI][Enum]")
 		static const EnumWithLongNames enum_with_long_names_last_value = CRTTIEnum<EnumWithLongNames>::FromString("ThirdValueIsAnValueWithAnEvenLongerNameWhichMakesItPrettyLongYouWouldSayVeryLong");
 		CHECK(EnumWithLongNames::ThirdValueIsAnValueWithAnEvenLongerNameWhichMakesItPrettyLongYouWouldSayVeryLong == enum_with_long_names_last_value);
 	}
+
+#ifdef RUN_BENCHMARK
+	SECTION("Performance tests")
+	{
+		BENCHMARK("Count")
+		{
+			return CRTTIEnum<EnumExplicit>::GetCount();
+		};
+
+		BENCHMARK("FromString")
+		{
+			return CRTTIEnum<EnumExplicit>::FromString("Value5");
+		};
+
+		BENCHMARK("ToString")
+		{
+			return CRTTIEnum<EnumExplicit>::ToString(EnumExplicit::Value5);
+		};
+	}
+#endif
 }

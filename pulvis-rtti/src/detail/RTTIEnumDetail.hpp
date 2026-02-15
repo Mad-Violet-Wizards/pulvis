@@ -32,8 +32,6 @@ namespace pulvis::rtti::detail
 			static const SEnumDataBuffer& GetEnumDataBufferConstRef(int _index);
 
 			static int GetCurrentIndex();
-			static void IncrementIndex();
-
 			static constexpr int inline s_CheckValuesLimit = 256;
 			static constexpr int inline s_MapperBufferLimit = 2048;
 
@@ -43,6 +41,17 @@ namespace pulvis::rtti::detail
 			static inline SEnumDataBuffer s_EnumDataStorage[s_MapperBufferLimit];
 	};
 //////////////////////////////////////////////////////////////////////////
+		template<typename E>
+		struct SEnumIndex
+		{
+			static inline int s_Index = -1;
+
+			bool IsValid()
+			{
+				return s_Index != -1;
+			}
+		};
+
 		template<typename E>
 		static int GetEnumCount()
 		{
@@ -106,7 +115,12 @@ namespace pulvis::rtti::detail
 				std::string_view enum_value_str = function_signature.substr(enum_value_start, enum_value_end);
 				constexpr int enum_value_int = static_cast<int>(EnumValue);
 
-				SEnumDataBuffer& buffer = CRTTIEnumStorage::GetEnumDataBufferRef(CRTTIEnumStorage::GetCurrentIndex());
+				if (!SEnumIndex<E>().IsValid())
+				{
+					SEnumIndex<E>::s_Index = CRTTIEnumStorage::GetCurrentIndex();
+				}
+
+				SEnumDataBuffer& buffer = CRTTIEnumStorage::GetEnumDataBufferRef(GetEnumIndex<E>());
 
 				if (buffer.m_Valid)
 				{
@@ -132,20 +146,11 @@ namespace pulvis::rtti::detail
 		static constexpr void RegisterEnum()
 		{
 			RegisterEnumImpl<E>(std::make_integer_sequence<int, CRTTIEnumStorage::s_CheckValuesLimit>());
-			CRTTIEnumStorage::IncrementIndex();
 		}
 
 		template<typename E>
 		static int GetEnumIndex()
 		{
-			for (int i = 0; i < CRTTIEnumStorage::s_MapperBufferLimit; ++i)
-			{
-				if (CRTTITypeName::GetTypename<E>() == CRTTIEnumStorage::GetEnumDataBufferConstRef(i).m_EnumName)
-				{
-					return i;
-				}
-			}
-			
-			return -1;
+			return SEnumIndex<E>::s_Index;
 		}
 }

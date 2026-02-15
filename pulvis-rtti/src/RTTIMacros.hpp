@@ -7,14 +7,16 @@
 #include "RTTIMethod.hpp"
 #include "RTTIClass.hpp"
 #include "RTTIField.hpp"
+#include "RTTIHash.hpp"
 #include "detail/RTTIClassDetail.hpp"
-
-#pragma warning(disable: 5030)
 
 //////////////////////////////////////////////////////////////////////////
 static void AttachParent(const char* _class_name, const char* _parent_name)
 {
-	pulvis::rtti::detail::CRTTIClassStorage::FindClassByName(_class_name)->AttachParent(pulvis::rtti::detail::CRTTIClassStorage::FindClassByName(_parent_name));
+	const pulvis::rtti::type_id_t class_type_id = pulvis::rtti::Hash(_class_name);
+	const pulvis::rtti::type_id_t parent_type_id = pulvis::rtti::Hash(_parent_name);
+
+	pulvis::rtti::detail::CRTTIClassStorage::FindClassById(class_type_id)->AttachParent(pulvis::rtti::detail::CRTTIClassStorage::FindClassById(parent_type_id));
 }
 
 template<typename... Parents>

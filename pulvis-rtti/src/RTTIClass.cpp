@@ -1,6 +1,8 @@
 #include "RTTIClass.hpp"
 #include "detail/RTTIClassDetail.hpp"
 
+#include "RTTIHash.hpp"
+
 namespace pulvis::rtti
 {
   //////////////////////////////////////////////////////////////////////////
@@ -23,36 +25,6 @@ namespace pulvis::rtti
 	{
     return m_TypeId;
 	}
-
-  CRTTIClass* CRTTIClass::FindInStorage(type_id_t _type_id)
-  {
-    return detail::CRTTIClassStorage::FindClassById(_type_id);
-  }
-
-  const CRTTIClass* CRTTIClass::FindConstInStorage(type_id_t _type_id)
-  {
-    return detail::CRTTIClassStorage::FindConstClassById(_type_id);
-  }
-
-  CRTTIClass* CRTTIClass::FindInStorage(const char* _name)
-  {
-    return detail::CRTTIClassStorage::FindClassByName(_name);
-  }
-
-  const CRTTIClass* CRTTIClass::FindConstInStorage(const char* _name)
-  {
-    return detail::CRTTIClassStorage::FindConstClassByName(_name);
-  }
-
-  CRTTIClass* CRTTIClass::FindInStorage(std::string_view _sv_name)
-  {
-    return detail::CRTTIClassStorage::FindClassByNameSv(_sv_name);
-  }
-
-  const CRTTIClass* CRTTIClass::FindConstInStorage(std::string_view _sv_name)
-  {
-    return detail::CRTTIClassStorage::FindConstClassByNameSv(_sv_name);
-  }
 
   void CRTTIClass::AttachParent(CRTTIClass* _parent)
   {
@@ -165,5 +137,28 @@ namespace pulvis::rtti
     const std::vector<CRTTIField*>& CRTTIClass::GetFields() const
     {
       return m_Fields;
+    }
+    //////////////////////////////////////////////////////////////////////////
+
+    CRTTIClass* CRTTIClass::FindInStorage(type_id_t _type_id)
+    {
+      return detail::CRTTIClassStorage::FindClassById(_type_id);
+    }
+
+    const CRTTIClass* CRTTIClass::FindConstInStorage(type_id_t _type_id)
+    {
+      return detail::CRTTIClassStorage::FindConstClassById(_type_id);
+    }
+
+    CRTTIClass* CRTTIClass::FindInStorage(const char* _name)
+    {
+      const type_id_t type_id = rtti::Hash(_name);
+      return detail::CRTTIClassStorage::FindClassById(type_id);
+    }
+
+    const CRTTIClass* CRTTIClass::FindConstInStorage(const char* _name)
+    {
+      const type_id_t type_id = rtti::Hash(_name);
+      return detail::CRTTIClassStorage::FindConstClassById(type_id);
     }
 }

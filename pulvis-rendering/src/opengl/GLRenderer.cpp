@@ -44,13 +44,10 @@ namespace pulvis::rendering::gl
 	{
 		glm::mat4 vp = m_Camera.GetViewProjMatrix();
 
-		m_SpriteRenderer.Begin(vp);
-
 		glm::vec2 pos = { 0.f, 0.f };
 		glm::vec2 size = { 512.0f, 512.0f };
 
-		m_SpriteRenderer.Draw(pos, size, m_TestTexture);
-		m_SpriteRenderer.End();
+		m_SpriteRenderer.Draw(m_Camera, pos, size, m_TestTexture);
 	}
 
 	void CGLRenderer::EndFrame()

@@ -5,6 +5,7 @@ namespace pulvis::rtti::detail
 	void CRTTIEnumStorage::RegisterEnum(const SEnumDataBuffer& _enum_data_buffer)
 	{
 		s_EnumDataStorage[s_EnumMapperIndex] = _enum_data_buffer;
+		s_EnumMapperIndex++;
 	}
 
 	SEnumDataBuffer& CRTTIEnumStorage::GetEnumDataBufferRef(int _index)
@@ -20,10 +21,5 @@ namespace pulvis::rtti::detail
 	int CRTTIEnumStorage::GetCurrentIndex()
 	{
 		return s_EnumMapperIndex;
-	}
-
-	void CRTTIEnumStorage::IncrementIndex()
-	{
-		s_EnumMapperIndex++;
 	}
 }

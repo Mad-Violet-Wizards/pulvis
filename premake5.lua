@@ -23,6 +23,9 @@ workspace "pulvis"
 
     filter "system:windows"
         defines { "WINDOWS_OS" }
+        buildoptions { 
+            "/wd5030"   -- Disable warning C5030: attribute not recognized
+        }
 
     include "pulvis-template-library/premake5.lua"
     include "pulvis-rtti/premake5.lua"
