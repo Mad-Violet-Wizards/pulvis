@@ -189,5 +189,3 @@ def parse_field_declaration(declaration: str, out_model: ModelField) -> None:
     out_model.type = field_type
 
 ###############################################################################
-def parse_namespace(lines, dd):
-    print("OK")
