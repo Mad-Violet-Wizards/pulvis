@@ -1,181 +1,168 @@
-#pragma once
+		#pragma once
 
-#include <cstddef>
-#include <type_traits>
-#include <memory>
-#include <iostream>
+		#include <cstddef>
+		#include <type_traits>
+		#include <memory>
+		#include <stdexcept>
 
-namespace pulvis::tl
-{
-	class FastFunction
-	{
-		public:
-
-			FastFunction() = default;
-			~FastFunction();
-
-			FastFunction(FastFunction&& _other) noexcept;
-			FastFunction& operator=(FastFunction&& _other) noexcept;
-
-			FastFunction(const FastFunction&) = delete;
-			FastFunction& operator=(const FastFunction&) = delete;
-
-			template<typename R, typename... Args, typename Func>
-			FastFunction(Func&& _func)
+		namespace pulvis::tl
+		{
+			class FastFunction
 			{
-				Init<R, Args...>(std::forward<Func>(_func));
-			}
+				public:
 
-			template<typename R, class C, typename... Args>
-			FastFunction(C* _instance, R(C::* _method)(Args...))
-			{
-				struct Wrapper
-				{
-					C* Instance;
-					R(C::* Method)(Args...);
+					FastFunction() = default;
+					~FastFunction();
 
+					FastFunction(FastFunction&& _other) noexcept;
+					FastFunction& operator=(FastFunction&& _other) noexcept;
 
-					R operator()(Args... _args)
+					FastFunction(const FastFunction&) = delete;
+					FastFunction& operator=(const FastFunction&) = delete;
+
+					template<typename R, typename... Args, typename Func>
+					FastFunction(Func&& _func)
 					{
-						return (Instance->*Method)(std::forward<Args>(_args)...);
+						Init<R, Args...>(std::forward<Func>(_func));
 					}
-				};
 
-				Init<R, Args...>(Wrapper{ _instance, _method });
-			}
-
-			template<typename R, class C, typename... Args>
-			FastFunction(C* _instance, R(C::* _method)(Args...) const)
-			{
-				struct Wrapper
-				{
-					C* Instance;
-					R(C::* Method)(Args...) const;
-
-
-					R operator()(Args... _args)
+					template<typename R, class C, typename... Args>
+					FastFunction(C* _instance, R(C::* _method)(Args...))
 					{
-						return (Instance->*Method)(std::forward<Args>(_args)...);
+						struct Wrapper
+						{
+							C* Instance;
+							R(C::* Method)(Args...);
+
+							R operator()(Args... _args)
+							{
+								return (Instance->*Method)(std::forward<Args>(_args)...);
+							}
+						};
+
+						Init<R, Args...>(Wrapper{ _instance, _method });
 					}
-				};
 
-				Init<R, Args...>(Wrapper{ _instance, _method });
-			}
-
-			template<typename R, class C, typename... Args>
-			FastFunction(R(C::* _method)(Args...))
-			{
-				struct Wrapper
-				{
-					R(C::* Method)(Args...);
-
-					R operator()(C* _instance, Args... _args)
+					template<typename R, class C, typename... Args>
+					FastFunction(C* _instance, R(C::* _method)(Args...) const)
 					{
-						return (_instance->*Method)(std::forward<Args>(_args)...);
+						struct Wrapper
+						{
+							C* Instance;
+							R(C::* Method)(Args...) const;
+
+							R operator()(Args... _args)
+							{
+								return (Instance->*Method)(std::forward<Args>(_args)...);
+							}
+						};
+
+						Init<R, Args...>(Wrapper{ _instance, _method });
 					}
-				};
 
-				Init<R, C*, Args...>(Wrapper{ _method });
-			}
-
-			template<typename R, class C, typename... Args>
-			FastFunction(R(C::* _method)(Args...) const)
-			{
-				struct Wrapper
-				{
-					R(C::* Method)(Args...) const;
-
-					R operator()(const C* _instance, Args... _args)
+					template<typename R, class C, typename... Args>
+					FastFunction(R(C::* _method)(Args...))
 					{
-						return (_instance->*Method)(std::forward<Args>(_args)...);
+						struct Wrapper
+						{
+							R(C::* Method)(Args...);
+
+							R operator()(C* _instance, Args... _args)
+							{
+								return (_instance->*Method)(std::forward<Args>(_args)...);
+							}
+						};
+
+						Init<R, C*, Args...>(Wrapper{ _method });
 					}
-				};
 
-				Init<R, const C*, Args...>(Wrapper{ _method });
-			}
+					template<typename R, class C, typename... Args>
+					FastFunction(R(C::* _method)(Args...) const)
+					{
+						struct Wrapper
+						{
+							R(C::* Method)(Args...) const;
 
-			template<typename R, typename... Args>
-			R Invoke(Args&&... _args)
-			{
-				if (!m_Invoke)
-					throw std::runtime_error("Fast function: Buffer empty.");
+							R operator()(const C* _instance, Args... _args)
+							{
+								return (_instance->*Method)(std::forward<Args>(_args)...);
+							}
+						};
 
+						Init<R, const C*, Args...>(Wrapper{ _method });
+					}
 
-				using TypedInvokeFn = R(*)(void*, Args&&...);
-				auto typed_invoke = reinterpret_cast<TypedInvokeFn>(m_Invoke);
-				return typed_invoke(m_Buffer, std::forward<Args>(_args)...);
-			}
+					template<typename R, typename... Args>
+					R Invoke(Args&&... _args)
+					{
+						using TypedInvokeFn = R(*)(void*, Args...);
+						auto typed_invoke = reinterpret_cast<TypedInvokeFn>(m_Invoke);
+						return typed_invoke(m_Buffer, std::forward<Args>(_args)...);
+					}
 
-			template<class R, class... Args, class Func>
-			static FastFunction Make(Func&& func)
-			{
-				FastFunction f;
-				f.Init<R, Args...>(std::forward<Func>(func));
-				return f;
-			}
+					template<class R, class... Args, class Func>
+					static FastFunction Make(Func&& func)
+					{
+						FastFunction f;
+						f.Init<R, Args...>(std::forward<Func>(func));
+						return f;
+					}
 
+					void Reset();
 
-			void Reset();
+					explicit operator bool() const noexcept { return m_Invoke != nullptr; }
 
-			template<typename R, typename... Args>
-			R operator()(Args&&... args)
-			{
-				return m_Invoke(&m_Buffer, std::forward<Args>(args)...);
-			}
+					template<typename R, typename... Args>
+					R operator()(Args&&... args)
+					{
+						using TypedInvokeFn = R(*)(void*, Args...);
+						auto typed_invoke = reinterpret_cast<TypedInvokeFn>(m_Invoke);
+						return typed_invoke(m_Buffer, std::forward<Args>(args)...);
+					}
 
-			template<typename R, typename... Args>
-			R operator()(void* _instance, Args&&... _args)
-			{
-				return m_Invoke(&m_Buffer, _instance, std::forward<Args>(_args)...);
-			}
+				private:
 
-		private:
+					void MoveFrom(FastFunction&& _other);
 
-			void MoveFrom(FastFunction&& _other);
+					template<typename R, typename... Args, typename Func>
+					void Init(Func&& _func)
+					{
+						using F = std::decay_t<Func>;
+						static_assert(sizeof(F) <= BufferSize, "Fast Function: Callable too big.");
+						static_assert(alignof(F) <= alignof(std::max_align_t), "Fast Function: Callable alignment too strict.");
 
-			template<typename R, typename... Args, typename Func>
-			void Init(Func&& _func)
-			{
-				using F = std::decay_t<Func>;
-				static_assert(sizeof(F) <= BufferSize, "Fast Function: Callable too big.");
+						new (m_Buffer) F(std::forward<Func>(_func));
 
-				new (m_Buffer) F(std::forward<Func>(_func));
+						m_Invoke = reinterpret_cast<VoidInvokeFn>(
+							+[](void* buffer, Args... args) -> R
+							{
+								return (*static_cast<F*>(buffer))(std::forward<Args>(args)...);
+							}
+							);
 
-				using TypedInvokeFn = R(*)(void*, Args&&...);
+						m_Destroy = +[](void* _buffer)
+							{
+								static_cast<F*>(_buffer)->~F();
+							};
 
-				TypedInvokeFn typed_invoke = +[](void* buffer, Args&&... args) -> R
-				{
-					F& fn = *reinterpret_cast<F*>(buffer);
-					return fn(std::forward<Args>(args)...);
-				};
+						m_Move = +[](void* _dst, void* _src)
+							{
+								F& from = *static_cast<F*>(_src);
+								new (_dst) F(std::move(from));
+								from.~F();
+							};
+					}
 
-				m_Invoke = reinterpret_cast<VoidInvokeFn>(typed_invoke);
+				private:
 
-				m_Destroy = +[](void* _buffer)
-				{
-						reinterpret_cast<F*>(_buffer)->~F();
-				};
+					using VoidInvokeFn = void(*)(void);
+					using DestroyFn = void(*)(void* storage);
+					using MoveFn = void(*)(void* dst, void* src);
 
-				m_Move = +[](void* _dst, void* _src)
-				{
-						F& from = *reinterpret_cast<F*>(_src);
-						new (_dst) F(std::move(from));
-						from.~F();
-				};
-			}
-
-		private:
-
-
-			using VoidInvokeFn = void(*)(void);
-			using DestroyFn = void(*)(void* storage);
-			using MoveFn = void(*)(void* dst, void* src);
-
-			static constexpr std::size_t BufferSize = 128;
-			alignas(std::max_align_t) std::byte m_Buffer[BufferSize]{};
-			VoidInvokeFn m_Invoke = nullptr;
-			DestroyFn m_Destroy = nullptr;
-			MoveFn m_Move = nullptr;
-
-	};
-}
+					static constexpr std::size_t BufferSize = 48;
+					alignas(std::max_align_t) std::byte m_Buffer[BufferSize];
+					VoidInvokeFn m_Invoke = nullptr;
+					DestroyFn m_Destroy = nullptr;
+					MoveFn m_Move = nullptr;
+			};
+		}
