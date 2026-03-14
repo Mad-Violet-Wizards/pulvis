@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "serialization/SerializeMacro.hpp"
 #include "serialization/SerializationArchive.hpp"
+#include "RTTIBase.hpp"
 #include "RTTIMacros.hpp"
 
 using namespace pulvis::fs;
@@ -38,22 +39,22 @@ namespace pulvis::fs::tests
 
 	public:
 
-		[[Reflection::Field]]
+		[[Reflection::Field("Serializable")]]
 		int m_Health = 0;
 
-		[[Reflection::Field]]
+		[[Reflection::Field("Serializable")]]
 		float m_Speed = 0.0f;
 
-		[[Reflection::Field]]
+		[[Reflection::Field("Serializable")]]
 		bool m_Active = false;
 
-		[[Reflection::Field]]
+		[[Reflection::Field("Serializable")]]
 		double m_DamageMultiplier = 0.0;
 
-		[[Reflection::Field]]
+		[[Reflection::Field("Serializable")]]
 		uint32_t m_Level = 0;
 
-		[[Reflection::Field]]
+		[[Reflection::Field("Serializable")]]
 		std::string m_Name;
 	};
 
@@ -63,7 +64,7 @@ namespace pulvis::fs::tests
 
 	public:
 
-		[[Reflection::Field]]
+		[[Reflection::Field("Serializable")]]
 		int m_Value = 0;
 	};
 }

@@ -7,12 +7,14 @@ from typing import List, Optional, Union
 class ModelField:
     name: str
     type: str
+    tags: List[str]
 
 @dataclass
 class ModelMethod:
     name: str
     return_type: str
     parameters: List[ModelField]
+    tags: List[str]
 
 @dataclass
 class ModelClass:

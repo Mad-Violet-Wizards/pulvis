@@ -2,6 +2,7 @@
 
 #include "serialization/JsonArchiveBackend.hpp"
 #include "serialization/BinaryArchiveBackend.hpp"
+#include "serialization/SerializeTraitRTTI.hpp"
 
 #include <catch2/catch2.hpp>
 
@@ -36,8 +37,7 @@ TEST_CASE("SerializeTraitRTTI - RTTI class registration", "[FS][Serialization][R
 	SECTION("CTestComponent is found in storage")
 	{
 		CTestComponent instance;
-		const pulvis::rtti::CRTTIClass* cls =
-			pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
+		const pulvis::rtti::CRTTIClass* cls = pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
 
 		REQUIRE(cls != nullptr);
 		CHECK(cls->GetFields().size() == 6);
@@ -46,8 +46,7 @@ TEST_CASE("SerializeTraitRTTI - RTTI class registration", "[FS][Serialization][R
 	SECTION("CMinimalComponent is found in storage")
 	{
 		CMinimalComponent instance;
-		const pulvis::rtti::CRTTIClass* cls =
-			pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
+		const pulvis::rtti::CRTTIClass* cls = pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
 
 		REQUIRE(cls != nullptr);
 		CHECK(cls->GetFields().size() == 1);
@@ -56,8 +55,7 @@ TEST_CASE("SerializeTraitRTTI - RTTI class registration", "[FS][Serialization][R
 	SECTION("Fields have correct names")
 	{
 		CTestComponent instance;
-		const pulvis::rtti::CRTTIClass* cls =
-			pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
+		const pulvis::rtti::CRTTIClass* cls = pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
 
 		REQUIRE(cls != nullptr);
 		CHECK(cls->FindConstFieldByName("m_Health") != nullptr);
@@ -71,8 +69,7 @@ TEST_CASE("SerializeTraitRTTI - RTTI class registration", "[FS][Serialization][R
 	SECTION("Fields have correct ERTTIFieldTypes")
 	{
 		CTestComponent instance;
-		const pulvis::rtti::CRTTIClass* cls =
-			pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
+		const pulvis::rtti::CRTTIClass* cls = pulvis::rtti::CRTTIClass::FindConstInStorage(instance.GetTypeId());
 
 		REQUIRE(cls != nullptr);
 		CHECK(cls->FindConstFieldByName("m_Health")->GetFieldType() == pulvis::rtti::ERTTIFieldType::Int);

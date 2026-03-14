@@ -14,6 +14,22 @@ namespace pulvis::fs::serialization
 		Read
 	};
 
+	/*
+	
+		Wraps an IArchiveBackend (JSON, Binary, etc.) and provides a unified
+		Process() interface that dispatches to Serialize or Deserialize
+		based on the archive mode (Write / Read).
+
+		Users serialize types by specializing TSerializeTrait<T>.
+		The archive delegates all actual encoding to the injected backend,
+		making serialization code format-independent.
+
+		Typical usage:
+			auto archive = CSerializationArchive(std::make_unique<CJsonArchiveBackend>(), EArchiveMode::Write);
+			archive.Process("health", myStruct.health);
+			CFileBuffer result = archive.GetResult();
+	*/
+
 	class CSerializationArchive
 	{
 		public:

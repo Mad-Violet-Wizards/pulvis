@@ -1,5 +1,6 @@
 #pragma once
 #include "RTTITypeInfo.hpp"
+#include "RTTIAttributes.hpp"
 
 #include <string>
 #include <memory>
@@ -17,13 +18,15 @@ namespace pulvis::rtti
 				: m_Name(s_RttiInvalidField)
 				, m_FieldType(ERTTIFieldType::Unknown)
 				, m_FieldAccess(ERTTIFieldAccess::Unknown)
+				, m_Attributes(ERTTIFieldAttribute::None)
 			{
 			}
 			
 			template<class C, typename T>
-			CRTTIField(const std::string& _name, T(C::* _field))
+			CRTTIField(const std::string& _name, T(C::* _field), ERTTIFieldAttribute _attributes = ERTTIFieldAttribute::None)
 				: m_Name(_name)
 				, m_FieldPtr(_field)
+				, m_Attributes(_attributes)
 			{
 				m_FieldType = CRTTITypeInfo<T>::GetFieldType();
 				m_FieldAccess = CRTTITypeInfo<T>::GetFieldAccess();
@@ -50,6 +53,16 @@ namespace pulvis::rtti
 				return _instance->*field;
 			}
 
+			bool HasAttribute(ERTTIFieldAttribute _attribute) const
+			{
+				return (m_Attributes & _attribute) == _attribute;
+			}
+
+			ERTTIFieldAttribute GetAttributes() const
+			{
+				return m_Attributes;
+			}
+
 			const std::string& GetName() const
 			{
 				return m_Name;
@@ -71,6 +84,7 @@ namespace pulvis::rtti
 			std::any m_FieldPtr;
 			ERTTIFieldType m_FieldType;
 			ERTTIFieldAccess m_FieldAccess;
+			ERTTIFieldAttribute m_Attributes;
 
 	};
 }

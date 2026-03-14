@@ -20,8 +20,7 @@ namespace pulvis::fs
 			}
 
 			CFileBuffer(const void* _data, file_size_t _size)
-				: m_Buffer(static_cast<const uint8_t*>(_data), 
-									 static_cast<const uint8_t*>(_data) + static_cast<size_t>(_size))
+				: m_Buffer(static_cast<const uint8_t*>(_data), static_cast<const uint8_t*>(_data) + static_cast<size_t>(_size))
 			{
 			}
 

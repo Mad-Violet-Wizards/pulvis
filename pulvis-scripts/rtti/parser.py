@@ -103,8 +103,9 @@ def parse_class_scope(scope: List[str]) -> ModelClass:
                 break
 
         elif line.startswith(RTTI_FIELD_MARKER):
+            tags = parse_attribute_tags(line)
             field_declaration = scope[idx_line + 1].strip()
-            field_model = ModelField(name="", type="")
+            field_model = ModelField(name="", type="", tags=tags)
             parse_field_declaration(field_declaration, field_model)
 
             if not field_model.name or not field_model.type:
@@ -113,8 +114,9 @@ def parse_class_scope(scope: List[str]) -> ModelClass:
             class_model.fields.append(field_model)
 
         elif line.startswith(RTTI_METHOD_MARKER):
+            tags = parse_attribute_tags(line)
             method_declaration = scope[idx_line + 1].strip()
-            method_model = ModelMethod(name="", return_type="", parameters=[])
+            method_model = ModelMethod(name="", return_type="", parameters=[], tags=tags)
             parse_method_declaration(method_declaration, method_model)
 
             if not method_model.name or not method_model.return_type:
@@ -152,7 +154,7 @@ def parse_method_declaration(declaration: str, out_model: ModelMethod) -> None:
                                     (?P<ret>[\w:]+)\s+
                                     (?P<name>\w+)\s*
                                     \(\s*(?P<params>[^)]*)\s*\)\s*
-                                    (?P<quals>(?:const\s*)?(?:override\s*)?(?:final\s*)?) 
+                                    (?P<quals>(?:const\s*)?(?:override\s*)?(?:final\s*)?(?:=\s*0\s*)?)
                     \s*$""", declaration, re.VERBOSE)
 
     if not method_match:
@@ -172,7 +174,7 @@ def parse_method_declaration(declaration: str, out_model: ModelMethod) -> None:
             field_match = re.match(r'(\w+)\s+(\w+)$', param)
             if field_match:
                 field_type, field_name = field_match.groups()
-                parameters.append(ModelField(name=field_name, type=field_type))
+                parameters.append(ModelField(name=field_name, type=field_type, tags=[]))
 
     out_model.name = method_name
     out_model.return_type = return_type
@@ -189,3 +191,20 @@ def parse_field_declaration(declaration: str, out_model: ModelField) -> None:
     out_model.type = field_type
 
 ###############################################################################
+def parse_attribute_tags(line: str) -> List[str]:
+    match = re.search(r'\(\s*(.*?)\s*\)', line)
+
+    if not match:
+        return []
+
+    params_str = match.group(1)
+    if not params_str.strip():
+        return []
+
+    tags = []
+    for tag in re.findall(r'"([^"]+)"', params_str):
+        tag = tag.strip()
+        if tag:
+            tags.append(tag)
+
+    return tags

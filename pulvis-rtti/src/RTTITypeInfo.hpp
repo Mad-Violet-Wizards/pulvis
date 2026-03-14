@@ -57,7 +57,7 @@ namespace pulvis::rtti
 
 			static constexpr type_id_t GetTypeId() noexcept
 			{
-				return Hash(GetTypeName().data());
+				return Hash(GetTypeName());
 			}
 
 			static constexpr ERTTIFieldType GetFieldType() noexcept
@@ -174,11 +174,6 @@ namespace pulvis::rtti
 						return ERTTIFieldType::LongLong;
 					}
 
-					if (std::is_same_v<T, unsigned int>)
-					{
-						return ERTTIFieldType::Uint;
-					}
-
 					if (std::is_same_v<T, uint8_t>)
 					{
 						return ERTTIFieldType::Uint8;
@@ -197,6 +192,11 @@ namespace pulvis::rtti
 					if (std::is_same_v<T, uint64_t>)
 					{
 						return ERTTIFieldType::Uint64;
+					}
+
+					if (std::is_same_v<T, unsigned int>)
+					{
+						return ERTTIFieldType::Uint;
 					}
 
 					return ERTTIFieldType::Unknown;

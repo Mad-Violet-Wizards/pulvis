@@ -6,35 +6,41 @@
 #include "RTTIBase.hpp"
 #include "RTTIClass.hpp"
 #include "RTTIField.hpp"
+#include "RTTIAttributes.hpp"
 
 namespace pulvis::fs::serialization
 {
 	template<typename C>
 	void SerializeRTTIField(CSerializationArchive& _archive, const pulvis::rtti::CRTTIField* _field, C* _instance)
 	{
+		using namespace pulvis::rtti;
 
-		const char* field_name = _field->GetName().c_str();
+		if (!_field->HasAttribute(ERTTIFieldAttribute::Serializable))
+		{
+			return;
+		}
 
 		if (_field->GetFieldAccess() == ERTTIFieldAccess::Pointer || _field->GetFieldAccess() == ERTTIFieldAccess::Reference)
 		{
 			return;
 		}
 
+		const char* field_name = _field->GetName().c_str();
 		switch (_field->GetFieldType())
 		{
 			case ERTTIFieldType::Int: _archive.WriteInt(field_name, _field->Get<int>(_instance)); break;
-			case ERTTIFieldType::Float: _archive.WriteFloat(field_name, _field->Get<double>(_instance)); break;
+			case ERTTIFieldType::Float: _archive.WriteFloat(field_name, static_cast<double>(_field->Get<float>(_instance))); break;
 			case ERTTIFieldType::Double: _archive.WriteFloat(field_name, _field->Get<double>(_instance)); break;
 			case ERTTIFieldType::Bool: _archive.WriteBool(field_name, _field->Get<bool>(_instance)); break;
-			case ERTTIFieldType::Char: { char c = _field->Get<char>(_instance); _archive.WriteInt(name, c); break; }
+			case ERTTIFieldType::Char: { char c = _field->Get<char>(_instance); _archive.WriteInt(field_name, c); break; }
 			case ERTTIFieldType::String: _archive.WriteString(field_name, _field->Get<std::string>(_instance)); break;
-			case ERTTIFieldType::Long:      _archive.WriteInt(name, _field->Get<long>(_instance)); break;
-			case ERTTIFieldType::LongLong:  _archive.WriteInt(name, _field->Get<long long>(_instance)); break;
-			case ERTTIFieldType::Uint:      _archive.WriteUInt(name, _field->Get<unsigned int>(_instance)); break;
-			case ERTTIFieldType::Uint8:     _archive.WriteUInt(name, _field->Get<uint8_t>(_instance)); break;
-			case ERTTIFieldType::Uint16:    _archive.WriteUInt(name, _field->Get<uint16_t>(_instance)); break;
-			case ERTTIFieldType::Uint32:    _archive.WriteUInt(name, _field->Get<uint32_t>(_instance)); break;
-			case ERTTIFieldType::Uint64:    _archive.WriteUInt(name, _field->Get<uint64_t>(_instance)); break;
+			case ERTTIFieldType::Long:      _archive.WriteInt(field_name, _field->Get<long>(_instance)); break;
+			case ERTTIFieldType::LongLong:  _archive.WriteInt(field_name, _field->Get<long long>(_instance)); break;
+			case ERTTIFieldType::Uint:      _archive.WriteUInt(field_name, _field->Get<unsigned int>(_instance)); break;
+			case ERTTIFieldType::Uint8:     _archive.WriteUInt(field_name, _field->Get<uint8_t>(_instance)); break;
+			case ERTTIFieldType::Uint16:    _archive.WriteUInt(field_name, _field->Get<uint16_t>(_instance)); break;
+			case ERTTIFieldType::Uint32:    _archive.WriteUInt(field_name, _field->Get<uint32_t>(_instance)); break;
+			case ERTTIFieldType::Uint64:    _archive.WriteUInt(field_name, _field->Get<uint64_t>(_instance)); break;
 			default: break;
 		}
 	}
@@ -43,7 +49,11 @@ namespace pulvis::fs::serialization
 	void DeserializeRTTIField(CSerializationArchive& _archive, const pulvis::rtti::CRTTIField* _field, C* _instance)
 	{
 		using namespace pulvis::rtti;
-		const char* name = _field->GetName().c_str();
+
+		if (!_field->HasAttribute(ERTTIFieldAttribute::Serializable))
+		{
+			return;
+		}
 
 		if (_field->GetFieldAccess() == ERTTIFieldAccess::Pointer ||
 			_field->GetFieldAccess() == ERTTIFieldAccess::Reference)
@@ -51,6 +61,7 @@ namespace pulvis::fs::serialization
 			return;
 		}
 
+		const char* name = _field->GetName().c_str();
 		switch (_field->GetFieldType())
 		{
 			case ERTTIFieldType::Int: { int64_t v; _archive.ReadInt(name, v); _field->Set(_instance, static_cast<int>(v)); break; }
@@ -87,7 +98,7 @@ namespace pulvis::fs::serialization
 
 			T* mutable_ptr = const_cast<T*>(&_value);
 			for (const CRTTIField* field : cls->GetFields())
-				detail::SerializeRTTIField(_ar, field, mutable_ptr);
+				SerializeRTTIField(_ar, field, mutable_ptr);
 
 			_ar.EndObject();
 		}
@@ -105,7 +116,7 @@ namespace pulvis::fs::serialization
 			if (cls)
 			{
 				for (const CRTTIField* field : cls->GetFields())
-					detail::DeserializeRTTIField(_ar, field, &_out_value);
+					DeserializeRTTIField(_ar, field, &_out_value);
 			}
 
 			_ar.EndObject();

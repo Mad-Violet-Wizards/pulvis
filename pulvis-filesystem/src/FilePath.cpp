@@ -64,7 +64,7 @@ namespace pulvis::fs
 			if (c == '\\')
 				c = '/';
 		}
-			
+
 		size_t pos = m_Path.find("//");
 		while (pos != std::string::npos)
 		{

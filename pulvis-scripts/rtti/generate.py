@@ -1,6 +1,7 @@
 from models import Model, ModelClass, ModelEnum, ModelField, ModelMethod
 from collections import defaultdict
 from pathlib import Path
+from markers import RTTI_FIELD_ATTRIBUTE_MAP, RTTI_METHOD_ATTRIBUTE_MAP, RTTI_METHOD_NONE_ATTRIBUTE, RTTI_FIELD_NONE_ATTRIBUTE
 
 ###############################################################################
 def generate_rtti_code(root_path, path, models: list[Model]):
@@ -53,12 +54,14 @@ def generate_rtti_code_cpp_class_cpp(path: str, class_model: ModelClass) -> str:
     # Register methods
     for method in class_model.methods:
         rtti_method_variable_name = f"{class_model.name}_{method.name}_rtti"
-        src_code += f"\tstatic pulvis::rtti::CRTTIMethod {rtti_method_variable_name}(\"{class_model.namespace}::{class_model.name}\", \"{method.name}\", &{class_model.namespace}::{class_model.name}::{method.name});\n"
+        method_flags = generate_rtti_code_method_flags(method.tags)
+        src_code += f"\tstatic pulvis::rtti::CRTTIMethod {rtti_method_variable_name}(\"{class_model.namespace}::{class_model.name}\", \"{method.name}\", &{class_model.namespace}::{class_model.name}::{method.name}, {method_flags});\n"
         src_code += f"\t{rtti_class_variable_name}.AddMethod(&{rtti_method_variable_name});\n"
 
     for field in class_model.fields:
         rtti_field_variable_name = f"{class_model.name}_{field.name}_rtti"
-        src_code += f"\tstatic pulvis::rtti::CRTTIField {rtti_field_variable_name}(\"{field.name}\", &{class_model.namespace}::{class_model.name}::{field.name});\n"
+        field_flags = generate_rtti_code_field_flags(field.tags)
+        src_code += f"\tstatic pulvis::rtti::CRTTIField {rtti_field_variable_name}(\"{field.name}\", &{class_model.namespace}::{class_model.name}::{field.name}, {field_flags});\n"
         src_code += f"\t{rtti_class_variable_name}.AddField(&{rtti_field_variable_name});\n"
     src_code += f"}}\n"
     return src_code
@@ -72,6 +75,42 @@ def generate_rtti_code_enum_cpp(path: str, enum_model: ModelEnum) -> str:
     src_code += f"\tstatic pulvis::rtti::CRTTIEnum<{enum_model.namespace}::{enum_model.name}> {enum_model.name}_rtti;\n"
     src_code += f"}}\n"
     return src_code
+
+###############################################################################
+def generate_rtti_code_field_flags(tags: list[str]) -> str:
+    
+    if not tags:
+        return RTTI_FIELD_NONE_ATTRIBUTE
+
+    flags: list[str] = []
+    for tag in tags:
+        if tag in RTTI_FIELD_ATTRIBUTE_MAP:
+            flags.append(RTTI_FIELD_ATTRIBUTE_MAP[tag])
+        else:
+            verbose_log(f"Warning: Unrecognized field tag '{tag}'")
+
+    if not flags:
+        return RTTI_FIELD_NONE_ATTRIBUTE
+
+    return " | ".join(flags)
+
+
+def generate_rtti_code_method_flags(tags: list[str]) -> str:
+    if not tags:
+        return RTTI_METHOD_NONE_ATTRIBUTE
+
+    flags: list[str] = []
+    for tag in tags:
+        if tag in RTTI_METHOD_ATTRIBUTE_MAP:
+            flags.append(RTTI_METHOD_ATTRIBUTE_MAP[tag])
+        else:
+            verbose_log(f"Warning: Unrecognized method tag '{tag}'")
+
+    if not flags:
+        return RTTI_METHOD_NONE_ATTRIBUTE
+
+    return " | ".join(flags)
+
 ###############################################################################
 def generate_project_register_script(root_path: str, autogen_data: defaultdict[str, list[Model]]):
     autogen_filename_hpp: str = f"{root_path.name}_rtti_autogen.hpp"
@@ -121,6 +160,7 @@ def pack_cpp_code(autogen_cpp_code: str, processed_header_path: str, autogen_fil
     packed_cpp_code += "#include \"RTTIClass.hpp\"\n"
     packed_cpp_code += "#include \"RTTIField.hpp\"\n"
     packed_cpp_code += "#include \"RTTIEnum.hpp\"\n"
+    packed_cpp_code += "#include \"RTTIAttributes.hpp\"\n"
     packed_cpp_code += "#include \"detail/RTTIClassDetail.hpp\"\n"
     packed_cpp_code += f"{autogen_cpp_code}"
     return packed_cpp_code
