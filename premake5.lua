@@ -29,6 +29,7 @@ workspace "pulvis"
 
     include "pulvis-template-library/premake5.lua"
     include "pulvis-rtti/premake5.lua"
+    include "pulvis-filesystem/premake5.lua"
     include "pulvis-core/premake5.lua"
     include "pulvis-rendering/premake5.lua"
     include "pulvis-level/premake5.lua"

@@ -254,7 +254,6 @@ TEST_CASE("Quadtree", "[TL][Quadtree]")
 	}
 }
 
-#define RUN_BENCHMARK
 #ifdef RUN_BENCHMARK
 TEST_CASE("Quadtree const data performance", "[TL][Quadtree][Benchmark]")
 {

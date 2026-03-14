@@ -24,7 +24,7 @@ namespace pulvis::tl
 
 		void Insert(const T& _element)
 		{
-			Rect<float> bounds = m_GetBounds.Invoke<Rect<float>>(_element);
+			const Rect<float> bounds = m_GetBounds.Invoke<Rect<float>>(_element);
 			InsertAt(0, 0, _element, bounds);
 		}
 
@@ -51,7 +51,7 @@ namespace pulvis::tl
 
 		void Rebuild(const std::vector<T>& _elements)
 		{
-			Rect<float> root_bounds = m_Nodes[0].Bounds;
+			const Rect<float> root_bounds = m_Nodes[0].Bounds;
 			Clear();
 			m_Nodes[0].Bounds = root_bounds;
 
