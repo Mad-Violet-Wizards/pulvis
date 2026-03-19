@@ -2,7 +2,7 @@
 
 #include "RTTITypeTraits.hpp"
 #include "RTTITypeName.hpp"
-#include "RTTIHash.hpp"
+#include "Hash.hpp"
 
 namespace pulvis::rtti
 {
@@ -57,7 +57,7 @@ namespace pulvis::rtti
 
 			static constexpr type_id_t GetTypeId() noexcept
 			{
-				return Hash(GetTypeName());
+				return pulvis::tl::hash::fnv1a(GetTypeName());
 			}
 
 			static constexpr ERTTIFieldType GetFieldType() noexcept

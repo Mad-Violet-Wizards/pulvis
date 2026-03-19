@@ -1,7 +1,7 @@
 #include "RTTIClass.hpp"
 #include "detail/RTTIClassDetail.hpp"
 
-#include "RTTIHash.hpp"
+#include "Hash.hpp"
 
 namespace pulvis::rtti
 {
@@ -9,7 +9,7 @@ namespace pulvis::rtti
 	CRTTIClass::CRTTIClass(const char* _name)
 	{
 		m_Name = _name;
-		m_TypeId = rtti::Hash(_name);
+		m_TypeId = pulvis::tl::hash::fnv1a<type_id_t>(_name);
 	}
 
   CRTTIClass::~CRTTIClass()
@@ -152,13 +152,13 @@ namespace pulvis::rtti
 
     CRTTIClass* CRTTIClass::FindInStorage(const char* _name)
     {
-      const type_id_t type_id = rtti::Hash(_name);
+      const type_id_t type_id = tl::hash::fnv1a<type_id_t>(_name);
       return detail::CRTTIClassStorage::FindClassById(type_id);
     }
 
     const CRTTIClass* CRTTIClass::FindConstInStorage(const char* _name)
     {
-      const type_id_t type_id = rtti::Hash(_name);
+      const type_id_t type_id = tl::hash::fnv1a<type_id_t>(_name);
       return detail::CRTTIClassStorage::FindConstClassById(type_id);
     }
 }

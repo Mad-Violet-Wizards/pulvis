@@ -7,6 +7,42 @@
 
 		namespace pulvis::tl
 		{
+			/* 
+				Type-erased, non-owning, move-only callable wrapper with inline storage.
+				Avoids heap allocation by storing callables in a fixed-size inline buffer (SBO).
+
+				Design goals:
+				 - Zero heap allocation for callables up to 24 bytes.
+				 - No RTTI, no exceptions, no std::function overhead.
+				 - Supports free functions, lambdas, member function pointers (bound and unbound).
+
+				Caller must specify return type and argument types explicitly via template parameters.
+
+				Buffer size: 24 bytes (fits up to 3 pointers worth of captures).
+				Total size:  48 bytes (buffer + invoke/destroy/move function pointers).
+
+				For callables exceeding 24 bytes of capture, pass a pointer to externally managed data.
+
+				Typical usage:
+					// Lambda
+					auto fn = FastFunction::Make<void, int>([&obj](int x) { obj.Process(x); });
+					fn.Invoke<void, int>(42);
+
+					// Bound member function
+					FastFunction fn(&instance, &MyClass::DoWork);
+					fn.Invoke<void>(args...);
+
+					// Unbound member function (first arg is instance pointer)
+					FastFunction fn(&MyClass::DoWork);
+					fn.Invoke<void, MyClass*>(&instance, args...);
+
+					// Check if callable is set
+					if (fn) { fn.Invoke<void>(); }
+
+					// Reset
+					fn.Reset();
+			*/
+
 			class FastFunction
 			{
 				public:
@@ -159,7 +195,7 @@
 					using DestroyFn = void(*)(void* storage);
 					using MoveFn = void(*)(void* dst, void* src);
 
-					static constexpr std::size_t BufferSize = 48;
+					static constexpr std::size_t BufferSize = 24;
 					alignas(std::max_align_t) std::byte m_Buffer[BufferSize];
 					VoidInvokeFn m_Invoke = nullptr;
 					DestroyFn m_Destroy = nullptr;

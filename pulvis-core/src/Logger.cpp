@@ -20,7 +20,7 @@ namespace pulvis::core
 
 	void CLogService::LogImpl(const SLogInfo& _log_info)
 	{
-		std::cout << _log_info.ConsoleDump();
+		std::printf("%s", _log_info.ConsoleDump().c_str());
 		m_LogFileDumpQueue.push(_log_info);
 	}
 }

@@ -14,9 +14,13 @@ project "pulvis-game"
 
     includedirs {
         "%{wks.location}/pulvis-game/src",
+        "%{wks.location}/pulvis-template-library/src",
+        "%{wks.location}/pulvis-rtti/src",
+        "%{wks.location}/pulvis-core/src",
+        "%{wks.location}/pulvis-threads/src",
+        "%{wks.location}/pulvis-filesystem/src",
         "%{wks.location}/pulvis-rendering/src",
         "%{wks.location}/pulvis-level/src",
-        "%{wks.location}/pulvis-core/src",
 
         "%{wks.location}/pulvis-vendor/common/include/",
         "%{wks.location}/pulvis-vendor/windows/include/"
@@ -26,9 +30,9 @@ project "pulvis-game"
 
     libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
 
-    links { "pulvis-core", "pulvis-rendering", "pulvis-level", "glfw3dll" }
+    links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "glfw3dll" }
 
-    dependson { "pulvis-core", "pulvis-rendering", "pulvis-level" }
+    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
 
     filter "system:windows"
         postbuildcommands {

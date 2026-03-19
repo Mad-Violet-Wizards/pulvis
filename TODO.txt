@@ -1,5 +1,12 @@
-* Pak filesystem
+Features:
 * Workspace clean should also clear rtti cache
-* pulvis-rtti_rtti_autogen what is this?
 * Add check for exclusive tags in RTTI
 * Add error system for RTTI
+* Move Threading system from pulvis-1
+* Pak filesystem
+* Introduce tests for each serialize trait type
+* Move assertions to separate library(?)
+* RTTI produces .inl with direct set/get methods.
+* Is avoid heap allocation all the time a good idea?
+Bugs:
+* pulvis-rtti_rtti_autogen what is this?

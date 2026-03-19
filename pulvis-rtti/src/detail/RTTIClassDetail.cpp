@@ -1,5 +1,5 @@
 #include "RTTIClassDetail.hpp"
-
+#include "Hash.hpp"
 
 namespace pulvis::rtti::detail
 {
@@ -34,8 +34,8 @@ namespace pulvis::rtti::detail
 
 	void AttachParent(const char* _class_name, const char* _parent_name)
 	{
-		const type_id_t class_type_id = rtti::Hash(_class_name);
-		const type_id_t parent_type_id = rtti::Hash(_parent_name);
+		const type_id_t class_type_id = tl::hash::fnv1a<type_id_t>(_class_name);
+		const type_id_t parent_type_id = tl::hash::fnv1a<type_id_t>(_parent_name);
 
 		pulvis::rtti::detail::CRTTIClassStorage::FindClassById(class_type_id)->AttachParent(pulvis::rtti::detail::CRTTIClassStorage::FindClassById(parent_type_id));
 	}

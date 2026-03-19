@@ -18,4 +18,6 @@ private:
 	void BeginFrame();
 	void Frame();
 	void EndFrame();
+
+	void InitializeMessageBuses();
 };

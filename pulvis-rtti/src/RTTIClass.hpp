@@ -3,7 +3,6 @@
 #include "RTTIBase.hpp"
 #include "RTTIMethod.hpp"
 #include "RTTIField.hpp"
-#include "RTTIHash.hpp"
 
 #include <vector>
 
