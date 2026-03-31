@@ -16,6 +16,7 @@ project "pulvis-rendering"
 
     includedirs { "%{wks.location}/pulvis-rendering/src",
                   "%{wks.location}/pulvis-core/src",
+                  "%{wks.location}/pulvis-filesystem/src",
                   "%{wks.location}/pulvis-vendor/common/include/",
                   "%{wks.location}/pulvis-vendor/windows/include/" }
 
@@ -23,8 +24,8 @@ project "pulvis-rendering"
 
     defines { "GLFW_DLL" }
 
-    links { "pulvis-core","glfw3dll"}
-    dependson { "pulvis-core", "pulvis-rendering", "pulvis-level" }
+    links { "pulvis-core","pulvis-filesystem","glfw3dll"}
+    dependson { "pulvis-core", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
 
     postbuildcommands {
         "{COPY} %{wks.location}/pulvis-vendor/windows/bin/glfw3.dll %{cfg.targetdir}"
@@ -41,10 +42,14 @@ project "pulvis-rendering-playground"
     }
 
     includedirs { 
+        "%{wks.location}/pulvis-core/src",
+        "%{wks.location}/pulvis-filesystem/src",
+        "%{wks.location}/pulvis-rendering/src",
         "%{wks.location}/pulvis-vendor/common/include/",
         "%{wks.location}/pulvis-vendor/windows/include/",
-        "%{wks.location}/pulvis-rendering/src" }
+    }
 
     libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
 
-    links { "glfw3dll", "pulvis-rendering" }
+    links { "glfw3dll", "pulvis-rendering", "pulvis-filesystem", "pulvis-core" }
+    dependson { "glfw3dll", "pulvis-rendering", "pulvis-filesystem", "pulvis-core" }
