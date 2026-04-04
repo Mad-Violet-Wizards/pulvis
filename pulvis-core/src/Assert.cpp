@@ -158,11 +158,4 @@ namespace pulvis::core
       [[unlikely]] default:  return EAssertionAction::Abort;
       }
     }
-
-		CAssertionService& CAssertionService::GetInstance()
-		{
-      static CAssertionService assertion_service_instance;
-      return assertion_service_instance;
-		}
-
 }

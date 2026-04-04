@@ -57,5 +57,5 @@ project "pulvis-filesystem-tests"
         GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests"),
     }
 
-    links { "pulvis-filesystem", "pulvis-rtti", "pulvis-template-library" }
-    dependson { "pulvis-filesystem", "pulvis-rtti", "pulvis-template-library" }
+    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-filesystem" }
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-filesystem" }

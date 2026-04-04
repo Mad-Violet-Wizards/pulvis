@@ -2,19 +2,17 @@
 
 namespace pulvis::level
 {
-	CLevelService& CLevelService::GetInstance()
+	CLevelService::CLevelService(pulvis::fs::assets::CAssetRegistry& _asset_registry, pulvis::fs::CMountSystem& _mount_system)
+		: m_AssetRegistry(_asset_registry)
+		, m_MountSystem(_mount_system)
 	{
-		static CLevelService instance;
-		return instance;
 	}
 
 	void CLevelService::Initialize()
 	{
-
 	}
 
 	void CLevelService::Shutdown()
 	{
-
 	}
 }

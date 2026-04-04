@@ -55,7 +55,7 @@ namespace
 TEST_CASE("FileSourceDisk (name & properties", "[FS][FileSourceDisk]")
 {
 	static CTestDirectoryFixture fixture;
-	static CFileSourceDisk disk_source(fixture.Path());
+	static CFileSourceDisk disk_source(fixture.Path(), false);
 
 	SECTION("Name matches")
 	{
@@ -77,7 +77,7 @@ TEST_CASE("FileSourceDisk (name & properties", "[FS][FileSourceDisk]")
 TEST_CASE("FileSourceDisk (exists)", "[FS][FileSourceDisk]")
 {
 	static CTestDirectoryFixture fixture;
-	static CFileSourceDisk disk_source(fixture.Path());
+	static CFileSourceDisk disk_source(fixture.Path(), false);
 
 	SECTION("Existing file returns true")
 	{
@@ -117,7 +117,7 @@ TEST_CASE("FileSourceDisk (exists)", "[FS][FileSourceDisk]")
 TEST_CASE("FileSourceDisk (read)", "[FS][FileSourceDisk]")
 {
 	static CTestDirectoryFixture fixture;
-	static CFileSourceDisk disk_source(fixture.Path());
+	static CFileSourceDisk disk_source(fixture.Path(), false);
 
 	SECTION("Read existing file returns Success")
 	{
@@ -197,7 +197,7 @@ TEST_CASE("FileSourceDisk (read)", "[FS][FileSourceDisk]")
 TEST_CASE("FileSourceDisk (write)", "[FS][FileSourceDisk]")
 {
 	static CTestDirectoryFixture fixture;
-	static CFileSourceDisk source(fixture.Path());
+	static CFileSourceDisk source(fixture.Path(), false);
 
 	SECTION("Write to existing file overwrites content")
 	{
@@ -261,7 +261,7 @@ TEST_CASE("FileSourceDisk (write)", "[FS][FileSourceDisk]")
 TEST_CASE("FileSourceDisk (read-write roundtrip)", "[FS][FileSourceDisk]")
 {
 	CTestDirectoryFixture fixture;
-	CFileSourceDisk source(fixture.Path());
+	CFileSourceDisk source(fixture.Path(), false);
 
 	SECTION("Write then read returns identical content")
 	{
@@ -305,7 +305,7 @@ TEST_CASE("FileSourceDisk (read-write roundtrip)", "[FS][FileSourceDisk]")
 TEST_CASE("FileSourceDisk (GetFileInfo)", "[FS][FileSourceDisk]")
 {
 	static CTestDirectoryFixture fixture;
-	static CFileSourceDisk source(fixture.Path());
+	static CFileSourceDisk source(fixture.Path(), false);
 
 	SECTION("File info returns correct size and path")
 	{
@@ -370,7 +370,7 @@ TEST_CASE("FileSourceDisk (GetFileInfo)", "[FS][FileSourceDisk]")
 TEST_CASE("FileSourceDisk (ListDirectory)", "[FS][FileSourceDisk]")
 {
 	static CTestDirectoryFixture fixture;
-	static CFileSourceDisk source(fixture.Path());
+	static CFileSourceDisk source(fixture.Path(), false);
 
 	SECTION("List directory with files")
 	{

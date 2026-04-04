@@ -11,9 +11,10 @@
 
 namespace pulvis::fs
 {
+	class CDomainRoots;
+
 	class CMountSystem
 	{
-
 		public:
 
 			struct SMountPoint
@@ -39,6 +40,8 @@ namespace pulvis::fs
 			CMountSystem& operator=(const CMountSystem&) = delete;
 			CMountSystem(CMountSystem&) noexcept = default;
 			CMountSystem& operator=(CMountSystem&) noexcept = default;
+
+			void BootstrapDomains(const CDomainRoots& _domain_roots);
 
 			void Mount(EDomain _doman, const CFilePath& _virtual_prefix, std::shared_ptr<IFileSource> _source, EMountTag _tag = EMountTag::Base);
 			void Unmount(EDomain _domain, const CFilePath& _virtual_prefix);

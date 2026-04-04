@@ -22,6 +22,7 @@ namespace pulvis::rendering::gl
 	{
 		public:
 
+			CGLShader();
 			CGLShader(const char* _vertex_shader_path, const char* _fragment_shader_path);
 			CGLShader(const char* _vertex_shader_path, const char* _geometry_shader_path, const char* _fragment_shader_path);
 			~CGLShader();
@@ -31,6 +32,9 @@ namespace pulvis::rendering::gl
 
 			CGLShader(CGLShader&& _other) noexcept;
 			CGLShader& operator=(CGLShader&& _other) noexcept;
+
+			bool CompileFromSource(const char* _vertex_shader_source, const char* _fragment_shader_source);
+			bool CompileFromSource(const char* _vertex_shader_source, const char* _geometry_shader_source, const char* _fragment_shader_source);
 
 			void Use() const;
 			static void Unuse();

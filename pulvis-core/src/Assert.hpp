@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Singleton.hpp"
+
 #include <string>
 #include <vector>
 
@@ -7,7 +9,7 @@
 #define ASSERT(expr, message) \
   if (!(expr)) \
 	{ \
-		pulvis::core::CAssertionService::GetInstance().Assert(#expr, message, __FILE__, __LINE__); \
+		pulvis::core::CAssertionService::Get().Assert(#expr, message, __FILE__, __LINE__); \
 	}
 #else
 #define ASSERT
@@ -59,19 +61,18 @@ namespace pulvis::core
     };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-    class CAssertionService
+    class CAssertionService : public pulvis::tl::Singleton<CAssertionService>
     {
     public:
 
+      CAssertionService();
 			~CAssertionService();
 
       void Assert(const std::string& _expression, const std::string& _message, const std::string& _asserting_filename, int _line_of_code);
 
-      static CAssertionService& GetInstance();
+friend class Singleton<CAssertionService>;
 
     private:
-
-      CAssertionService();
 
       EAssertionAction GetUserAction() const;
 

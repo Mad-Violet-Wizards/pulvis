@@ -4,8 +4,9 @@
 
 namespace pulvis::fs
 {
-	CFileSourceDisk::CFileSourceDisk(std::filesystem::path _root)
+	CFileSourceDisk::CFileSourceDisk(std::filesystem::path _root, bool _read_only)
 		: m_Root(std::filesystem::weakly_canonical(std::move(_root)))
+		, m_ReadOnly(_read_only)
 	{
 
 	}
@@ -34,6 +35,11 @@ namespace pulvis::fs
 
 	EFileResult CFileSourceDisk::Write(const CFilePath& _path, const CFileBuffer& _buffer)
 	{
+		if (IsReadOnly())
+		{
+			return EFileResult::AccessDenied;
+		}
+
 		if (!Exists(_path))
 		{
 			return EFileResult::NotFound;

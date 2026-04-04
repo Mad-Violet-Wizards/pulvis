@@ -14,25 +14,20 @@
 
 namespace pulvis::rendering::gl
 {
-	CGLRenderer::CGLRenderer()
+	CGLRenderer::CGLRenderer(pulvis::fs::assets::CAssetRegistry& _asset_registry)
 		: IRenderer(ERendererType::OpenGL)
+		, m_AssetRegistry(_asset_registry)
 		, m_Window(800, 600, "Test")
 		, m_Camera(800.f, 600.f)
-		, m_SpriteRenderer(m_Device)
-		, m_TestTexture(0)
+		, m_SpriteRenderer(m_Device, _asset_registry)
+		, m_TileRenderer(m_Device, _asset_registry)
 	{
 	}
 
 	void CGLRenderer::Initialize()
 	{
-		m_SpriteRenderer.Initialize();
-
-		SGLTextureDesc desc;
-
-		const std::filesystem::path texture_path = pulvis::core::GetAssetsPath("container.jpg");
-		unsigned char* data = stbi_load(texture_path.string().c_str(), &desc.Width, &desc.Height, &desc.Channels, 0);
-		m_TestTexture = m_Device.CreateTexture2D(desc, data);
-		stbi_image_free(data);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	void CGLRenderer::BeginFrame()
@@ -42,12 +37,37 @@ namespace pulvis::rendering::gl
 
 	void CGLRenderer::Frame()
 	{
-		glm::mat4 vp = m_Camera.GetViewProjMatrix();
+		m_RenderQueue.SortAll();
 
-		glm::vec2 pos = { 0.f, 0.f };
-		glm::vec2 size = { 512.0f, 512.0f };
+		const SFrameRenderState& frame_state = m_RenderQueue.GetFrameState();
 
-		m_SpriteRenderer.Draw(m_Camera, pos, size, m_TestTexture);
+		const std::vector<STileDrawCmd>& tile_batches = m_RenderQueue.GetTileDraws();
+
+		if (!tile_batches.empty())
+		{
+			// For now -- Lazy init
+			if (!m_TileRenderer.IsInitialized())
+			{
+				m_TileRenderer.Initialize();
+			}
+
+			m_TileRenderer.Draw(tile_batches, m_Camera, frame_state);
+		}
+
+		const std::vector<SSpriteDrawCmd>& sprite_draws = m_RenderQueue.GetSpriteDraws();
+		if (!sprite_draws.empty())
+		{
+			// For now -- lazy init.
+			if (!m_SpriteRenderer.IsInitialized())
+			{
+				m_SpriteRenderer.Initialize();
+			}
+
+			for (const SSpriteDrawCmd& cmd : sprite_draws)
+			{
+				m_SpriteRenderer.Draw(m_Camera, cmd, frame_state);
+			}
+		}
 	}
 
 	void CGLRenderer::EndFrame()
@@ -59,7 +79,7 @@ namespace pulvis::rendering::gl
 	void CGLRenderer::Shutdown()
 	{
 		m_SpriteRenderer.Shutdown();
-		m_Device.DestroyTexture(m_TestTexture);
+		m_TileRenderer.Shutdown();
 	}
 
 	bool CGLRenderer::GetShouldClose()

@@ -41,6 +41,11 @@ namespace pulvis::rendering::gl
 
 /////////////////////////////////////////////////////////////////////
 
+	CGLShader::CGLShader()
+		: m_ID(0)
+	{
+	}
+
 	CGLShader::CGLShader(const char* _vertex_shader_path, const char* _fragment_shader_path)
 	{
 		const std::string vertex_shader_source = LoadShaderFromFile(_vertex_shader_path);
@@ -93,6 +98,34 @@ namespace pulvis::rendering::gl
 		}
 
 		return *this;
+	}
+
+	bool CGLShader::CompileFromSource(const char* _vertex_shader_source, const char* _fragment_shader_source)
+	{
+		Destroy();
+
+		if (_vertex_shader_source == nullptr || _fragment_shader_source == nullptr)
+		{
+			PULVIS_ERROR_LOG("Shader source code is null.");
+			return false;
+		}
+
+		BuildProgram(_vertex_shader_source, nullptr, _fragment_shader_source);
+		return IsValid();
+	}
+
+	bool CGLShader::CompileFromSource(const char* _vertex_shader_source, const char* _geometry_shader_source, const char* _fragment_shader_source)
+	{
+		Destroy();
+
+		if (_vertex_shader_source == nullptr || _geometry_shader_source == nullptr || _fragment_shader_source == nullptr)
+		{
+			PULVIS_ERROR_LOG("Shader source code is null.");
+			return false;
+		}
+
+		BuildProgram(_vertex_shader_source, _geometry_shader_source, _fragment_shader_source);
+		return IsValid();
 	}
 
 	void CGLShader::Use() const

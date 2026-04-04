@@ -1,5 +1,5 @@
-project "pulvis-game"
-    kind "ConsoleApp"
+project "pulvis-game-engine"
+    kind "StaticLib"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
@@ -8,15 +8,14 @@ project "pulvis-game"
     }
 
     files {
-        "%{wks.location}/pulvis-game/src/**.hpp",
-        "%{wks.location}/pulvis-game/src/**.cpp"
+        "%{wks.location}/pulvis-game-engine/src/**.hpp",
+        "%{wks.location}/pulvis-game-engine/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-game/src",
         "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-rtti/src",
         "%{wks.location}/pulvis-core/src",
+        "%{wks.location}/pulvis-rtti/src",
         "%{wks.location}/pulvis-threads/src",
         "%{wks.location}/pulvis-filesystem/src",
         "%{wks.location}/pulvis-rendering/src",
@@ -31,11 +30,6 @@ project "pulvis-game"
 
     libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
 
-    links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "glfw3dll" }
+    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
 
-    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine" }
-
-    filter "system:windows"
-        postbuildcommands {
-            "{COPY} %{wks.location}/pulvis-vendor/windows/bin/glfw3.dll %{cfg.targetdir}"
-        }
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }

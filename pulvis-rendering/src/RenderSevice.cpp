@@ -1,29 +1,33 @@
 #include "RenderSevice.hpp"
-
 #include "opengl/GLRenderer.hpp"
-#include <iostream>
 
 namespace pulvis::rendering
 {
-	CRenderService& CRenderService::GetInstance()
+	CRenderService::CRenderService(pulvis::fs::assets::CAssetRegistry& _asset_registry)
+		: m_AssetRegistry(_asset_registry)
 	{
-		static CRenderService instance;
-		return instance;
 	}
 
-	void CRenderService::Initialize(ERendererType _renderer_type)
+	CRenderService::~CRenderService()
+	{
+		if (m_Renderer)
+		{
+			m_Renderer->Shutdown();
+		}
+	}
+
+	void CRenderService::Initialize(ERendererType _renderer_type,
+		uint32_t _window_width, uint32_t _window_height,
+		const std::string& _window_title)
 	{
 		switch (_renderer_type)
 		{
 			case ERendererType::OpenGL:
 			{
-				m_Renderer = new gl::CGLRenderer();
+				m_Renderer = std::make_unique<gl::CGLRenderer>(m_AssetRegistry);
 				break;
 			}
 			case ERendererType::DirectX:
-			{
-				break;
-			}
 			case ERendererType::Vulkan:
 			{
 				break;
@@ -38,15 +42,21 @@ namespace pulvis::rendering
 
 	void CRenderService::Shutdown()
 	{
-		m_Renderer->Shutdown();
-		delete m_Renderer;
+		if (m_Renderer)
+		{
+			m_Renderer->Shutdown();
+			m_Renderer.reset();
+		}
 	}
 
 	void CRenderService::Frame()
 	{
-		m_Renderer->BeginFrame();
-		m_Renderer->Frame();
-		m_Renderer->EndFrame();
+		if (m_Renderer)
+		{
+			m_Renderer->BeginFrame();
+			m_Renderer->Frame();
+			m_Renderer->EndFrame();
+		}
 	}
 
 	bool CRenderService::IsInitialized() const
@@ -56,17 +66,16 @@ namespace pulvis::rendering
 
 	bool CRenderService::GetShouldClose() const
 	{
-		return m_Renderer->GetShouldClose();
+		return m_Renderer ? m_Renderer->GetShouldClose() : true;
 	}
 
 	IRenderer* CRenderService::GetRenderer()
 	{
-		return m_Renderer;
+		return m_Renderer.get();
 	}
 
 	const IRenderer* CRenderService::GetRenderer() const
 	{
-		return m_Renderer;
+		return m_Renderer.get();
 	}
 }
-

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Singleton.hpp"
+
 #define PULVIS_WARNING_LOG_ENABLED 1
 #define PULVIS_INFO_LOG_ENABLED 1
 
@@ -79,7 +81,7 @@ namespace pulvis::core
     };
 
 //////////////////////////////////////////////////////////////////////////
-    class CLogService
+    class CLogService : public tl::Singleton<CLogService>
     {
         public:
 
@@ -91,7 +93,7 @@ namespace pulvis::core
             CLogService(CLogService&&) = delete;
             CLogService& operator=(CLogService&&) = delete;
 
-            static CLogService& GetInstance();
+            friend class tl::Singleton<CLogService>;
 
             template<typename... Args>
             void LOG(ELogLevel _log_level, fmt::format_string<Args...> _msg, Args&&... _args)
@@ -112,27 +114,27 @@ namespace pulvis::core
 }
 
 #ifndef PULVIS_FATAL_LOG
-    #define PULVIS_FATAL_LOG(msg, ...) pulvis::core::CLogService::GetInstance().LOG(pulvis::core::ELogLevel::Fatal, msg, __VA_ARGS__);
+    #define PULVIS_FATAL_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Fatal, msg, __VA_ARGS__);
 #endif
 
 #ifndef PULVIS_ERROR_LOG
-    #define PULVIS_ERROR_LOG(msg, ...) pulvis::core::CLogService::GetInstance().LOG(pulvis::core::ELogLevel::Error, msg, __VA_ARGS__);
+    #define PULVIS_ERROR_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Error, msg, __VA_ARGS__);
 #endif
 
 #ifdef PULVIS_WARNING_LOG_ENABLED
     #ifndef PULVIS_WARNING_LOG
-        #define PULVIS_WARNING_LOG(msg, ...) pulvis::core::CLogService::GetInstance().LOG(pulvis::core::ELogLevel::Warning, msg, __VA_ARGS__);
+        #define PULVIS_WARNING_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Warning, msg, __VA_ARGS__);
     #endif
 #endif
 
 #ifdef PULVIS_INFO_LOG_ENABLED
     #ifndef PULVIS_INFO_LOG
-        #define PULVIS_INFO_LOG(msg, ...) pulvis::core::CLogService::GetInstance().LOG(pulvis::core::ELogLevel::Info, msg, __VA_ARGS__);
+        #define PULVIS_INFO_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Info, msg, __VA_ARGS__);
     #endif
 #endif
 
 #ifdef PULVIS_DEBUG_ENABLED
     #ifndef PULVIS_DEBUG_LOG
-        #define PULVIS_DEBUG_LOG(msg, ...) pulvis::core::CLogService::GetInstance().LOG(pulvis::core::ELogLevel::Debug, msg, __VA_ARGS__);
+        #define PULVIS_DEBUG_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Debug, msg, __VA_ARGS__);
     #endif
 #endif

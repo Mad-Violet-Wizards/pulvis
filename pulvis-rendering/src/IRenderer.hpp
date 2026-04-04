@@ -4,6 +4,8 @@
 
 namespace pulvis::rendering
 {
+	class CRenderQueue;
+
 	class IRenderer
 	{
 		public:
@@ -19,6 +21,8 @@ namespace pulvis::rendering
 			virtual bool GetShouldClose() = 0;
 
 			ERendererType GetType() const;
+
+			virtual CRenderQueue& GetRenderQueue() = 0;
 
 		protected:
 

@@ -1,23 +1,17 @@
 #pragma once
 
-class Game
+#include "GameBase.hpp"
+
+class CGame : public pulvis::game_engine::CGameBase
 {
-public:
+	public:
 
-	~Game() = default;
-	static Game& GetInstance();
+		CGame() = default;
+		~CGame() override = default;
 
-	void Initialize();
-	void Run();
-	void Shutdown();
-
-private:
-
-	Game() = default;
-
-	void BeginFrame();
-	void Frame();
-	void EndFrame();
-
-	void InitializeMessageBuses();
+		void Configure(pulvis::game_engine::SEngineConfig& _config) override;
+		void OnInitialize() override;
+		void OnShutdown() override;
+		void Frame(float _dt) override;
+		void Render() override;
 };

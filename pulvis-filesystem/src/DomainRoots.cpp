@@ -1,0 +1,79 @@
+#include "DomainRoots.hpp"
+
+#include "Assert.hpp"
+#include "Logger.hpp"
+
+#include <cstdlib>
+
+namespace pulvis::fs
+{
+	CDomainRoots::CDomainRoots(const std::string& _app_name)
+	{
+		m_Roots[static_cast<uint8_t>(EDomain::User)] = ResolveUserDataPath(_app_name);
+
+#if defined(DEBUG)
+		const std::filesystem::path workspace = std::filesystem::current_path().parent_path();
+
+		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = workspace / "pulvis-assets/engine/";
+		m_Roots[static_cast<uint8_t>(EDomain::Game)] = workspace / "pulvis-assets/game/";
+		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = workspace / "pulvis-assets/dev/";
+
+		PULVIS_INFO_LOG("Domain roots initialized:");
+		PULVIS_INFO_LOG("Engine: {}", m_Roots[static_cast<uint8_t>(EDomain::Engine)].string());
+		PULVIS_INFO_LOG("Game: {}", m_Roots[static_cast<uint8_t>(EDomain::Game)].string());
+		PULVIS_INFO_LOG("Dev: {}", m_Roots[static_cast<uint8_t>(EDomain::Dev)].string());
+		PULVIS_INFO_LOG("User: {}", m_Roots[static_cast<uint8_t>(EDomain::User)].string());
+#elif defined(RELEASE)
+		const std::filesystem::path exe_dir = std::filesystem::current_path();
+
+		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = exe_dir / "assets/engine/";
+		m_Roots[static_cast<uint8_t>(EDomain::Game)] = exe_dir / "assets/game/";
+#endif
+	}
+
+	const std::filesystem::path& CDomainRoots::GetRoot(EDomain _domain) const
+	{
+		ASSERT(_domain != EDomain::Count, "Invalid domain");
+		return m_Roots[static_cast<uint8_t>(_domain)];
+	}
+
+	bool CDomainRoots::IsValid(EDomain _domain) const
+	{
+		ASSERT(_domain != EDomain::Count, "Invalid domain");
+		const std::filesystem::path& root = m_Roots[static_cast<uint8_t>(_domain)];
+		return !root.empty() && std::filesystem::exists(root);
+	}
+
+	void CDomainRoots::OverrideRoot(EDomain _domain, std::filesystem::path _new_root)
+	{
+		ASSERT(_domain != EDomain::Count, "Invalid domain.");
+		m_Roots[static_cast<uint8_t>(_domain)] = std::move(_new_root);
+	}
+
+	std::filesystem::path CDomainRoots::ResolveUserDataPath(const std::string& _app_name)
+	{
+#if defined(WINDOWS_OS)
+		char* appdata_buffer = nullptr;
+		size_t buffer_size = 0;
+
+		const errno_t error = _dupenv_s(&appdata_buffer, &buffer_size, "APPDATA");
+
+		if (error != 0 || appdata_buffer == nullptr || buffer_size == 0)
+		{
+			if (appdata_buffer)
+			{
+				free(appdata_buffer);
+			}
+
+			ASSERT(false, "Failed to resolve user data path from environment variable APPDATA.");
+			return {};
+		}
+
+		std::filesystem::path user_data_path(appdata_buffer);
+		free(appdata_buffer);
+		return user_data_path / _app_name;
+#endif
+
+		return {};
+	}
+}

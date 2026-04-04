@@ -20,13 +20,13 @@ namespace pulvis::fs
 	{
 		public:
 
-			explicit CFileSourceDisk(std::filesystem::path _root);
+			explicit CFileSourceDisk(std::filesystem::path _root, bool read_only);
 
 			EFileResult Read(const CFilePath& _path, CFileBuffer& _buffer) override;
 			EFileResult Write(const CFilePath& _path, const CFileBuffer& _buffer) override;
 
 			bool Exists(const CFilePath& _path) const override;
-			bool IsReadOnly() const override { return false; }
+			bool IsReadOnly() const override { return m_ReadOnly; }
 
 			EFileResult GetFileInfo(const CFilePath& _path, SFileInfo& _info) const override;
 			EFileResult ListDirectory(const CFilePath& _directory, std::vector<SFileInfo>& _files) const override;
@@ -42,5 +42,6 @@ namespace pulvis::fs
 		private:
 
 			std::filesystem::path m_Root;
+			bool m_ReadOnly;
 	};
 }

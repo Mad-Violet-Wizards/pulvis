@@ -13,9 +13,9 @@ project "pulvis-level"
     }
 
     includedirs {
+        "%{wks.location}/pulvis-template-library/src",
+        "%{wks.location}/pulvis-core/src",
         "%{wks.location}/pulvis-level/src",
-
-        "${wks.location}/pulvis-core/src",
         "%{wks.location}/pulvis-vendor/common/include/",
         "%{wks.location}/pulvis-vendor/windows/include/"
     }

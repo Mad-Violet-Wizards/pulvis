@@ -302,7 +302,8 @@ namespace pulvis::fs::assets
 				continue;
 			}
 
-			const SAssetHandle handle = RegisterAsset(_domain, _virtual_path.Str(), asset_type);
+			const std::string file_virtual_path = _virtual_path.Str() + "/" + std::string(file_info.Path.Filename());
+			const SAssetHandle handle = RegisterAsset(_domain, file_virtual_path, asset_type);
 
 			if (LoadAndProcess(handle))
 			{

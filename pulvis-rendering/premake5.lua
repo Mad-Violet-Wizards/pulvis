@@ -14,9 +14,10 @@ project "pulvis-rendering"
         "%{wks.location}/pulvis-rendering/src/**.c"
     }
 
-    includedirs { "%{wks.location}/pulvis-rendering/src",
+    includedirs { "%{wks.location}/pulvis-template-library/src",
                   "%{wks.location}/pulvis-core/src",
                   "%{wks.location}/pulvis-filesystem/src",
+                  "%{wks.location}/pulvis-rendering/src",
                   "%{wks.location}/pulvis-vendor/common/include/",
                   "%{wks.location}/pulvis-vendor/windows/include/" }
 
@@ -42,6 +43,7 @@ project "pulvis-rendering-playground"
     }
 
     includedirs { 
+        "%{wks.location}/pulvis-template-library/src",
         "%{wks.location}/pulvis-core/src",
         "%{wks.location}/pulvis-filesystem/src",
         "%{wks.location}/pulvis-rendering/src",

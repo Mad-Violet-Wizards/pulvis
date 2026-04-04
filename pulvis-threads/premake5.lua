@@ -13,9 +13,9 @@ project "pulvis-threads"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-threads/src",
         "%{wks.location}/pulvis-template-library/src",
         "%{wks.location}/pulvis-core/src",
+        "%{wks.location}/pulvis-threads/src",
         "%{wks.location}/pulvis-vendor/common/include/",
         "%{wks.location}/pulvis-vendor/windows/include/"
     }

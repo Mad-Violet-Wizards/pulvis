@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <limits>
 #include <string>
 
 #include "Assert.hpp"
@@ -11,8 +10,7 @@ namespace pulvis::fs
 	using file_size_t = uint64_t;
 	using file_offset_t = uint64_t;
 
-	constexpr file_size_t INVALID_FILE_SIZE = std::numeric_limits<uint64_t>::max();
-
+	constexpr file_size_t INVALID_FILE_SIZE = UINT64_MAX;
 //////////////////////////////////////////////////////////////////////////
 	/* Outcome of all filesystem read/write/mount operations. */
 	enum class EFileResult

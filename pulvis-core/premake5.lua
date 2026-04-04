@@ -13,7 +13,10 @@ project "pulvis-core"
     }
 
     includedirs {
+        "%{wks.location}/pulvis-template-library/src",
         "%{wks.location}/pulvis-core/src",
         "%{wks.location}/pulvis-vendor/common/include/",
         "%{wks.location}/pulvis-vendor/windows/include/"
     }
+
+    dependson { "pulvis-template-library" }

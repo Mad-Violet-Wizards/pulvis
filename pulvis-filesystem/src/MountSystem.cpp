@@ -1,9 +1,44 @@
 #include "MountSystem.hpp"
+#include "DomainRoots.hpp"
+#include "Logger.hpp"
+#include "FileSourceDisk.hpp"
 
 #include <algorithm>
 
 namespace pulvis::fs
 {
+	void CMountSystem::BootstrapDomains(const CDomainRoots& _domain_roots)
+	{
+		struct SDomainDesc
+		{
+			EDomain Domain;
+			const char* VirtualPrefix;
+			bool ReadOnly;
+		};
+
+		constexpr SDomainDesc domain_descs[] = {
+			{ EDomain::Engine, "engine", true },
+			{ EDomain::Game, "game", true },
+			{ EDomain::User, "user", false },
+			{ EDomain::Dev, "dev", false }
+		};
+
+		for (const SDomainDesc& desc : domain_descs)
+		{
+			const std::filesystem::path& root = _domain_roots.GetRoot(desc.Domain);
+
+			if (root.empty())
+			{
+				PULVIS_WARNING_LOG("Domain {} has no root path configured, skipping mount.",
+					static_cast<int>(desc.Domain));
+				continue;
+			}
+
+			std::shared_ptr<IFileSource> source = std::make_shared<CFileSourceDisk>(root, desc.ReadOnly);
+			Mount(desc.Domain, CFilePath(desc.VirtualPrefix), std::move(source));
+		}
+	}
+
 	void CMountSystem::Mount(EDomain _domain, const CFilePath& _virtual_prefix, std::shared_ptr<IFileSource> _source, EMountTag _tag)
 	{
 		SDomainData& domain = GetDomain(_domain);
@@ -11,6 +46,9 @@ namespace pulvis::fs
 		std::unique_lock lock(domain.Mutex);
 
 		domain.MountPoints.push_back({ _virtual_prefix, std::move(_source), _tag });
+
+		PULVIS_INFO_LOG("Mounted {} at virtual path '{}' in domain {} with tag {}.",
+			domain.MountPoints.back().Source->Name(), _virtual_prefix.Str(), static_cast<int>(_domain), static_cast<int>(_tag));
 		SortMountPoints(domain.MountPoints);
 	}
 
@@ -21,6 +59,7 @@ namespace pulvis::fs
 		domain.MountPoints.erase(std::remove_if(domain.MountPoints.begin(), domain.MountPoints.end(),
 			[&](const SMountPoint& mp) { return mp.VirtualPrefix == _virtual_prefix; }), 
 		domain.MountPoints.end());
+		PULVIS_INFO_LOG("Unmounted virtual path '{}' in domain {}.", _virtual_prefix.Str(), static_cast<int>(_domain));
 	}
 
 	CMountSystem::SResolvedPath CMountSystem::Resolve(EDomain _domain, const CFilePath& _virtual_path, bool check_writable) const
