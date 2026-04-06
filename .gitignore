@@ -17,3 +17,9 @@ __pycache__
 
 *_rtti_autogen.hpp
 *_rtti_autogen.cpp
+.rtti_cache.json
+
+# Premake5 binaries (downloaded by setup scripts)
+premake5
+premake5.exe
+luasocket.dll

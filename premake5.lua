@@ -1,26 +1,45 @@
-workspace "Pulvis"
-    configurations { "Debug", "Release" }
+local scriptPath = debug.getinfo(1, "S").source:match("@?(.*[/\\])") or "./"
+package.path = package.path .. ";" .. scriptPath .. "?.lua"
 
-    local premakeFile = debug.getinfo(1, "S").source:sub(2)
-    local fullPath = path.getabsolute(premakeFile)
-    local workspace_root = path.getabsolute(path.join(fullPath, "../"))  -- => pulvis/
+require "pulvis-scripts.build-tools.common.cache"
+require "pulvis-scripts.build-tools.common.filepath"
 
-    _G.WORKSPACE_ROOT = workspace_root
+PROJECT_ABSOLUTE_PATH = GetScriptPath()
+RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH = PROJECT_ABSOLUTE_PATH .. "pulvis-scripts/rtti/main.py"
 
-    if os.target() == "windows" then
-        local engine_rtti_cmd = string.format('py "%s/scripts/rtti/main.py" "%s/engine" --generate', workspace_root, workspace_root)
-        local game_rtti_cmd = string.format('py "%s/scripts/rtti/main.py" "%s/game" --generate', workspace_root, workspace_root)
-        local playground_rtti_cmd = string.format('py "%s/scripts/rtti/main.py" "%s/playground" --generate', workspace_root, workspace_root)
-        local tests_rtti_cmd = string.format('py "%s/scripts/rtti/main.py" "%s/tests" --generate', workspace_root, workspace_root)
-        os.execute(engine_rtti_cmd)
-        os.execute(game_rtti_cmd)
-        os.execute(playground_rtti_cmd)
-        os.execute(tests_rtti_cmd)
-        include "./scripts/build/windows/premake5_windows.lua"
-        buildmessage("Including windows build.")
-    elseif os.target() == "macosx" then
-        include "./scripts/build/macos/arm/premake5_macos.lua"
-        print("Including macos-arm build.")
-    else
-        buildmessage("Unsupported system.")
-    end
+---------------------------------------------------------------
+-- PREMAKE
+---------------------------------------------------------------
+workspace "pulvis"
+    configurations { "Debug", "Release"}
+
+    filter "configurations:Debug"
+        defines { "DEBUG", "FMT_HEADER_ONLY" }
+        symbols "On"
+
+    filter "configurations:Release"
+        defines { "RELEASE" }
+        optimize "On"
+
+    filter "system:windows"
+        defines { "WINDOWS_OS" }
+        buildoptions { 
+            "/wd5030"   -- Disable warning C5030: attribute not recognized
+        }
+
+    filter "system:macosx"
+        defines { "MAC_OS" }
+        architecture "ARM64"
+        buildoptions { 
+            "-Wunknown-attributes"   -- Disable warning: unknown attribute ignored
+        }
+
+    include "pulvis-template-library/premake5.lua"
+    include "pulvis-rtti/premake5.lua"
+    include "pulvis-core/premake5.lua"
+    include "pulvis-threads/premake5.lua"
+    include "pulvis-filesystem/premake5.lua"
+    include "pulvis-rendering/premake5.lua"
+    include "pulvis-level/premake5.lua"
+    include "pulvis-game-engine/premake5.lua"
+    include "pulvis-game/premake5.lua"

@@ -1,0 +1,10 @@
+Features:
+* Workspace clean should also clear rtti cache
+* Add check for exclusive tags in RTTI
+* Add error system for RTTI
+* Pak filesystem
+* Introduce tests for each serialize trait type
+* Move assertions to separate library(?)
+* RTTI produces .inl with direct set/get methods.
+Bugs:
+* pulvis-rtti_rtti_autogen what is this?
