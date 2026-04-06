@@ -12,6 +12,8 @@ project "pulvis-level"
     includedirs {
         "%{wks.location}/pulvis-template-library/src",
         "%{wks.location}/pulvis-core/src",
+        "%{wks.location}/pulvis-filesystem/src",
+        "%{wks.location}/pulvis-rendering/src",
         "%{wks.location}/pulvis-level/src",
         "%{wks.location}/pulvis-vendor/common/include/"
     }
@@ -21,6 +23,6 @@ project "pulvis-level"
         includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
 
     filter {}
-    links { "pulvis-core" }
+    links { "pulvis-core", "pulvis-filesystem", "pulvis-rendering" }
 
-    dependson { "pulvis-core"}
+    dependson { "pulvis-core", "pulvis-filesystem", "pulvis-rendering" }
