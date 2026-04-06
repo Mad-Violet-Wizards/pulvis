@@ -12,8 +12,11 @@ namespace pulvis::fs
 		m_Roots[static_cast<uint8_t>(EDomain::User)] = ResolveUserDataPath(_app_name);
 
 #if defined(DEBUG)
+	#if defined(WINDOWS_OS)
+		const std::filesystem::path workspace = std::filesystem::current_path().parent_path();
+	#elif defined(MAC_OS)
 		const std::filesystem::path workspace = std::filesystem::current_path();
-
+	#endif
 		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = workspace / "pulvis-assets/engine/";
 		m_Roots[static_cast<uint8_t>(EDomain::Game)] = workspace / "pulvis-assets/game/";
 		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = workspace / "pulvis-assets/dev/";
