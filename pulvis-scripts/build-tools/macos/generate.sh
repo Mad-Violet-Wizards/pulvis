@@ -22,11 +22,6 @@ fi
 # Make sure premake5 is executable
 chmod +x premake5
 
-# Pre-generate RTTI files so premake can include them in the build
-echo "Pre-generating RTTI files..."
-python3 pulvis-scripts/rtti/main.py "$PROJECT_ROOT/pulvis-rtti/" --generate
-python3 pulvis-scripts/rtti/main.py "$PROJECT_ROOT/pulvis-filesystem/tests" --generate
-
 # Generate using gmake2 (GNU Make)
 ./premake5 gmake2
 

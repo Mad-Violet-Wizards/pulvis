@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to clean generated build files on macOS
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR/../../.."
@@ -11,35 +11,17 @@ echo "==================================="
 
 cd "$PROJECT_ROOT"
 
-# Remove build directory
-if [ -d "build" ]; then
-    echo "Removing build/ directory..."
-    rm -rf build/
-fi
+echo "Removing build/ directories..."
+find . -type d -name "build" -prune -exec rm -rf {} + 2>/dev/null || true
 
-# Remove generated Makefiles
-if [ -f "Makefile" ]; then
-    echo "Removing Makefile..."
-    rm -f Makefile
-fi
+echo "Removing Makefile files..."
+find . -type f -name "Makefile" -delete 2>/dev/null || true
 
-# Remove all .make files
-if ls *.make 1> /dev/null 2>&1; then
-    echo "Removing *.make files..."
-    rm -f *.make
-fi
+echo "Removing *.make files..."
+find . -type f -name "*.make" -delete 2>/dev/null || true
 
-# Remove obj directory if it exists
-if [ -d "obj" ]; then
-    echo "Removing obj/ directory..."
-    rm -rf obj/
-fi
-
-# Remove bin directory if it exists
-if [ -d "bin" ]; then
-    echo "Removing bin/ directory..."
-    rm -rf bin/
-fi
+echo "Removing obj/ directories..."
+find . -type d -name "obj" -prune -exec rm -rf {} + 2>/dev/null || true
 
 echo ""
 echo "==================================="
