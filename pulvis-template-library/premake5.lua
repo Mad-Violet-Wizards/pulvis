@@ -3,9 +3,6 @@ project "pulvis-template-library"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
-    buildoptions { 
-        "/utf-8" -- FMT library requires UTF-8 encoding
-    }
     
     files {
         "%{wks.location}/pulvis-template-library/src/**.hpp",
@@ -14,18 +11,20 @@ project "pulvis-template-library"
 
     includedirs {
         "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-vendor/common/include/",
-        "%{wks.location}/pulvis-vendor/windows/include/"
+        "%{wks.location}/pulvis-vendor/common/include/"
     }
+
+    filter "system:windows"
+        buildoptions { "/utf-8" }
+        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+
+filter {}
 
 project "pulvis-template-library-tests"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
-    buildoptions { 
-        "/utf-8" -- FMT library requires UTF-8 encoding
-    }
 
     files {
         "%{wks.location}/pulvis-template-library/tests/**.hpp",
@@ -35,9 +34,13 @@ project "pulvis-template-library-tests"
     includedirs {
         "%{wks.location}/pulvis-template-library/tests",
         "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-vendor/common/include/",
-        "%{wks.location}/pulvis-vendor/windows/include/"
+        "%{wks.location}/pulvis-vendor/common/include/"
     }
 
+    filter "system:windows"
+        buildoptions { "/utf-8" }
+        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+
+    filter {}
     links { "pulvis-template-library" }
     dependson { "pulvis-template-library" }

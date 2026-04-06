@@ -28,7 +28,12 @@ namespace pulvis::threads
 	template<typename T>
 	uint32_t GetMessageTypeHash()
 	{
+#if defined(WINDOWS_OS)
 		return tl::hash::fnv1a<uint32_t>(__FUNCSIG__);
+#elif defined(MAC_OS)
+		return tl::hash::fnv1a<uint32_t>(__PRETTY_FUNCTION__);
+#endif
+		return UINT32_MAX;
 	}
 
 	/*

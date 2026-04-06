@@ -112,8 +112,8 @@ namespace pulvis::rtti
 				return false;
 			}
 
-			template<typename T>
-			static void const* Cast(type_id_t _type_id, T const* ptr) noexcept
+			template<typename U>
+			static void const* Cast(type_id_t _type_id, U const* ptr) noexcept
 			{
 				if (GetTypeId() == _type_id)
 				{
@@ -130,71 +130,71 @@ namespace pulvis::rtti
 
 			private:
 				
-				template<typename T>
+				template<typename U>
 				static constexpr ERTTIFieldType GetFieldTypeInternal()
 				{
 
-					if (std::is_same_v<T, int>)
+					if (std::is_same_v<U, int>)
 					{
 						return ERTTIFieldType::Int;
 					}
 
-					if (std::is_same_v<T, float>)
+					if (std::is_same_v<U, float>)
 					{
 						return ERTTIFieldType::Float;
 					}
 
-					if (std::is_same_v<T, double>)
+					if (std::is_same_v<U, double>)
 					{
 						return ERTTIFieldType::Double;
 					}
 
-					if (std::is_same_v<T, bool>)
+					if (std::is_same_v<U, bool>)
 					{
 						return ERTTIFieldType::Bool;
 					}
 
-					if (std::is_same_v<T, char>)
+					if (std::is_same_v<U, char>)
 					{
 						return ERTTIFieldType::Char;
 					}
 
-					if (std::is_same_v<T, std::string>)
+					if (std::is_same_v<U, std::string>)
 					{
 						return ERTTIFieldType::String;
 					}
 
-					if (std::is_same_v<T, long>)
+					if (std::is_same_v<U, long>)
 					{
 						return ERTTIFieldType::Long;
 					}
 
-					if (std::is_same_v<T, long long>)
+					if (std::is_same_v<U, long long>)
 					{
 						return ERTTIFieldType::LongLong;
 					}
 
-					if (std::is_same_v<T, uint8_t>)
+					if (std::is_same_v<U, uint8_t>)
 					{
 						return ERTTIFieldType::Uint8;
 					}
 
-					if (std::is_same_v<T, uint16_t>)
+					if (std::is_same_v<U, uint16_t>)
 					{
 						return ERTTIFieldType::Uint16;
 					}
 
-					if (std::is_same_v<T, uint32_t>)
+					if (std::is_same_v<U, uint32_t>)
 					{
 						return ERTTIFieldType::Uint32;
 					}
 
-					if (std::is_same_v<T, uint64_t>)
+					if (std::is_same_v<U, uint64_t>)
 					{
 						return ERTTIFieldType::Uint64;
 					}
 
-					if (std::is_same_v<T, unsigned int>)
+					if (std::is_same_v<U, unsigned int>)
 					{
 						return ERTTIFieldType::Uint;
 					}

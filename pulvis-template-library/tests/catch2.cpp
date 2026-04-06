@@ -13,6 +13,8 @@
 //  You probably shouldn't edit it directly.
 //  ----------------------------------------------------------
 
+#define CATCH_AMALGAMATED_CUSTOM_MAIN
+
 #include <catch2/catch2.hpp>
 
 

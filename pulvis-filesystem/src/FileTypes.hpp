@@ -48,6 +48,17 @@ namespace pulvis::fs
 		Count
 	};
 
+	static inline std::string ToString(EDomain _domain)
+	{
+		switch (_domain)
+		{
+			case EDomain::Engine: return "Engine";
+			case EDomain::Game: return "Game";
+			case EDomain::User: return "User";
+			case EDomain::Dev: return "Dev";
+			default: return "Unknown";
+		}
+	}
 	constexpr unsigned int DOMAIN_COUNT = static_cast<unsigned int>(EDomain::Count);
 
 	/* Determines resolution order when multiple sources are mounted
@@ -59,6 +70,17 @@ namespace pulvis::fs
 		Patch = 3,
 		Mod = 4
 	};
+	static inline std::string ToString(EMountTag _tag)
+	{
+		switch (_tag)
+		{
+			case EMountTag::Base: return "Base";
+			case EMountTag::Game: return "Game";
+			case EMountTag::Patch: return "Patch";
+			case EMountTag::Mod: return "Mod";
+			default: return "Unknown";
+		}
+	}
 
 	enum class EAssetType : uint16_t
 	{

@@ -11,8 +11,11 @@ namespace pulvis::rtti
 	template<typename T>
 	static constexpr std::string_view GetTypename() noexcept
 	{
+#if defined(WINDOWS_OS)
 		constexpr std::string_view rawTypename = __FUNCSIG__;
-
+#elif defined(MAC_OS)
+		constexpr std::string_view rawTypename = __PRETTY_FUNCTION__;
+#endif
 		size_t start = 0;
 		if constexpr (std::is_class<T>())
 		{

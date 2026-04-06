@@ -3,9 +3,6 @@ project "pulvis-game"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
-    buildoptions { 
-        "/utf-8" -- FMT library requires UTF-8 encoding
-    }
 
     files {
         "%{wks.location}/pulvis-game/src/**.hpp",
@@ -24,18 +21,23 @@ project "pulvis-game"
         "%{wks.location}/pulvis-game-engine/src",
 
         "%{wks.location}/pulvis-vendor/common/include/",
-        "%{wks.location}/pulvis-vendor/windows/include/"
     }
 
-    defines { "GLFW_DLL" }
-
-    libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
-
-    links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "glfw3dll" }
-
-    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine" }
-
     filter "system:windows"
+        buildoptions { "/utf-8" } -- FMT library requires UTF-8 encoding
+        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
+        defines { "GLFW_DLL" }
+        links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "glfw3dll" }
         postbuildcommands {
             "{COPY} %{wks.location}/pulvis-vendor/windows/bin/glfw3.dll %{cfg.targetdir}"
         }
+
+    filter "system:macosx"
+        includedirs { "/opt/homebrew/include" }
+        libdirs { "/opt/homebrew/lib" }
+        links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "glfw" }
+        links { "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
+
+    filter {}
+    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine" }

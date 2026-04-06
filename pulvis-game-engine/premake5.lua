@@ -3,9 +3,6 @@ project "pulvis-game-engine"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
-    buildoptions { 
-        "/utf-8" -- FMT library requires UTF-8 encoding
-    }
 
     files {
         "%{wks.location}/pulvis-game-engine/src/**.hpp",
@@ -22,14 +19,16 @@ project "pulvis-game-engine"
         "%{wks.location}/pulvis-level/src",
         "%{wks.location}/pulvis-game-engine/src",
 
-        "%{wks.location}/pulvis-vendor/common/include/",
-        "%{wks.location}/pulvis-vendor/windows/include/"
+        "%{wks.location}/pulvis-vendor/common/include/"
     }
 
-    defines { "GLFW_DLL" }
+    filter "system:windows"
+        buildoptions { "/utf-8" } -- FMT library requires UTF-8 encoding
+        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
+        defines { "GLFW_DLL" }
 
-    libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
-
+    filter {}
     links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
 
     dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }

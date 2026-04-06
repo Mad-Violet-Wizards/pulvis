@@ -1,5 +1,3 @@
-#pragma once
-
 #include "assets/loaders/TilesetLoader.hpp"
 #include "assets/payloads/TilesetPayload.hpp"
 #include "Logger.hpp"

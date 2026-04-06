@@ -12,25 +12,39 @@ namespace pulvis::rendering
 		, m_Height(_height)
 		, m_Title(_title)
 	{
-		glfwInit();
+		glfwSetErrorCallback([](int error, const char* desc)
+			{
+				PULVIS_ERROR_LOG("GLFW error.\n {}: {}", error, desc);
+			});
+
+		if (!glfwInit())
+		{
+			PULVIS_ERROR_LOG("Failed to initialize GLFW!");
+			return;
+		}
+
+#if defined(MAC_OS)
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#else
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		m_Window = glfwCreateWindow(_width, _height, _title, nullptr, nullptr);
 
 		if (!m_Window)
 		{
+			PULVIS_ERROR_LOG("Failed to create GLFW window!");
 			glfwTerminate();
+			return;
 		}
 
 		glfwSetWindowUserPointer(m_Window, this);
-
-		glfwSetErrorCallback([](int error, const char* desc)
-			{
-				PULVIS_ERROR_LOG("GLFW Initializatione error.\n {}: {}", error, desc);
-			});
 
 		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* _window, int _width, int _height)
 			{

@@ -103,8 +103,10 @@ namespace pulvis::threads
 				{
 #if defined(_MSC_VER)
 					_mm_pause(); // Pause instruction to reduce contention on hyper-threaded cores.
-#else
-					__builtin_ia32_pause(); // GCC/Clang intrinsic for pause.
+#elif defined(__x86_64__) || defined(__i386__)
+					__builtin_ia32_pause(); // GCC/Clang intrinsic for pause on x86.
+#elif defined(__aarch64__) || defined(__arm__)
+					__asm__ __volatile__("yield"); // ARM yield instruction
 #endif
 				}
 				// Back off with _mm_pause to reduce contention on hyper-threaded cores.

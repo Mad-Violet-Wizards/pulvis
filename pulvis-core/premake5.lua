@@ -3,9 +3,6 @@ project "pulvis-core"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
-    buildoptions { 
-        "/utf-8" -- FMT library requires UTF-8 encoding
-    }
     
     files {
         "%{wks.location}/pulvis-core/src/**.hpp",
@@ -15,8 +12,12 @@ project "pulvis-core"
     includedirs {
         "%{wks.location}/pulvis-template-library/src",
         "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-vendor/common/include/",
-        "%{wks.location}/pulvis-vendor/windows/include/"
+        "%{wks.location}/pulvis-vendor/common/include/"
     }
 
+    filter "system:windows"
+        buildoptions { "/utf-8" } -- FMT library requires UTF-8 encoding
+        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+
+    filter {}
     dependson { "pulvis-template-library" }

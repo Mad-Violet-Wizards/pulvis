@@ -8,7 +8,6 @@ namespace pulvis::fs
 		: m_Root(std::filesystem::weakly_canonical(std::move(_root)))
 		, m_ReadOnly(_read_only)
 	{
-
 	}
 
 	EFileResult CFileSourceDisk::Read(const CFilePath& _path, CFileBuffer& _buffer)

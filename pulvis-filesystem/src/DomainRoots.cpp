@@ -12,7 +12,7 @@ namespace pulvis::fs
 		m_Roots[static_cast<uint8_t>(EDomain::User)] = ResolveUserDataPath(_app_name);
 
 #if defined(DEBUG)
-		const std::filesystem::path workspace = std::filesystem::current_path().parent_path();
+		const std::filesystem::path workspace = std::filesystem::current_path();
 
 		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = workspace / "pulvis-assets/engine/";
 		m_Roots[static_cast<uint8_t>(EDomain::Game)] = workspace / "pulvis-assets/game/";
@@ -72,6 +72,17 @@ namespace pulvis::fs
 		std::filesystem::path user_data_path(appdata_buffer);
 		free(appdata_buffer);
 		return user_data_path / _app_name;
+#elif defined(MAC_OS)
+		const char* home = std::getenv("HOME");
+		
+		if (home == nullptr)
+		{
+			ASSERT(false, "Failed to resolve user data path from environment variable HOME.");
+			return {};
+		}
+
+		std::filesystem::path user_data_path(home);
+		return user_data_path / "Library" / "Application Support" / _app_name;
 #endif
 
 		return {};

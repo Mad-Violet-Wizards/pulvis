@@ -1,6 +1,7 @@
 #include "JsonArchiveBackend.hpp"
 
 #include <iomanip>
+#include <sstream>
 #include <cstring>
 #include <cassert>
 #include <charconv>

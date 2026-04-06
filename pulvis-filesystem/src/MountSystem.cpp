@@ -29,8 +29,7 @@ namespace pulvis::fs
 
 			if (root.empty())
 			{
-				PULVIS_WARNING_LOG("Domain {} has no root path configured, skipping mount.",
-					static_cast<int>(desc.Domain));
+				PULVIS_WARNING_LOG("Domain {} has no root path configured, skipping mount.", desc.VirtualPrefix);
 				continue;
 			}
 
@@ -48,7 +47,7 @@ namespace pulvis::fs
 		domain.MountPoints.push_back({ _virtual_prefix, std::move(_source), _tag });
 
 		PULVIS_INFO_LOG("Mounted {} at virtual path '{}' in domain {} with tag {}.",
-			domain.MountPoints.back().Source->Name(), _virtual_prefix.Str(), static_cast<int>(_domain), static_cast<int>(_tag));
+			domain.MountPoints.back().Source->Name(), _virtual_prefix.Str(), ToString(_domain), static_cast<int>(_tag));
 		SortMountPoints(domain.MountPoints);
 	}
 
@@ -59,7 +58,7 @@ namespace pulvis::fs
 		domain.MountPoints.erase(std::remove_if(domain.MountPoints.begin(), domain.MountPoints.end(),
 			[&](const SMountPoint& mp) { return mp.VirtualPrefix == _virtual_prefix; }), 
 		domain.MountPoints.end());
-		PULVIS_INFO_LOG("Unmounted virtual path '{}' in domain {}.", _virtual_prefix.Str(), static_cast<int>(_domain));
+		PULVIS_INFO_LOG("Unmounted virtual path '{}' in domain {}.", _virtual_prefix.Str(), ToString(_domain));
 	}
 
 	CMountSystem::SResolvedPath CMountSystem::Resolve(EDomain _domain, const CFilePath& _virtual_path, bool check_writable) const

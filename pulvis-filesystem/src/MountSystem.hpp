@@ -38,9 +38,7 @@ namespace pulvis::fs
 
 			CMountSystem(const CMountSystem&) = delete;
 			CMountSystem& operator=(const CMountSystem&) = delete;
-			CMountSystem(CMountSystem&) noexcept = default;
-			CMountSystem& operator=(CMountSystem&) noexcept = default;
-
+			
 			void BootstrapDomains(const CDomainRoots& _domain_roots);
 
 			void Mount(EDomain _doman, const CFilePath& _virtual_prefix, std::shared_ptr<IFileSource> _source, EMountTag _tag = EMountTag::Base);

@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <optional>
+#include <algorithm>
 
 /*
 Rect.hpp
