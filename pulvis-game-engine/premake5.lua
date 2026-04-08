@@ -13,6 +13,7 @@ project "pulvis-game-engine"
         "%{wks.location}/pulvis-template-library/src",
         "%{wks.location}/pulvis-core/src",
         "%{wks.location}/pulvis-rtti/src",
+        "%{wks.location}/pulvis-events/src",
         "%{wks.location}/pulvis-threads/src",
         "%{wks.location}/pulvis-filesystem/src",
         "%{wks.location}/pulvis-rendering/src",
@@ -29,6 +30,6 @@ project "pulvis-game-engine"
         defines { "GLFW_DLL" }
 
     filter {}
-    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
+    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-events","pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
 
-    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-events", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }

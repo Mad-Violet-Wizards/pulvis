@@ -6,10 +6,11 @@ class CGameStateInitialization : public pulvis::game_engine::IGameState
 {
 	public:
 
-		void OnEnter(pulvis::game_engine::CGameBase& _game) override;
-		void OnExit(pulvis::game_engine::CGameBase& _game) override;
-		void Frame(pulvis::game_engine::CGameBase& _game, float _dt) override;
-		void Render(pulvis::game_engine::CGameBase& _game) override;
+		CGameStateInitialization(pulvis::game_engine::CGameBase& _game);
+		void OnEnter() override;
+		void OnExit() override;
+		void Frame(float _dt) override;
+		void Render() override;
 		bool WantsExit() const override;
 
 	private:

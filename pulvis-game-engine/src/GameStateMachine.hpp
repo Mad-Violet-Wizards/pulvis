@@ -1,36 +1,35 @@
 #pragma once
 
-#include "GameState.hpp"
-
 #include <vector>
 #include <memory>
 
 namespace pulvis::game_engine
 {
     class CGameBase;
+    class IGameState;
 
     class CGameStateMachine
     {
-        public:
+      public:
 
-			CGameStateMachine() = default;
-			~CGameStateMachine() = default;
+			  CGameStateMachine();
+			  ~CGameStateMachine();
 
-			CGameStateMachine(const CGameStateMachine&) = delete;
-			CGameStateMachine& operator=(const CGameStateMachine&) = delete;
+			  CGameStateMachine(const CGameStateMachine&) = delete;
+			  CGameStateMachine& operator=(const CGameStateMachine&) = delete;
 
-            void PushState(std::unique_ptr<IGameState> _state, CGameBase& _game);
-            void PopState(CGameBase& _game);
-            void SwitchState(std::unique_ptr<IGameState> _state, CGameBase& _game);
+        void PushState(std::unique_ptr<IGameState> _state);
+        void PopState();
+        void SwitchState(std::unique_ptr<IGameState> _state);
 
-            void Frame(CGameBase& _game, float _dt);
-            void Render(CGameBase& _game);
+        void Frame(float _dt);
+        void Render();
 
-            bool Empty() const;
-            IGameState* GetCurrentState() const;
+        bool Empty() const;
+        IGameState* GetCurrentState() const;
 
-        private:
+      private:
 
-            std::vector<std::unique_ptr<IGameState>> m_StateStack;
+        std::vector<std::unique_ptr<IGameState>> m_StateStack;
     };
 }

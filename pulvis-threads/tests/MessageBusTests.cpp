@@ -124,22 +124,22 @@ TEST_CASE("MessageBus (multiple messages same type)", "[Threads][MessageBus]")
 	SECTION("Multiple sends drained in order")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 8192);
+		const uint32_t ch0 = bus.RegisterChannel(8192);
 
 		std::vector<int> results;
 		std::vector<int>* rp = &results;
 
-		bus.RegisterHandler<STestMessage>(0,
+		bus.RegisterHandler<STestMessage>(ch0,
 			[rp](const STestMessage& _msg) { rp->push_back(_msg.Value); }
 		);
 
 		for (int i = 0; i < 10; ++i)
 		{
 			STestMessage msg{ i };
-			bus.Send<STestMessage>(0, msg);
+			bus.Send<STestMessage>(ch0, msg);
 		}
 
-		bus.Drain(0);
+		bus.Drain(ch0);
 
 		REQUIRE(results.size() == 10);
 		for (int i = 0; i < 10; ++i)
@@ -166,11 +166,11 @@ TEST_CASE("MessageBus (Drain with no handler)", "[Threads][MessageBus]")
 	SECTION("Messages are consumed even without matching handler")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 4096);
+		const uint32_t ch0 = bus.RegisterChannel(4096);
 
 		STestMessage msg{ 1 };
-		bus.Send<STestMessage>(0, msg);
-		bus.Drain(0);
+		bus.Send<STestMessage>(ch0, msg);
+		bus.Drain(ch0);
 
 		CHECK(true);
 	}
@@ -182,8 +182,8 @@ TEST_CASE("MessageBus (separate channels)", "[Threads][MessageBus]")
 	SECTION("Messages go only to their channel")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 4096);
-		bus.RegisterChannel(1, 4096);
+		const uint32_t ch0 = bus.RegisterChannel(4096);
+		const uint32_t ch1 = bus.RegisterChannel(4096);
 
 		int ch0_val = 0;
 		int ch1_val = 0;
@@ -201,14 +201,14 @@ TEST_CASE("MessageBus (separate channels)", "[Threads][MessageBus]")
 		STestMessage msg0{ 10 };
 		STestMessage msg1{ 20 };
 
-		bus.Send<STestMessage>(0, msg0);
-		bus.Send<STestMessage>(1, msg1);
+		bus.Send<STestMessage>(ch0, msg0);
+		bus.Send<STestMessage>(ch1, msg1);
 
-		bus.Drain(0);
+		bus.Drain(ch0);
 		CHECK(ch0_val == 10);
 		CHECK(ch1_val == 0);
 
-		bus.Drain(1);
+		bus.Drain(ch1);
 		CHECK(ch1_val == 20);
 	}
 }
@@ -232,11 +232,11 @@ TEST_CASE("MessageBus (performance)", "[Threads][MessageBus][Benchmark]")
 	SECTION("Send throughput")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 65536);
+		const uint32_t ch0 = bus.RegisterChannel(65536);
 
 		int dummy = 0;
 		int* dp = &dummy;
-		bus.RegisterHandler<STestMessage>(0,
+		bus.RegisterHandler<STestMessage>(ch0,
 			[dp](const STestMessage& _msg) { *dp += _msg.Value; }
 		);
 
@@ -245,9 +245,9 @@ TEST_CASE("MessageBus (performance)", "[Threads][MessageBus][Benchmark]")
 			for (int i = 0; i < 10000; ++i)
 			{
 				STestMessage msg{ i };
-				bus.Send<STestMessage>(0, msg);
+				bus.Send<STestMessage>(ch0, msg);
 			}
-			bus.Drain(0);
+			bus.Drain(ch0);
 			return dummy;
 		};
 	}
@@ -255,11 +255,11 @@ TEST_CASE("MessageBus (performance)", "[Threads][MessageBus][Benchmark]")
 	SECTION("Drain throughput (pre-filled)")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 65536);
+		const uint32_t ch0 = bus.RegisterChannel(65536);
 
 		int dummy = 0;
 		int* dp = &dummy;
-		bus.RegisterHandler<STestMessage>(0,
+		bus.RegisterHandler<STestMessage>(ch0,
 			[dp](const STestMessage& _msg) { *dp += _msg.Value; }
 		);
 
@@ -271,7 +271,7 @@ TEST_CASE("MessageBus (performance)", "[Threads][MessageBus][Benchmark]")
 
 		BENCHMARK("Drain 1000 messages")
 		{
-			bus.Drain(0);
+			bus.Drain(ch0);
 			return dummy;
 		};
 	}
@@ -279,18 +279,18 @@ TEST_CASE("MessageBus (performance)", "[Threads][MessageBus][Benchmark]")
 	SECTION("Multi-type throughput")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 65536);
+		const uint32_t ch0 = bus.RegisterChannel(65536);
 
 		int i_dummy = 0;
 		float f_dummy = 0.0f;
 		int* ip = &i_dummy;
 		float* fp = &f_dummy;
 
-		bus.RegisterHandler<STestMessage>(0,
+		bus.RegisterHandler<STestMessage>(ch0,
 			[ip](const STestMessage& _msg) { *ip += _msg.Value; }
 		);
 
-		bus.RegisterHandler<STestMessage2>(0,
+		bus.RegisterHandler<STestMessage2>(ch0,
 			[fp](const STestMessage2& _msg) { *fp += _msg.X; }
 		);
 
@@ -301,15 +301,15 @@ TEST_CASE("MessageBus (performance)", "[Threads][MessageBus][Benchmark]")
 				if (i % 2 == 0)
 				{
 					STestMessage msg{ i };
-					bus.Send<STestMessage>(0, msg);
+					bus.Send<STestMessage>(ch0, msg);
 				}
 				else
 				{
 					STestMessage2 msg{ static_cast<float>(i), 0.0f };
-					bus.Send<STestMessage2>(0, msg);
+					bus.Send<STestMessage2>(ch0, msg);
 				}
 			}
-			bus.Drain(0);
+			bus.Drain(ch0);
 			return i_dummy;
 		};
 	}

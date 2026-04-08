@@ -23,3 +23,5 @@ __pycache__
 premake5
 premake5.exe
 luasocket.dll
+
+pulvis-assets/game/

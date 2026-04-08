@@ -2,10 +2,13 @@
 
 namespace pulvis::threads
 {
-	void CMessageBus::RegisterChannel(uint32_t _channelId, size_t _bufferSize)
+	uint32_t CMessageBus::RegisterChannel(size_t _bufferSize)
 	{
 		std::lock_guard lock(m_RegistrationMutex);
-		m_Channels.emplace(_channelId, tl::RingBuffer(_bufferSize));
+		const uint32_t new_channel_id = m_NextChannelId;
+		m_Channels.emplace(new_channel_id, tl::RingBuffer(_bufferSize));
+		m_NextChannelId++;
+		return new_channel_id;
 	}
 
 	void CMessageBus::Drain(uint32_t _channelId)

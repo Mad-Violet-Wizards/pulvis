@@ -39,12 +39,19 @@ namespace pulvis::fs
 			return EFileResult::AccessDenied;
 		}
 
-		if (!Exists(_path))
-		{
-			return EFileResult::NotFound;
-		}
-
 		const std::filesystem::path absolute_path = ToAbsolute(_path);
+
+		const std::filesystem::path parent_dir = absolute_path.parent_path();
+		if (!parent_dir.empty() && !std::filesystem::exists(parent_dir))
+		{
+			std::error_code ec;
+			std::filesystem::create_directories(parent_dir, ec);
+
+			if (ec)
+			{
+				return EFileResult::IOError;
+			}
+		}
 
 		std::ofstream file(absolute_path, std::ios::binary | std::ios::trunc);
 

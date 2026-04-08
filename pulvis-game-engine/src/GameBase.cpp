@@ -8,40 +8,25 @@
 #include "LevelService.hpp"
 #include "Logger.hpp"
 #include "loaders/ShaderLoader.hpp"
+#include "FileSourceDisk.hpp"
+#include "EventDispatcher.hpp"
 
 //////////////////////////////////////////////////////////////////////////
-namespace
-{
-  enum EChannel : uint32_t
-  {
-    Main = 0,
-    Render = 1,
-    Audio = 2,
-  };
-
-  struct SWindowResized
-  {
-    int Width;
-    int Height;
-  };
-
-  struct SAudioPlayCmd
-  {
-    uint32_t SoundId;
-    float Volume;
-  };
-
-  struct SLoadLevelCmd
-  {
-    uint32_t LevelId;
-  };
-}
-//////////////////////////////////////////////////////////////////////////
-
 namespace pulvis::game_engine
 {
     CGameBase::CGameBase()
         : m_LastFrameTime(Clock::now())
+			, m_MainChannelID(pulvis::threads::INVALID_CHANNEL_ID)
+			, m_RenderChannelID(pulvis::threads::INVALID_CHANNEL_ID)
+			, m_AudioChannelID(pulvis::threads::INVALID_CHANNEL_ID)
+			, m_IOChannelID(pulvis::threads::INVALID_CHANNEL_ID)
+      , m_DomainRoots(nullptr)
+      , m_MountSystem(nullptr)
+      , m_AssetRegistry(nullptr)
+      , m_RenderService(nullptr)
+      , m_LevelService(nullptr)
+      , m_MessageBus(nullptr)
+      , m_EventDispatcher(nullptr)
     {
 
     }
@@ -72,6 +57,7 @@ namespace pulvis::game_engine
     void CGameBase::Initialize()
     {
         PULVIS_INFO_LOG("Initializing core systems...");
+				m_EventDispatcher = std::make_unique<pulvis::events::CEventDispatcher>();
 				InitializeFilesystem();
 				InitializeMessageBus();
 				InitializeServices();
@@ -84,6 +70,9 @@ namespace pulvis::game_engine
       m_MountSystem = std::make_unique<pulvis::fs::CMountSystem>();
       m_MountSystem->BootstrapDomains(*m_DomainRoots);
 
+      std::shared_ptr<pulvis::fs::IFileSource > source = std::make_shared<pulvis::fs::CFileSourceDisk>("game/levels", false);
+      m_MountSystem->Mount(pulvis::fs::EDomain::Game, pulvis::fs::CFilePath("game/levels"), std::move(source));
+
       m_AssetRegistry = std::make_unique<pulvis::fs::assets::CAssetRegistry>(*m_MountSystem);
 
     }
@@ -91,58 +80,19 @@ namespace pulvis::game_engine
     void CGameBase::InitializeMessageBus()
     {
       m_MessageBus = std::make_unique<pulvis::threads::CMessageBus>();
-      m_MessageBus->RegisterChannel(EChannel::Main, 4096);
-      m_MessageBus->RegisterChannel(EChannel::Render, 4096);
-      m_MessageBus->RegisterChannel(EChannel::Audio, 4096);
-
-      int resize_count = 0;
-      int* rc = &resize_count;
-
-      m_MessageBus->RegisterHandler<SWindowResized>(EChannel::Main,
-        [rc](const SWindowResized& _msg) {
-          *rc += 1;
-          PULVIS_INFO_LOG("[Main] WindowResized: {}x{}", _msg.Width, _msg.Height);
-        }
-      );
-
-      m_MessageBus->RegisterHandler<SAudioPlayCmd>(EChannel::Audio,
-        +[](const SAudioPlayCmd& _msg) {
-          PULVIS_INFO_LOG("[Audio] Play sound {} at volume {:.2f}", _msg.SoundId, _msg.Volume);
-        }
-      );
-
-      m_MessageBus->RegisterHandler<SLoadLevelCmd>(EChannel::Main,
-        +[](const SLoadLevelCmd& _msg) {
-          PULVIS_INFO_LOG("[Main] Load level {}", _msg.LevelId);
-        }
-      );
-
-
-      m_MessageBus->Send<SWindowResized>(EChannel::Main, SWindowResized{ 1920, 1080 });
-      m_MessageBus->Send<SWindowResized>(EChannel::Main, SWindowResized{ 2560, 1440 });
-      m_MessageBus->Send<SAudioPlayCmd>(EChannel::Audio, SAudioPlayCmd{ 42, 0.8f });
-      m_MessageBus->Send<SLoadLevelCmd>(EChannel::Main, SLoadLevelCmd{ 1 });
-
-      m_MessageBus->Send<SAudioPlayCmd>(EChannel::Render, SAudioPlayCmd{ 99, 1.0f });
-
-      PULVIS_INFO_LOG("Draining Main channel");
-      m_MessageBus->Drain(EChannel::Main);
-
-      PULVIS_INFO_LOG("Draining Audio channel");
-      m_MessageBus->Drain(EChannel::Audio);
-
-      PULVIS_INFO_LOG("Draining Render channel (no handlers)");
-      m_MessageBus->Drain(EChannel::Render);
-
-      PULVIS_INFO_LOG("MessageBus smoke test: resize_count = {} (expected 2)", resize_count);
-
+      m_MainChannelID = m_MessageBus->RegisterChannel(4096);
+			m_RenderChannelID = m_MessageBus->RegisterChannel(4096);
+      m_AudioChannelID = m_MessageBus->RegisterChannel(4096);
+      m_IOChannelID = m_MessageBus->RegisterChannel(65536);
     }
 
     void CGameBase::InitializeServices()
     {
       m_RenderService = std::make_unique<pulvis::rendering::CRenderService>(*m_AssetRegistry);
       m_RenderService->Initialize(m_Config.RendererType, m_Config.WindowWidth, m_Config.WindowHeight, m_Config.WindowTitle);
+
       m_LevelService = std::make_unique<pulvis::level::CLevelService>(*m_AssetRegistry, *m_MountSystem);
+      m_LevelService->Initialize(*m_MessageBus, m_IOChannelID, m_MainChannelID);
     }
 
     void CGameBase::Shutdown()
@@ -171,11 +121,20 @@ namespace pulvis::game_engine
 			const float dt = std::chrono::duration<float>(current_time - m_LastFrameTime).count();
             m_LastFrameTime = current_time;
 
-            m_StateMachine.Frame(*this, dt);
+            m_MessageBus->Drain(m_MainChannelID);
+
+            if (m_LevelService->HasActiveLevel())
+            {
+                m_LevelService->ApplyPendingChunks();
+            }
+
+            m_StateMachine.Frame(dt);
             Frame(dt);
 
-            m_StateMachine.Render(*this);
+            m_StateMachine.Render();
             Render();
+
+						m_EventDispatcher->Frame(dt);
 
             m_RenderService->Frame();
         }
@@ -217,8 +176,34 @@ namespace pulvis::game_engine
         return *m_MessageBus;
     }
 
+    pulvis::events::CEventDispatcher& CGameBase::GetEventDispatcher() const
+    {
+      ASSERT(m_EventDispatcher, "EventDispatcher not initialized.");
+			return *m_EventDispatcher;
+    }
+
     CGameStateMachine& CGameBase::GetStateMachine()
     {
         return m_StateMachine;
+    }
+
+    uint32_t CGameBase::GetMainChannelID() const
+    {
+        return m_MainChannelID;
+    }
+
+    uint32_t CGameBase::GetRenderChannelID() const
+    {
+        return m_RenderChannelID;
+    }
+
+    uint32_t CGameBase::GetAudioChannelID() const
+    {
+        return m_AudioChannelID;
+    }
+
+    uint32_t CGameBase::GetIOChannelID() const
+    {
+        return m_IOChannelID;
     }
 }

@@ -5,13 +5,20 @@
 #include "RenderSevice.hpp"
 #include "loaders/ShaderLoader.hpp"
 #include "Logger.hpp"
+#include "GameStatePlay.hpp"
+#include "events/GameStateEvents.hpp"
+#include "EventDispatcher.hpp"
 
-void CGameStateInitialization::OnEnter(pulvis::game_engine::CGameBase& _game)
+CGameStateInitialization::CGameStateInitialization(pulvis::game_engine::CGameBase& _game)
+	: IGameState(_game)
+{
+}
+
+void CGameStateInitialization::OnEnter()
 {
 	PULVIS_INFO_LOG("[Init] Loading core assets...");
 
-	pulvis::fs::assets::CAssetRegistry& registry = _game.GetAssetRegistry();
-
+	pulvis::fs::assets::CAssetRegistry& registry = m_Game.GetAssetRegistry();
 	registry.RegisterLoader(pulvis::fs::EAssetType::Shader,
 		std::make_unique<pulvis::rendering::CShaderLoader>());
 
@@ -24,27 +31,22 @@ void CGameStateInitialization::OnEnter(pulvis::game_engine::CGameBase& _game)
 	PULVIS_INFO_LOG("[Init] Core assets loaded.");
 }
 
-void CGameStateInitialization::OnExit(pulvis::game_engine::CGameBase& _game)
+void CGameStateInitialization::OnExit()
 {
 	PULVIS_INFO_LOG("[GameStateInit] Initialization state exiting.");
+	m_Game.GetEventDispatcher().EnqueueFrameDelay<SGameInitializedEvent>(1);
 }
 
-void CGameStateInitialization::Frame(pulvis::game_engine::CGameBase& _game, float _dt)
+void CGameStateInitialization::Frame(float _dt)
 {
-	if (m_LoadingComplete)
-	{
-		// Transition to main menu or gameplay.
-		// _game.GetStateMachine().SwitchState(
-		//     std::make_unique<CGameStateMainMenu>(), _game);
-	}
 }
 
-void CGameStateInitialization::Render(pulvis::game_engine::CGameBase& _game)
+void CGameStateInitialization::Render()
 {
 	// Render splash screen / loading bar.
 }
 
 bool CGameStateInitialization::WantsExit() const
 {
-	return false;
+	return m_LoadingComplete;
 }

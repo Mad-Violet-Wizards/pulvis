@@ -2,6 +2,11 @@
 
 #include <cstdint>
 #include <functional>
+#include <format>
+#include <string>
+#include <string_view>
+
+#include "Hash.hpp"
 
 namespace pulvis::level
 {
@@ -18,6 +23,17 @@ namespace pulvis::level
 		bool operator!=(const SChunkCoord& other) const
 		{
 			return !(*this == other);
+		}
+
+		uint64_t ToHash() const
+		{
+			const auto* bytes = reinterpret_cast<const char*>(this);
+			return pulvis::tl::hash::fnv1a<uint64_t>(std::string_view(bytes, sizeof(SChunkCoord)));		
+		}
+
+		std::string ToFileString() const
+		{
+			return std::format("{:016x}", ToHash());
 		}
 	};
 }

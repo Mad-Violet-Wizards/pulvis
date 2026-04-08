@@ -3,6 +3,9 @@
 #include "Logger.hpp"
 
 #include "states/GameStateInitialization.hpp"
+#include "states/GameStatePlay.hpp"
+#include "events/GameStateEvents.hpp"
+#include "EventDispatcher.hpp"
 
 void CGame::Configure(pulvis::game_engine::SEngineConfig& _config)
 {
@@ -17,8 +20,15 @@ void CGame::OnInitialize()
 {
 	PULVIS_INFO_LOG("Game initialized.");
 
-	GetStateMachine().PushState(
-		std::make_unique<CGameStateInitialization>(), *this);
+	GetStateMachine().PushState(std::make_unique<CGameStateInitialization>(*this));
+
+	m_GameInitializedEventHandle = GetEventDispatcher().Subscribe<SGameInitializedEvent>(
+		[this](const SGameInitializedEvent&)
+		{
+			PULVIS_INFO_LOG("Received SGameInitializedEvent, switching to play state.");
+			GetStateMachine().SwitchState(std::make_unique<CGameStatePlay>(*this));
+		}
+	);
 }
 
 void CGame::OnShutdown()
@@ -28,7 +38,6 @@ void CGame::OnShutdown()
 
 void CGame::Frame(float _dt)
 {
-	// Global game logic that runs regardless of state.
 }
 
 void CGame::Render()

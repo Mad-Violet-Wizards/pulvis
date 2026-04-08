@@ -18,7 +18,7 @@ namespace pulvis::fs
 
 		constexpr SDomainDesc domain_descs[] = {
 			{ EDomain::Engine, "engine", true },
-			{ EDomain::Game, "game", true },
+			{ EDomain::Game, "game", false },
 			{ EDomain::User, "user", false },
 			{ EDomain::Dev, "dev", false }
 		};
@@ -79,6 +79,12 @@ namespace pulvis::fs
 			}
 
 			const CFilePath local_path = StripPrefix(_virtual_path, mount_point.VirtualPrefix);
+
+			if (check_writable)
+			{
+				return { mount_point.Source.get(), local_path };
+			}
+
 			if (mount_point.Source->Exists(local_path))
 			{
 				return { mount_point.Source.get(), local_path };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameBase.hpp"
+#include "EventHandle.hpp"
 
 class CGame : public pulvis::game_engine::CGameBase
 {
@@ -14,4 +15,8 @@ class CGame : public pulvis::game_engine::CGameBase
 		void OnShutdown() override;
 		void Frame(float _dt) override;
 		void Render() override;
+
+	private:
+
+		pulvis::events::CEventHandle m_GameInitializedEventHandle;
 };

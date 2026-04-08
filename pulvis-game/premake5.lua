@@ -14,6 +14,7 @@ project "pulvis-game"
         "%{wks.location}/pulvis-template-library/src",
         "%{wks.location}/pulvis-rtti/src",
         "%{wks.location}/pulvis-core/src",
+        "%{wks.location}/pulvis-events/src",
         "%{wks.location}/pulvis-threads/src",
         "%{wks.location}/pulvis-filesystem/src",
         "%{wks.location}/pulvis-rendering/src",
@@ -28,7 +29,7 @@ project "pulvis-game"
         includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
         libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
         defines { "GLFW_DLL" }
-        links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "glfw3dll" }
+        links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "pulvis-events", "glfw3dll" }
         postbuildcommands {
             "{COPY} %{wks.location}/pulvis-vendor/windows/bin/glfw3.dll %{cfg.targetdir}"
         }
@@ -36,8 +37,8 @@ project "pulvis-game"
     filter "system:macosx"
         includedirs { "/opt/homebrew/include" }
         libdirs { "/opt/homebrew/lib" }
-        links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "glfw" }
+        links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "pulvis-events", "glfw" }
         links { "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
 
     filter {}
-    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine" }
+    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level", "pulvis-game-engine", "pulvis-events" }

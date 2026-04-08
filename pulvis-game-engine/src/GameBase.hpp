@@ -33,6 +33,11 @@ namespace pulvis::threads
 {
 	class CMessageBus;
 }
+
+namespace pulvis::events
+{
+  class CEventDispatcher;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace pulvis::game_engine
@@ -57,8 +62,16 @@ namespace pulvis::game_engine
             pulvis::rendering::CRenderService& GetRenderService() const;
             pulvis::level::CLevelService& GetLevelService() const;
             pulvis::threads::CMessageBus& GetMessageBus() const;
+						pulvis::events::CEventDispatcher& GetEventDispatcher() const;
 
             CGameStateMachine& GetStateMachine();
+
+      public:
+
+            uint32_t GetMainChannelID() const;
+            uint32_t GetRenderChannelID() const;
+            uint32_t GetAudioChannelID() const;
+            uint32_t GetIOChannelID() const;
 
         private:
 
@@ -80,8 +93,16 @@ namespace pulvis::game_engine
             std::unique_ptr<pulvis::rendering::CRenderService> m_RenderService;
             std::unique_ptr<pulvis::level::CLevelService> m_LevelService;
             std::unique_ptr<pulvis::threads::CMessageBus> m_MessageBus;
+						std::unique_ptr<pulvis::events::CEventDispatcher> m_EventDispatcher;
 
             CGameStateMachine m_StateMachine;
+
+            // Cached MessageBus channel IDS.
+            uint32_t m_MainChannelID;
+						uint32_t m_RenderChannelID;
+						uint32_t m_AudioChannelID;
+						uint32_t m_IOChannelID;
+
 
             using Clock = std::chrono::high_resolution_clock;
             Clock::time_point m_LastFrameTime;

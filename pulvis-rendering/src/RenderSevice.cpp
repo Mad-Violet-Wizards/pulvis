@@ -23,7 +23,7 @@ namespace pulvis::rendering
 		switch (_renderer_type)
 		{
 			case ERendererType::OpenGL:
-			{
+			{	
 				m_Renderer = std::make_unique<gl::CGLRenderer>(m_AssetRegistry);
 				break;
 			}
