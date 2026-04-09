@@ -11,6 +11,7 @@
 #include "GLRenderer.hpp"
 #include "GLSpriteRenderer.hpp"
 #include "Filesystem.hpp"
+#include "Logger.hpp"
 
 namespace pulvis::rendering::gl
 {

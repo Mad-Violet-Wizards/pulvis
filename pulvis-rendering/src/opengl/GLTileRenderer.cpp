@@ -85,13 +85,13 @@ namespace pulvis::rendering::gl
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, batch.TextureID);
 			m_Shader.SetInt("uTexture", 0);
-			m_Shader.SetVec2("uAtlasSize", batch.TextureSize);
+			//m_Shader.SetVec2("uAtlasSize", batch.TextureSize);
 
 			glm::vec4 batch_ambient = batch.AmbientColor * _frame_state.AmbientLight;
 			m_Shader.SetVec4("uAmbientColor", batch_ambient);
 
-			float anim_time = (batch.AnimationTime > 0.f) ? batch.AnimationTime : _frame_state.AnimationTime;
-			m_Shader.SetFloat("uTime", anim_time);
+			//float anim_time = (batch.AnimationTime > 0.f) ? batch.AnimationTime : _frame_state.AnimationTime;
+			//m_Shader.SetFloat("uTime", anim_time);
 
 			glBindBuffer(GL_ARRAY_BUFFER, batch.VboID);
 

@@ -38,6 +38,8 @@ namespace pulvis::fs::assets
 			SAssetEntry* Get(const SAssetHandle& _handle);
 			SAssetHandle Find(const std::string& _virtual_path) const;
 
+			const std::vector<SAssetEntry>& GetEntries() const { return m_Entries; }
+
 		private:
 
 			bool IsHandleValid(const SAssetHandle& _handle) const;

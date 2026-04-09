@@ -23,6 +23,7 @@ namespace pulvis::rendering
 			ERendererType GetType() const;
 
 			virtual CRenderQueue& GetRenderQueue() = 0;
+			virtual const CRenderQueue& GetRenderQueue() const = 0;
 
 		protected:
 

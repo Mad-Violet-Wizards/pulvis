@@ -68,7 +68,7 @@ namespace pulvis::level
 
 		pulvis::rendering::gl::CGLRenderDevice& m_Device;
 		pulvis::fs::assets::CAssetRegistry& m_Registry;
-		float m_TileSize = 16.f;
+		float m_TileSize = 32.f;
 
 		// Cache: chunk coord -> list of VBOs (one per tileset per layer)
 		std::unordered_map<SChunkCoord, std::vector<SCachedChunkVBO>> m_VBOCache;

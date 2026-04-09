@@ -1,4 +1,6 @@
 #include "Level.hpp"
+
+#include "assets/AssetRegistry.hpp"
 #include <cmath>
 
 namespace pulvis::level
@@ -178,6 +180,39 @@ namespace pulvis::level
 	void CLevel::RegisterTileset(uint16_t _index, const std::string& _assetPath)
 	{
 		m_TilesetPaths[_index] = _assetPath;
+	}
+
+	uint16_t CLevel::RegisterTilesetsFromRegistry(const pulvis::fs::assets::CAssetRegistry& _registry)
+	{
+		const std::vector<pulvis::fs::assets::SAssetEntry>& entries = _registry.GetEntries();
+
+		// Collect all ready tileset paths
+		std::vector<std::string> tileset_paths;
+
+		for (const auto& entry : entries)
+		{
+			if (entry.Type != pulvis::fs::EAssetType::Tileset)
+			{
+				continue;
+			}
+
+			if (entry.State != pulvis::fs::assets::EAssetState::Ready)
+			{
+				continue;
+			}
+
+			tileset_paths.push_back(entry.VirtualPath);
+		}
+
+		// Sort for deterministic index assignment
+		std::stable_sort(tileset_paths.begin(), tileset_paths.end());
+
+		for (uint16_t i = 0; i < static_cast<uint16_t>(tileset_paths.size()); ++i)
+		{
+			m_TilesetPaths[i] = tileset_paths[i];
+		}
+
+		return static_cast<uint16_t>(tileset_paths.size());
 	}
 
 	const std::string& CLevel::GetTilesetPath(uint16_t _index) const

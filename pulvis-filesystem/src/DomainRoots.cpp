@@ -17,9 +17,9 @@ namespace pulvis::fs
 	#elif defined(MAC_OS)
 		const std::filesystem::path workspace = std::filesystem::current_path();
 	#endif
-		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = workspace / "pulvis-assets/engine/";
-		m_Roots[static_cast<uint8_t>(EDomain::Game)] = workspace / "pulvis-assets/game/";
-		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = workspace / "pulvis-assets/dev/";
+		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = workspace / std::format("{}-assets/engine/", _app_name);
+		m_Roots[static_cast<uint8_t>(EDomain::Game)] = workspace / std::format("{}-assets/game/", _app_name);
+		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = workspace / std::format("{}-assets/dev/", _app_name);
 
 		PULVIS_INFO_LOG("Domain roots initialized:");
 		PULVIS_INFO_LOG("Engine: {}", m_Roots[static_cast<uint8_t>(EDomain::Engine)].string());

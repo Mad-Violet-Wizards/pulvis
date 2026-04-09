@@ -10,6 +10,8 @@ namespace pulvis::rendering
 	CWindow::CWindow(unsigned int _width, unsigned int _height, const char* _title)
 		: m_Width(_width)
 		, m_Height(_height)
+		, m_FramebufferWidth(_width)
+		, m_FramebufferHeight(_height)
 		, m_Title(_title)
 	{
 		glfwSetErrorCallback([](int error, const char* desc)
@@ -51,6 +53,9 @@ namespace pulvis::rendering
 				CWindow* window = reinterpret_cast<CWindow*>(glfwGetWindowUserPointer(_window));
 				window->m_Width = _width;
 				window->m_Height = _height;
+				window->m_FramebufferWidth = _width;
+				window->m_FramebufferHeight = _height;
+				glViewport(0, 0, _width, _height);
 			});
 
 		glfwMakeContextCurrent(m_Window);
@@ -60,7 +65,11 @@ namespace pulvis::rendering
 			glfwTerminate();
 		}
 
-		glViewport(0, 0, _width, _height);
+		int fb_w, fb_h;
+		glfwGetFramebufferSize(m_Window, &fb_w, &fb_h);
+		m_FramebufferWidth = static_cast<unsigned int>(fb_w);
+		m_FramebufferHeight = static_cast<unsigned int>(fb_h);
+		glViewport(0, 0, fb_w, fb_h);
 	}
 
 	CWindow::~CWindow()
@@ -72,5 +81,10 @@ namespace pulvis::rendering
 	bool CWindow::GetShouldClose() const
 	{
 		return glfwWindowShouldClose(m_Window);
+	}
+
+	bool CWindow::IsKeyPressed(int key) const
+	{
+		return glfwGetKey(m_Window, key) == GLFW_PRESS;
 	}
 }

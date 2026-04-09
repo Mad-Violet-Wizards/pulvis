@@ -26,6 +26,16 @@ namespace pulvis::rendering::gl
 			bool GetShouldClose() override;
 
 			CRenderQueue& GetRenderQueue() override { return m_RenderQueue; }
+			const CRenderQueue& GetRenderQueue() const override { return m_RenderQueue; }
+
+			CGLRenderDevice& GetRenderDevice()  { return m_Device; }
+			const CGLRenderDevice& GetRenderDevice() const { return m_Device; }
+
+			CCamera2D& GetCamera() { return m_Camera; }
+			const CCamera2D& GetCamera() const { return m_Camera; }
+
+			CWindow& GetWindow() { return m_Window; }
+			const CWindow& GetWindow() const { return m_Window; }
 
 		private:
 

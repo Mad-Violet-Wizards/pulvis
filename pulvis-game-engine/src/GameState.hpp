@@ -2,15 +2,15 @@
 
 #include <cstdint>
 
-#include "GameBase.hpp"
-
 namespace pulvis::game_engine
 {
+    class IGame;
+
     class IGameState
     {
         public:
             
-            IGameState(CGameBase& _game)
+            IGameState(IGame& _game)
               : m_Game(_game) {}
             virtual ~IGameState() = default;
 
@@ -24,6 +24,6 @@ namespace pulvis::game_engine
 
       protected:
 
-				CGameBase& m_Game;
+				IGame& m_Game;
     };
 };

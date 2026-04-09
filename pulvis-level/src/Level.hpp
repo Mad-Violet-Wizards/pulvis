@@ -9,6 +9,8 @@
 #include <memory>
 #include <cstdint>
 
+namespace pulvis::fs::assets { class CAssetRegistry; }
+
 namespace pulvis::level
 {
 	/* 
@@ -63,6 +65,7 @@ namespace pulvis::level
 			size_t GetLoadedChunkCount() const { return m_Chunks.size(); }
 
 			void RegisterTileset(uint16_t _tilesetIndex, const std::string& _asset_path);
+			uint16_t RegisterTilesetsFromRegistry(const pulvis::fs::assets::CAssetRegistry& _registry);
 			const std::string& GetTilesetPath(uint16_t _tilesetIndex) const;
 			const std::unordered_map<uint16_t, std::string>& GetTilesetTable() const { return m_TilesetPaths; }
 

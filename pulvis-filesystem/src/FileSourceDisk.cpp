@@ -5,7 +5,7 @@
 namespace pulvis::fs
 {
 	CFileSourceDisk::CFileSourceDisk(std::filesystem::path _root, bool _read_only)
-		: m_Root(std::filesystem::weakly_canonical(std::move(_root)))
+		: m_Root(std::filesystem::weakly_canonical(std::filesystem::absolute(std::move(_root))))
 		, m_ReadOnly(_read_only)
 	{
 	}
@@ -97,12 +97,19 @@ namespace pulvis::fs
 			return EFileResult::NotFound;
 		}
 
-		const std::filesystem::path absolute_path = ToAbsolute(_directory);
+		const std::filesystem::path absolute_path = std::filesystem::canonical(ToAbsolute(_directory));
+
+		// Verify the resolved path is still within our root.
+		auto [root_end, _] = std::mismatch(m_Root.begin(), m_Root.end(), absolute_path.begin());
+		if (root_end != m_Root.end())
+		{
+			return EFileResult::AccessDenied;
+		}
 
 		for (const auto& entry : std::filesystem::directory_iterator(absolute_path))
 		{
 			SFileInfo info;
-			info.Path = CFilePath(entry.path().lexically_relative(m_Root).string());
+			info.Path = CFilePath(std::filesystem::canonical(entry.path()).lexically_relative(m_Root).string());
 			info.IsDirectory = entry.is_directory();
 			info.Size = info.IsDirectory ? 0 : static_cast<file_size_t>(entry.file_size());
 			auto ftime = entry.last_write_time();
