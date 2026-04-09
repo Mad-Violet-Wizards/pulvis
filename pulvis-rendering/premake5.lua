@@ -11,6 +11,7 @@ project "pulvis-rendering"
     }
 
     includedirs { "%{wks.location}/pulvis-template-library/src",
+                  "%{wks.location}/pulvis-rtti/src",
                   "%{wks.location}/pulvis-core/src",
                   "%{wks.location}/pulvis-events/src",
                   "%{wks.location}/pulvis-filesystem/src",
@@ -22,7 +23,7 @@ project "pulvis-rendering"
         includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
         libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
         defines { "GLFW_DLL" }
-        links { "pulvis-core","pulvis-events","pulvis-filesystem","glfw3dll"}
+        links { "pulvis-core","pulvis-events","pulvis-filesystem","pulvis-rtti","glfw3dll"}
         postbuildcommands {
             "{COPY} %{wks.location}/pulvis-vendor/windows/bin/glfw3.dll %{cfg.targetdir}"
         }
@@ -30,11 +31,11 @@ project "pulvis-rendering"
     filter "system:macosx"
         includedirs { "/opt/homebrew/include" }
         libdirs { "/opt/homebrew/lib" }
-        links { "pulvis-core","pulvis-events","pulvis-filesystem","glfw" }
+        links { "pulvis-core","pulvis-events","pulvis-filesystem","pulvis-rtti","glfw" }
         links { "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
 
     filter {}
-    dependson { "pulvis-core", "pulvis-events","pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
+    dependson { "pulvis-core", "pulvis-rtti", "pulvis-events","pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
 
 project "pulvis-rendering-playground"
     kind "ConsoleApp"
@@ -48,6 +49,7 @@ project "pulvis-rendering-playground"
 
     includedirs { 
         "%{wks.location}/pulvis-template-library/src",
+        "%{wks.location}/pulvis-rtti/src",
         "%{wks.location}/pulvis-core/src",
         "%{wks.location}/pulvis-filesystem/src",
         "%{wks.location}/pulvis-rendering/src",
@@ -57,13 +59,13 @@ project "pulvis-rendering-playground"
     filter "system:windows"
         includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
         libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
-        links { "glfw3dll", "pulvis-rendering", "pulvis-filesystem", "pulvis-core" }
+        links { "glfw3dll", "pulvis-template-library", "pulvis-rendering", "pulvis-filesystem", "pulvis-core", "pulvis-rtti" }
 
     filter "system:macosx"
         includedirs { "/opt/homebrew/include" }
         libdirs { "/opt/homebrew/lib" }
-        links { "glfw", "pulvis-rendering", "pulvis-filesystem", "pulvis-core" }
+        links { "glfw", "pulvis-template-library", "pulvis-rendering", "pulvis-filesystem", "pulvis-core", "pulvis-rtti" }
         links { "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
 
     filter {}
-    dependson { "glfw3dll", "pulvis-rendering", "pulvis-filesystem", "pulvis-core" }
+    dependson { "glfw3dll", "pulvis-template-library", "pulvis-rendering", "pulvis-filesystem", "pulvis-core", "pulvis-rtti" }
