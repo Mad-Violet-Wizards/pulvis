@@ -35,7 +35,7 @@ project "pulvis-rendering"
         links { "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
 
     filter {}
-    dependson { "pulvis-core", "pulvis-rtti", "pulvis-events","pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
+    dependson { "pulvis-core", "pulvis-rtti", "pulvis-events", "pulvis-filesystem" }
 
 project "pulvis-rendering-playground"
     kind "ConsoleApp"

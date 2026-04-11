@@ -7,9 +7,13 @@
 
 namespace pulvis::fs
 {
-	CDomainRoots::CDomainRoots(const std::string& _app_name)
+	CDomainRoots::CDomainRoots(const std::string& _app_name, const std::string& _game_assets_path)
 	{
 		m_Roots[static_cast<uint8_t>(EDomain::User)] = ResolveUserDataPath(_app_name);
+
+		const std::string game_assets_dir = _game_assets_path.empty()
+			? std::format("{}-assets", _app_name)
+			: _game_assets_path;
 
 #if defined(DEBUG)
 	#if defined(WINDOWS_OS)
@@ -17,9 +21,9 @@ namespace pulvis::fs
 	#elif defined(MAC_OS)
 		const std::filesystem::path workspace = std::filesystem::current_path();
 	#endif
-		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = workspace / std::format("{}-assets/engine/", _app_name);
-		m_Roots[static_cast<uint8_t>(EDomain::Game)] = workspace / std::format("{}-assets/game/", _app_name);
-		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = workspace / std::format("{}-assets/dev/", _app_name);
+		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = workspace / "pulvis-assets/engine/";
+		m_Roots[static_cast<uint8_t>(EDomain::Game)] = workspace / game_assets_dir / "game/";
+		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = workspace / game_assets_dir / "dev/";
 
 		PULVIS_INFO_LOG("Domain roots initialized:");
 		PULVIS_INFO_LOG("Engine: {}", m_Roots[static_cast<uint8_t>(EDomain::Engine)].string());

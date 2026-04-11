@@ -1,5 +1,3 @@
-#pragma once
-
 #include "IRenderer.hpp"
 
 #include <glad/glad.h>
@@ -10,7 +8,7 @@
 
 #include "GLRenderer.hpp"
 #include "GLSpriteRenderer.hpp"
-#include "Filesystem.hpp"
+#include "FileSystem.hpp"
 #include "Logger.hpp"
 
 namespace pulvis::rendering::gl

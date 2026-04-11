@@ -39,16 +39,16 @@ TEST_CASE("MessageBus (RegisterChannel)", "[Threads][MessageBus]")
 	SECTION("Register channel does not crash")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 4096);
+		bus.RegisterChannel(4096);
 		CHECK(true);
 	}
 
 	SECTION("Register multiple channels")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 4096);
-		bus.RegisterChannel(1, 4096);
-		bus.RegisterChannel(2, 4096);
+		bus.RegisterChannel(4096);
+		bus.RegisterChannel(4096);
+		bus.RegisterChannel(4096);
 		CHECK(true);
 	}
 }
@@ -59,22 +59,22 @@ TEST_CASE("MessageBus (Send + Drain single message)", "[Threads][MessageBus]")
 	SECTION("Single message roundtrip")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 4096);
+		const uint32_t ch0 = bus.RegisterChannel(4096);
 
 		int received = 0;
-		bus.RegisterHandler<STestMessage>(0,
+		bus.RegisterHandler<STestMessage>(ch0,
 			+[](const STestMessage& _msg) {
 			}
 		);
 
 		int* ptr = &received;
-		bus.RegisterHandler<STestMessage>(0,
+		bus.RegisterHandler<STestMessage>(ch0,
 			[ptr](const STestMessage& _msg) { *ptr = _msg.Value; }
 		);
 
 		STestMessage msg{ 42 };
-		bus.Send<STestMessage>(0, msg);
-		bus.Drain(0);
+		bus.Send<STestMessage>(ch0, msg);
+		bus.Drain(ch0);
 
 		CHECK(received == 42);
 	}
@@ -86,7 +86,7 @@ TEST_CASE("MessageBus (multiple message types)", "[Threads][MessageBus]")
 	SECTION("Different types on same channel")
 	{
 		CMessageBus bus;
-		bus.RegisterChannel(0, 8192);
+		const uint32_t ch0 = bus.RegisterChannel(8192);
 
 		int int_received = 0;
 		float x_received = 0.0f;
@@ -96,20 +96,20 @@ TEST_CASE("MessageBus (multiple message types)", "[Threads][MessageBus]")
 		float* xp = &x_received;
 		float* yp = &y_received;
 
-		bus.RegisterHandler<STestMessage>(0,
+		bus.RegisterHandler<STestMessage>(ch0,
 			[ip](const STestMessage& _msg) { *ip = _msg.Value; }
 		);
 
-		bus.RegisterHandler<STestMessage2>(0,
+		bus.RegisterHandler<STestMessage2>(ch0,
 			[xp, yp](const STestMessage2& _msg) { *xp = _msg.X; *yp = _msg.Y; }
 		);
 
 		STestMessage msg1{ 7 };
 		STestMessage2 msg2{ 1.5f, 2.5f };
 
-		bus.Send<STestMessage>(0, msg1);
-		bus.Send<STestMessage2>(0, msg2);
-		bus.Drain(0);
+		bus.Send<STestMessage>(ch0, msg1);
+		bus.Send<STestMessage2>(ch0, msg2);
+		bus.Drain(ch0);
 
 		CHECK(int_received == 7);
 		CHECK(x_received == 1.5f);

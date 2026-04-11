@@ -31,7 +31,7 @@ workspace "pulvis"
         defines { "MAC_OS" }
         architecture "ARM64"
         buildoptions { 
-            "-Wunknown-attributes"   -- Disable warning: unknown attribute ignored
+            "-Wno-unknown-attributes"   -- Disable warning: unknown attribute ignored
         }
 
     include "pulvis-template-library/premake5.lua"
@@ -43,4 +43,3 @@ workspace "pulvis"
     include "pulvis-rendering/premake5.lua"
     include "pulvis-level/premake5.lua"
     include "pulvis-game-engine/premake5.lua"
-    include "stardust/stardust-game/premake5.lua"

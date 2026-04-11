@@ -5,7 +5,6 @@
 
 namespace pulvis::game_engine
 {
-    class CGameBase;
     class IGameState;
 
     class CGameStateMachine

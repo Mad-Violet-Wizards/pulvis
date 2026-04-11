@@ -27,7 +27,11 @@ namespace pulvis::events
 
 			static constexpr event_id_t GetStaticEventId()
 			{
-				return pulvis::tl::hash::fnv1a<event_id_t>(__FUNCSIG__);
+				#if defined(_MSC_VER)
+					return pulvis::tl::hash::fnv1a<event_id_t>(__FUNCSIG__);
+				#elif defined(__clang__) || defined(__GNUC__)
+					return pulvis::tl::hash::fnv1a<event_id_t>(__PRETTY_FUNCTION__);
+				#endif
 			}
 
 			event_id_t GetEventId() const override
