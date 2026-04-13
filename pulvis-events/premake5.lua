@@ -9,21 +9,21 @@ project "pulvis-events"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-events/src/**.hpp",
-        "%{wks.location}/pulvis-events/src/**.cpp"
+        PULVIS_ROOT .. "/pulvis-events/src/**.hpp",
+        PULVIS_ROOT .. "/pulvis-events/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-rtti/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-vendor/common/include/",
-        "%{wks.location}/pulvis-events/src"
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/",
+        PULVIS_ROOT .. "/pulvis-events/src"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     links { "pulvis-template-library", "pulvis-rtti", "pulvis-core" }
@@ -36,22 +36,22 @@ project "pulvis-events-tests"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-events/tests/**.hpp",
-        "%{wks.location}/pulvis-events/tests/**.cpp"
+        PULVIS_ROOT .. "/pulvis-events/tests/**.hpp",
+        PULVIS_ROOT .. "/pulvis-events/tests/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-rtti/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-vendor/common/include/",
-        "%{wks.location}/pulvis-events/src",
-        "%{wks.location}/pulvis-events/tests"
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/",
+        PULVIS_ROOT .. "/pulvis-events/src",
+        PULVIS_ROOT .. "/pulvis-events/tests"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
 

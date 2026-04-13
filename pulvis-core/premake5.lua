@@ -5,19 +5,19 @@ project "pulvis-core"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
     
     files {
-        "%{wks.location}/pulvis-core/src/**.hpp",
-        "%{wks.location}/pulvis-core/src/**.cpp"
+        PULVIS_ROOT .. "/pulvis-core/src/**.hpp",
+        PULVIS_ROOT .. "/pulvis-core/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" } -- FMT library requires UTF-8 encoding
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     dependson { "pulvis-template-library" }

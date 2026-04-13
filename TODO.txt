@@ -6,5 +6,7 @@ Features:
 * Introduce tests for each serialize trait type
 * Move assertions to separate library(?)
 * RTTI produces .inl with direct set/get methods.
+* Integrate imgui with project
+* Add UI librar
 Bugs:
 * pulvis-rtti_rtti_autogen what is this?

@@ -184,7 +184,7 @@ namespace pulvis::level
 
 	uint16_t CLevel::RegisterTilesetsFromRegistry(const pulvis::fs::assets::CAssetRegistry& _registry)
 	{
-		const std::vector<pulvis::fs::assets::SAssetEntry>& entries = _registry.GetEntries();
+		const std::deque<pulvis::fs::assets::SAssetEntry>& entries = _registry.GetEntries();
 
 		// Collect all ready tileset paths
 		std::vector<std::string> tileset_paths;

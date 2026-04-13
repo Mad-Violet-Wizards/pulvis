@@ -1,11 +1,5 @@
 #pragma once
 
-namespace pulvis::fs
-{
-    class CMountSystem;
-    class CDomainRoots;
-}
-
 namespace pulvis::game_engine
 {
     struct SEngineConfig;
@@ -19,13 +13,8 @@ namespace pulvis::game_engine
             /* Called before any system is allocated. */
             virtual void Configure(SEngineConfig& _config) = 0;
 
-            /* 
-                Called after DomainRoots and MountSystem are created and base domains 
-                are bootstrapped (engine, game, user, dev).
-                Override to mount additional game-specific directories 
-                (e.g. levels, tilesets, mods).
-            */
-            virtual void OnMountFilesystems(pulvis::fs::CMountSystem& _mount_system, const pulvis::fs::CDomainRoots& _domain_roots) = 0;
+            virtual void InitializeGameFilesystems() = 0;
+            virtual void InitializeGameServices() = 0;
 
             /* Called after all core systems are allocated (filesystem, rendering, level...). */
             virtual void OnInitialize() = 0;

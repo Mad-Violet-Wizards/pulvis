@@ -5,31 +5,32 @@ project "pulvis-game-engine"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-game-engine/src/**.hpp",
-        "%{wks.location}/pulvis-game-engine/src/**.cpp"
+        PULVIS_ROOT .. "/pulvis-game-engine/src/**.hpp",
+        PULVIS_ROOT .. "/pulvis-game-engine/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-rtti/src",
-        "%{wks.location}/pulvis-events/src",
-        "%{wks.location}/pulvis-threads/src",
-        "%{wks.location}/pulvis-filesystem/src",
-        "%{wks.location}/pulvis-rendering/src",
-        "%{wks.location}/pulvis-level/src",
-        "%{wks.location}/pulvis-game-engine/src",
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-events/src",
+        PULVIS_ROOT .. "/pulvis-threads/src",
+        PULVIS_ROOT .. "/pulvis-filesystem/src",
+        PULVIS_ROOT .. "/pulvis-rendering/src",
+        PULVIS_ROOT .. "/pulvis-scriptable/src",
+        PULVIS_ROOT .. "/pulvis-level/src",
+        PULVIS_ROOT .. "/pulvis-game-engine/src",
 
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" } -- FMT library requires UTF-8 encoding
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
-        libdirs { "%{wks.location}/pulvis-vendor/windows/bin/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
+        libdirs { PULVIS_ROOT .. "/pulvis-vendor/windows/bin/" }
         defines { "GLFW_DLL" }
 
     filter {}
-    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-events","pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
+    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-events","pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-scriptable", "pulvis-level" }
 
-    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-events", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-level" }
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-events", "pulvis-threads", "pulvis-filesystem", "pulvis-rendering", "pulvis-scriptable", "pulvis-level" }

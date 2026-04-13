@@ -10,6 +10,7 @@
 #include "loaders/ShaderLoader.hpp"
 #include "FileSourceDisk.hpp"
 #include "EventDispatcher.hpp"
+#include "ScriptableService.hpp"
 
 //////////////////////////////////////////////////////////////////////////
 namespace pulvis::game_engine
@@ -25,6 +26,7 @@ namespace pulvis::game_engine
     , m_AssetRegistry(nullptr)
     , m_RenderService(nullptr)
     , m_LevelService(nullptr)
+    , m_ScriptableService(nullptr)
     , m_MessageBus(nullptr)
     , m_EventDispatcher(nullptr)
   {
@@ -71,7 +73,7 @@ namespace pulvis::game_engine
     m_MountSystem->BootstrapDomains(*m_DomainRoots);
 
     // Let the game mount additional directories.
-    OnMountFilesystems(*m_MountSystem, *m_DomainRoots);
+    InitializeGameFilesystems();
 
     m_AssetRegistry = std::make_unique<pulvis::fs::assets::CAssetRegistry>(*m_MountSystem);
   }
@@ -87,16 +89,23 @@ namespace pulvis::game_engine
 
   void CGameBase::InitializeServices()
   {
+		m_ScriptableService = std::make_unique<pulvis::scriptable::CScriptableService>();
+
     m_RenderService = std::make_unique<pulvis::rendering::CRenderService>(*m_AssetRegistry);
     m_RenderService->Initialize(m_Config.RendererType, m_Config.WindowWidth, m_Config.WindowHeight, m_Config.WindowTitle);
 
     m_LevelService = std::make_unique<pulvis::level::CLevelService>(*m_AssetRegistry, *m_MountSystem);
     m_LevelService->Initialize(*m_MessageBus, m_IOChannelID, m_MainChannelID);
+
+    InitializeGameServices();
+    m_ScriptableService->Initialize();
   }
 
   void CGameBase::Shutdown()
   {
     PULVIS_INFO_LOG("Shutting down core systems...");
+    
+    m_ScriptableService.reset();
 
     m_LevelService.reset();
     m_RenderService.reset();
@@ -167,6 +176,12 @@ namespace pulvis::game_engine
   {
     ASSERT(m_LevelService, "LevelService not initialized.");
     return *m_LevelService;
+  }
+
+  pulvis::scriptable::CScriptableService& CGameBase::GetScriptableService() const
+  {
+		ASSERT(m_ScriptableService, "ScriptableService not initialized.");
+		return *m_ScriptableService;
   }
 
   pulvis::threads::CMessageBus& CGameBase::GetMessageBus() const

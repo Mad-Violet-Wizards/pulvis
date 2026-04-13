@@ -5,18 +5,18 @@ project "pulvis-template-library"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
     
     files {
-        "%{wks.location}/pulvis-template-library/src/**.hpp",
-        "%{wks.location}/pulvis-template-library/src/**.cpp"
+        PULVIS_ROOT .. "/pulvis-template-library/src/**.hpp",
+        PULVIS_ROOT .. "/pulvis-template-library/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
 filter {}
 
@@ -27,19 +27,19 @@ project "pulvis-template-library-tests"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-template-library/tests/**.hpp",
-        "%{wks.location}/pulvis-template-library/tests/**.cpp"
+        PULVIS_ROOT .. "/pulvis-template-library/tests/**.hpp",
+        PULVIS_ROOT .. "/pulvis-template-library/tests/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/tests",
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-template-library/tests",
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     links { "pulvis-template-library" }

@@ -9,19 +9,19 @@ project "pulvis-rtti"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
     
     files {
-        "%{wks.location}/pulvis-rtti/src/**.hpp",
-        "%{wks.location}/pulvis-rtti/src/**.cpp"
+        PULVIS_ROOT .. "/pulvis-rtti/src/**.hpp",
+        PULVIS_ROOT .. "/pulvis-rtti/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-rtti/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" } -- FMT library requires UTF-8 encoding
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     links { "pulvis-template-library" }
@@ -34,20 +34,20 @@ project "pulvis-rtti-tests"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-rtti/tests/**.hpp",
-        "%{wks.location}/pulvis-rtti/tests/**.cpp"
+        PULVIS_ROOT .. "/pulvis-rtti/tests/**.hpp",
+        PULVIS_ROOT .. "/pulvis-rtti/tests/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-rtti/tests",
-        "%{wks.location}/pulvis-rtti/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-rtti/tests",
+        PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" } -- FMT library requires UTF-8 encoding
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     prebuildcommands {

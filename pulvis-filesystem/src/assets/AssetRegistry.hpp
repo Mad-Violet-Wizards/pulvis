@@ -4,7 +4,7 @@
 #include "AssetLoader.hpp"
 #include "MountSystem.hpp"
 
-#include <vector>
+#include <deque>
 #include <unordered_map>
 #include <string>
 #include <memory>
@@ -38,7 +38,7 @@ namespace pulvis::fs::assets
 			SAssetEntry* Get(const SAssetHandle& _handle);
 			SAssetHandle Find(const std::string& _virtual_path) const;
 
-			const std::vector<SAssetEntry>& GetEntries() const { return m_Entries; }
+			const std::deque<SAssetEntry>& GetEntries() const { return m_Entries; }
 
 		private:
 
@@ -49,7 +49,7 @@ namespace pulvis::fs::assets
 		private:
 
 			CMountSystem& m_MountSystem;
-			std::vector<SAssetEntry> m_Entries;
+			std::deque<SAssetEntry> m_Entries;
 			std::vector<uint32_t> m_FreeList;
 			std::unordered_map<std::string, uint32_t> m_PathIndex;
 			std::unordered_map<EAssetType, std::unique_ptr<IAssetLoader>> m_Loaders;

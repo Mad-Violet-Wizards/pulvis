@@ -38,6 +38,11 @@ namespace pulvis::events
 {
   class CEventDispatcher;
 }
+
+namespace pulvis::scriptable
+{
+	class CScriptableService;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace pulvis::game_engine
@@ -61,6 +66,7 @@ namespace pulvis::game_engine
     pulvis::fs::assets::CAssetRegistry& GetAssetRegistry() const;
     pulvis::rendering::CRenderService& GetRenderService() const;
     pulvis::level::CLevelService& GetLevelService() const;
+		pulvis::scriptable::CScriptableService& GetScriptableService() const;
     pulvis::threads::CMessageBus& GetMessageBus() const;
     pulvis::events::CEventDispatcher& GetEventDispatcher() const;
 
@@ -92,6 +98,7 @@ namespace pulvis::game_engine
     std::unique_ptr<pulvis::fs::assets::CAssetRegistry> m_AssetRegistry;
     std::unique_ptr<pulvis::rendering::CRenderService> m_RenderService;
     std::unique_ptr<pulvis::level::CLevelService> m_LevelService;
+		std::unique_ptr<pulvis::scriptable::CScriptableService> m_ScriptableService;
     std::unique_ptr<pulvis::threads::CMessageBus> m_MessageBus;
     std::unique_ptr<pulvis::events::CEventDispatcher> m_EventDispatcher;
 

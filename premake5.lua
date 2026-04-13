@@ -6,6 +6,7 @@ require "pulvis-scripts.build-tools.common.filepath"
 
 PROJECT_ABSOLUTE_PATH = GetScriptPath()
 RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH = PROJECT_ABSOLUTE_PATH .. "pulvis-scripts/rtti/main.py"
+PULVIS_ROOT = path.getabsolute(".")
 
 ---------------------------------------------------------------
 -- PREMAKE
@@ -23,6 +24,7 @@ workspace "pulvis"
 
     filter "system:windows"
         defines { "WINDOWS_OS" }
+        architecture { "x86_64" }
         buildoptions { 
             "/wd5030"   -- Disable warning C5030: attribute not recognized
         }
@@ -39,6 +41,7 @@ workspace "pulvis"
     include "pulvis-core/premake5.lua"
     include "pulvis-events/premake5.lua"
     include "pulvis-threads/premake5.lua"
+    include "pulvis-scriptable/premake5.lua"
     include "pulvis-filesystem/premake5.lua"
     include "pulvis-rendering/premake5.lua"
     include "pulvis-level/premake5.lua"

@@ -34,7 +34,7 @@
 
 // beginning of sol/version.hpp
 
-#include <sol/config.hpp>
+#include <sol3/config.hpp>
 
 #define SOL_VERSION_MAJOR 3
 #define SOL_VERSION_MINOR 2
@@ -2955,9 +2955,9 @@ struct pre_main {
 	#include <lua.hpp>
 #else
 	extern "C" {
-		#include <lua.h>
-		#include <lauxlib.h>
-		#include <lualib.h>
+		#include <lua/lua.h>
+		#include <lua/lauxlib.h>
+		#include <lua/lualib.h>
 	}
 #endif // C++ Mangling for Lua vs. Not
 
@@ -3152,9 +3152,9 @@ struct pre_main {
 #if defined(__cplusplus) && !defined(COMPAT53_LUA_CPP)
 extern "C" {
 #endif
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <lua/lua.h>
+#include <lua/lauxlib.h>
+#include <lua/lualib.h>
 #if defined(__cplusplus) && !defined(COMPAT53_LUA_CPP)
 }
 #endif
@@ -3535,9 +3535,9 @@ COMPAT53_API void luaL_requiref(lua_State *L, const char *modname,
 #endif /* Lua 5.2 only */
 
 /* other Lua versions */
-#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 501 || LUA_VERSION_NUM > 504
+#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM < 501 || LUA_VERSION_NUM > 504 || LUA_VERSION_NUM > 505
 
-#  error "unsupported Lua version (i.e. not Lua 5.1, 5.2, 5.3, or 5.4)"
+#  error "unsupported Lua version (i.e. not Lua 5.1, 5.2, 5.3, or 5.4 or 5.5)"
 
 #endif /* other Lua versions except 5.1, 5.2, 5.3, and 5.4 */
 
@@ -4412,9 +4412,9 @@ COMPAT53_API void luaL_requiref(lua_State* L, const char* modname, lua_CFunction
 #if defined(__cplusplus) && !defined(COMPAT53_LUA_CPP)
 extern "C" {
 #endif
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <lua/lua.h>
+#include <lua/lauxlib.h>
+#include <lua/lualib.h>
 #if defined(__cplusplus) && !defined(COMPAT53_LUA_CPP)
 }
 #endif

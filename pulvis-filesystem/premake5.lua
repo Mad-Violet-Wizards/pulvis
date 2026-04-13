@@ -9,21 +9,21 @@ project "pulvis-filesystem"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-filesystem/src/**.hpp",
-        "%{wks.location}/pulvis-filesystem/src/**.cpp"
+        PULVIS_ROOT .. "/pulvis-filesystem/src/**.hpp",
+        PULVIS_ROOT .. "/pulvis-filesystem/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-filesystem/src",
-        "%{wks.location}/pulvis-rtti/src",
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-filesystem/src",
+        PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     links { "pulvis-rtti", "pulvis-template-library" }
@@ -36,23 +36,23 @@ project "pulvis-filesystem-tests"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-filesystem/tests/**.hpp",
-        "%{wks.location}/pulvis-filesystem/tests/**.cpp"
+        PULVIS_ROOT .. "/pulvis-filesystem/tests/**.hpp",
+        PULVIS_ROOT .. "/pulvis-filesystem/tests/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-filesystem/tests",
-        "%{wks.location}/pulvis-filesystem/tests/serialization",
-        "%{wks.location}/pulvis-filesystem/src",
-        "%{wks.location}/pulvis-rtti/src",
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-filesystem/tests",
+        PULVIS_ROOT .. "/pulvis-filesystem/tests/serialization",
+        PULVIS_ROOT .. "/pulvis-filesystem/src",
+        PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     prebuildcommands {

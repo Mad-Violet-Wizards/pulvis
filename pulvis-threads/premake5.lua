@@ -5,20 +5,20 @@ project "pulvis-threads"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-threads/src/**.hpp",
-        "%{wks.location}/pulvis-threads/src/**.cpp"
+        PULVIS_ROOT .. "/pulvis-threads/src/**.hpp",
+        PULVIS_ROOT .. "/pulvis-threads/src/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-threads/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-threads/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     links { "pulvis-template-library", "pulvis-core" }
@@ -31,21 +31,21 @@ project "pulvis-threads-tests"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
 
     files {
-        "%{wks.location}/pulvis-threads/tests/**.hpp",
-        "%{wks.location}/pulvis-threads/tests/**.cpp"
+        PULVIS_ROOT .. "/pulvis-threads/tests/**.hpp",
+        PULVIS_ROOT .. "/pulvis-threads/tests/**.cpp"
     }
 
     includedirs {
-        "%{wks.location}/pulvis-threads/tests",
-        "%{wks.location}/pulvis-threads/src",
-        "%{wks.location}/pulvis-template-library/src",
-        "%{wks.location}/pulvis-core/src",
-        "%{wks.location}/pulvis-vendor/common/include/"
+        PULVIS_ROOT .. "/pulvis-threads/tests",
+        PULVIS_ROOT .. "/pulvis-threads/src",
+        PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
     filter "system:windows"
         buildoptions { "/utf-8" }
-        includedirs { "%{wks.location}/pulvis-vendor/windows/include/" }
+        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
     links { "pulvis-template-library", "pulvis-core", "pulvis-threads" }
