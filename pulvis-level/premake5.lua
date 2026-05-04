@@ -17,6 +17,7 @@ project "pulvis-level"
         PULVIS_ROOT .. "/pulvis-threads/src",
         PULVIS_ROOT .. "/pulvis-filesystem/src",
         PULVIS_ROOT .. "/pulvis-rendering/src",
+        PULVIS_ROOT .. "/pulvis-scriptable/src",
         PULVIS_ROOT .. "/pulvis-level/src",
         PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
@@ -26,6 +27,6 @@ project "pulvis-level"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
-    links { "pulvis-core", "pulvis-filesystem", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events" }
+    links { "pulvis-template-library", "pulvis-core", "pulvis-filesystem", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events", "pulvis-scriptable" }
 
-    dependson { "pulvis-core", "pulvis-filesystem", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events" }
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-filesystem", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events", "pulvis-scriptable" }

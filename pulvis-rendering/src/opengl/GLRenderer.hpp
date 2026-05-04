@@ -7,6 +7,7 @@
 #include "RenderQueue.hpp"
 #include "opengl/GLSpriteRenderer.hpp"
 #include "opengl/GLTileRenderer.hpp"
+#include "RenderLayerCache.hpp"
 
 namespace pulvis::fs::assets { class CAssetRegistry; }
 
@@ -28,6 +29,9 @@ namespace pulvis::rendering::gl
 			CRenderQueue& GetRenderQueue() override { return m_RenderQueue; }
 			const CRenderQueue& GetRenderQueue() const override { return m_RenderQueue; }
 
+			CRenderLayerCache& GetLayerCache() { return m_LayerCache; }
+			const CRenderLayerCache& GetLayerCache() const { return m_LayerCache; }
+
 			CGLRenderDevice& GetRenderDevice()  { return m_Device; }
 			const CGLRenderDevice& GetRenderDevice() const { return m_Device; }
 
@@ -39,6 +43,8 @@ namespace pulvis::rendering::gl
 
 		private:
 
+			void ApplyBlendMode(ERenderLayerBlend _blend);
+
 			pulvis::fs::assets::CAssetRegistry& m_AssetRegistry;
 
 			CWindow m_Window;
@@ -47,5 +53,7 @@ namespace pulvis::rendering::gl
 			CGLSpriteRenderer m_SpriteRenderer;
 			CGLTileRenderer m_TileRenderer;
 			CRenderQueue m_RenderQueue;
+			CRenderLayerCache m_LayerCache;
+			ERenderLayerBlend m_CurrentBlend;
 	};
 }

@@ -1,5 +1,5 @@
 #include "loaders/TextureLoader.hpp"
-#include "assets/payloads/TexturePayload.hpp"
+#include "payloads/TexturePayload.hpp"
 #include "Logger.hpp"
 
 #include <stb/stb_image.h>
@@ -41,7 +41,7 @@ _entry.RawData.Data(),
 		gl::SGLTextureHandle gpu_handle = m_RenderDevice.CreateTexture2D(desc, pixels);
 		stbi_image_free(pixels);
 
-		auto payload = std::make_unique<fs::assets::STexturePayload>();
+		auto payload = std::make_unique<rendering::STexturePayload>();
 		payload->GPUHandle = gpu_handle.ID;
 		payload->Width = static_cast<uint32_t>(w);
 		payload->Height = static_cast<uint32_t>(h);
@@ -60,7 +60,7 @@ _entry.RawData.Data(),
 			return false;
 		}
 
-		auto* payload = _entry.GetPayload<fs::assets::STexturePayload>();
+		auto* payload = _entry.GetPayload<rendering::STexturePayload>();
 		if (payload->GPUHandle != 0)
 		{
 			gl::SGLTextureHandle tex;

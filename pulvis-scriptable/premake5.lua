@@ -19,6 +19,8 @@ project "pulvis-scriptable"
         PULVIS_ROOT .. "/pulvis-rtti/src",
         PULVIS_ROOT .. "/pulvis-core/src",
         PULVIS_ROOT .. "/pulvis-scriptable/src",
+        PULVIS_ROOT .. "/pulvis-filesystem/src",
+        PULVIS_ROOT .. "/pulvis-events/src",
         PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
@@ -27,5 +29,5 @@ project "pulvis-scriptable"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
-    links { "pulvis-template-library", "pulvis-rtti", "pulvis-core" }
-    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core" }
+    links { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-filesystem", "pulvis-events" }
+    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-core", "pulvis-filesystem", "pulvis-events" }

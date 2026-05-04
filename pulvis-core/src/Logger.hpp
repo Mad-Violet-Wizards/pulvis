@@ -6,135 +6,158 @@
 #define PULVIS_INFO_LOG_ENABLED 1
 
 #ifdef RELEASE
-    #define PULVIS_DEBUG_ENABLED 0
+  #define PULVIS_DEBUG_ENABLED 0
 #else
-    #define PULVIS_DEBUG_ENABLED 1
+  #define PULVIS_DEBUG_ENABLED 1
 #endif
 
 #include <fmt/color.h>
 #include <cstdarg>
+#include <cstdint>
 #include <cstdio>
+#include <functional>
 #include <iostream>
+#include <mutex>
 #include <queue>
+#include <vector>
+
+#include "FastFunction.hpp"
+
 
 namespace pulvis::core
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-    enum class ELogLevel
-    {
-        Fatal = 0,
-        Error = 1,
-        Warning,
-        Info,
-        Debug
-    };
+  enum class ELogLevel
+  {
+      Fatal = 0,
+      Error = 1,
+      Warning,
+      Info,
+      Debug
+  };
 
-  inline static std::string ToString(ELogLevel _log_level)
-    {
-        switch(_log_level)
-        {
-            case ELogLevel::Fatal: return "[FATAL] ";
-            case ELogLevel::Error: return "[ERROR] ";
-            case ELogLevel::Warning: return "[WARNING] ";
-            case ELogLevel::Info: return "[INFO] ";
-            case ELogLevel::Debug: return "[DEBUG] ";
-        }
-        return "";
-    }
+inline static std::string ToString(ELogLevel _log_level)
+  {
+      switch(_log_level)
+      {
+          case ELogLevel::Fatal: return "[FATAL] ";
+          case ELogLevel::Error: return "[ERROR] ";
+          case ELogLevel::Warning: return "[WARNING] ";
+          case ELogLevel::Info: return "[INFO] ";
+          case ELogLevel::Debug: return "[DEBUG] ";
+      }
+      return "";
+  }
 
-    inline static std::string ToANSIColoured(ELogLevel _log_level)
-    {
-        switch(_log_level)
-        {
-            case ELogLevel::Fatal: return "\033[31m";
-            case ELogLevel::Error: return "\033[91m";
-            case ELogLevel::Warning: return "\033[93m";
-            case ELogLevel::Info: return "\033[94m";
-            case ELogLevel::Debug: return "\033[37m";
-        }
+  inline static std::string ToANSIColoured(ELogLevel _log_level)
+  {
+      switch(_log_level)
+      {
+          case ELogLevel::Fatal: return "\033[31m";
+          case ELogLevel::Error: return "\033[91m";
+          case ELogLevel::Warning: return "\033[93m";
+          case ELogLevel::Info: return "\033[94m";
+          case ELogLevel::Debug: return "\033[37m";
+      }
 
-        return "";
-    }
+      return "";
+  }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-    struct SLogInfo
-    {
-        SLogInfo(ELogLevel _log_level, const std::string& _msg)
-					: m_LogLevel(_log_level)
-					, m_Message(_msg)
-				{
+	struct SLogInfo
+	{
+		SLogInfo(ELogLevel _log_level, const std::string& _msg)
+			: m_LogLevel(_log_level)
+			, m_Message(_msg)
+		{
 
-				}
+		}
 
-        ELogLevel m_LogLevel;
-        std::string m_Message;
+		ELogLevel m_LogLevel;
+		std::string m_Message;
 
-        std::string ConsoleDump() const
-        {
-            return ToANSIColoured(m_LogLevel) + ToString(m_LogLevel) + m_Message + "\033[0m\n";
-        }
+		std::string ConsoleDump() const
+		{
+			return ToANSIColoured(m_LogLevel) + ToString(m_LogLevel) + m_Message + "\033[0m\n";
+		}
 
-        std::string FileDump() const
-        {
-          return "";
-        }
-    };
+		std::string FileDump() const
+		{
+			return "";
+		}
+	};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+using log_sink_id_t = uint32_t;
+constexpr static log_sink_id_t INVALID_LOG_SINK_ID = 0;
 
 //////////////////////////////////////////////////////////////////////////
-    class CLogService : public tl::Singleton<CLogService>
-    {
-        public:
+  class CLogService : public tl::Singleton<CLogService>
+  {
+    public:
 
-            CLogService();
-            ~CLogService();
-             
-            CLogService(const CLogService&) = delete;
-            CLogService& operator=(const CLogService&) = delete;
-            CLogService(CLogService&&) = delete;
-            CLogService& operator=(CLogService&&) = delete;
+      CLogService();
+      ~CLogService();
 
-            friend class tl::Singleton<CLogService>;
+      CLogService(const CLogService&) = delete;
+      CLogService& operator=(const CLogService&) = delete;
+      CLogService(CLogService&&) = delete;
+      CLogService& operator=(CLogService&&) = delete;
 
-            template<typename... Args>
-            void LOG(ELogLevel _log_level, fmt::format_string<Args...> _msg, Args&&... _args)
-            {
-              const std::string formatted_msg = fmt::format(_msg, std::forward<Args>(_args)...);
-              SLogInfo log_info(_log_level, formatted_msg);
-              LogImpl(log_info);
-            }
+      friend class tl::Singleton<CLogService>;
 
-        private:
+      template<typename... Args>
+      void LOG(ELogLevel _log_level, fmt::format_string<Args...> _msg, Args&&... _args)
+      {
+	      const std::string formatted_msg = fmt::format(_msg, std::forward<Args>(_args)...);
+	      SLogInfo log_info(_log_level, formatted_msg);
+	      LogImpl(log_info);
+      }
 
-          void LogImpl(const SLogInfo& _log_info);
+      [[nodiscard]] log_sink_id_t RegisterSink(pulvis::tl::FastFunction _sink);
+      bool UnregisterSink(log_sink_id_t _sink_id);
 
-      private:
+    private:
+
+      void LogImpl(const SLogInfo& _log_info);
+
+    private:
+
+      struct SSinkEntry
+      {
+        log_sink_id_t ID;
+        pulvis::tl::FastFunction Sink;
+      };
             
-        std::queue<SLogInfo> m_LogFileDumpQueue;
-    };
+      std::queue<SLogInfo> m_LogFileDumpQueue;
+			std::vector<SSinkEntry> m_Sinks;
+			std::mutex m_SinksMutex;
+			log_sink_id_t m_NextSinkID = 1;
+  };
 }
 
 #ifndef PULVIS_FATAL_LOG
-    #define PULVIS_FATAL_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Fatal, msg, ##__VA_ARGS__);
+  #define PULVIS_FATAL_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Fatal, msg, ##__VA_ARGS__);
 #endif
 
 #ifndef PULVIS_ERROR_LOG
-    #define PULVIS_ERROR_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Error, msg, ##__VA_ARGS__);
+  #define PULVIS_ERROR_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Error, msg, ##__VA_ARGS__);
 #endif
 
 #ifdef PULVIS_WARNING_LOG_ENABLED
-    #ifndef PULVIS_WARNING_LOG
-        #define PULVIS_WARNING_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Warning, msg, ##__VA_ARGS__);
-    #endif
+  #ifndef PULVIS_WARNING_LOG
+      #define PULVIS_WARNING_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Warning, msg, ##__VA_ARGS__);
+  #endif
 #endif
 
 #ifdef PULVIS_INFO_LOG_ENABLED
-    #ifndef PULVIS_INFO_LOG
-        #define PULVIS_INFO_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Info, msg, ##__VA_ARGS__);
-    #endif
+  #ifndef PULVIS_INFO_LOG
+      #define PULVIS_INFO_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Info, msg, ##__VA_ARGS__);
+  #endif
 #endif
 
 #ifdef PULVIS_DEBUG_ENABLED
-    #ifndef PULVIS_DEBUG_LOG
-        #define PULVIS_DEBUG_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Debug, msg, ##__VA_ARGS__);
-    #endif
+  #ifndef PULVIS_DEBUG_LOG
+      #define PULVIS_DEBUG_LOG(msg, ...) pulvis::core::CLogService::Get().LOG(pulvis::core::ELogLevel::Debug, msg, ##__VA_ARGS__);
+  #endif
 #endif

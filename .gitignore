@@ -14,6 +14,7 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
+.github
 
 *_rtti_autogen.hpp
 *_rtti_autogen.cpp
@@ -25,3 +26,4 @@ premake5.exe
 luasocket.dll
 
 stardust/
+gfz/

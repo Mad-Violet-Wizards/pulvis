@@ -136,6 +136,14 @@
 						return typed_invoke(m_Buffer, std::forward<Args>(_args)...);
 					}
 
+					template<typename R, typename... Args>
+					R operator()(Args&&... args) const
+					{
+						using TypedInvokeFn = R(*)(void*, Args...);
+						auto typed_invoke = reinterpret_cast<TypedInvokeFn>(m_Invoke);
+						return typed_invoke(const_cast<std::byte*>(m_Buffer), std::forward<Args>(args)...);
+					}
+
 					template<class R, class... Args, class Func>
 					static FastFunction Make(Func&& func)
 					{

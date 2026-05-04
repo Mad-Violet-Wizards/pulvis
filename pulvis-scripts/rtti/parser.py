@@ -89,12 +89,16 @@ def parse_enum_scope(scope: List[str]) -> ModelEnum:
 
 ###############################################################################
 def parse_class_scope(scope: List[str]) -> ModelClass:
-    class_model: ClassModel = ModelClass(namespace="", name="", parents=[], fields=[], methods=[])
+    class_model: ClassModel = ModelClass(namespace="", name="", parents=[], fields=[], methods=[], class_tags=[])
     idx_line: int = 0
 
     while idx_line < len(scope):
         line: str = scope[idx_line].strip()
         if RTTI_CLASS_MARKER in line:
+            # Parse class attributes/tags from the marker line
+            class_tags = parse_attribute_tags(line)
+            class_model.class_tags = class_tags
+            
             line = line.replace(RTTI_CLASS_MARKER, "")
             line = re.sub(' +', ' ', line)
             class_declaration = line

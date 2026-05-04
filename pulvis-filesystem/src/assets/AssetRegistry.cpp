@@ -1,10 +1,15 @@
 #include "AssetRegistry.hpp"
+#include "AssetEvents.hpp"
+#include "EventDispatcher.hpp"
+
 #include "Logger.hpp"
+
 
 namespace pulvis::fs::assets
 {
-	CAssetRegistry::CAssetRegistry(CMountSystem& _mount_system)
+	CAssetRegistry::CAssetRegistry(CMountSystem& _mount_system, pulvis::events::CEventDispatcher& _event_dispatcher)
 		: m_MountSystem(_mount_system)
+		, m_EventDispatcher(_event_dispatcher)
 	{
 	}
 
@@ -52,7 +57,7 @@ namespace pulvis::fs::assets
 
 		return entry.Handle;
 	}
-	
+
 	void CAssetRegistry::UnregisterAsset(SAssetHandle& _handle)
 	{
 		if (!IsHandleValid(_handle))
@@ -76,6 +81,12 @@ namespace pulvis::fs::assets
 		entry.Payload = nullptr;
 		entry.State = EAssetState::Unloaded;
 		m_FreeList.push_back(_handle.Index);
+
+		SAssetUnloadedEvent unloaded_event;
+		unloaded_event.Handle = _handle;
+		unloaded_event.VirtualPath = entry.VirtualPath;
+		unloaded_event.Type = entry.Type;
+		m_EventDispatcher.Submit<SAssetUnloadedEvent>(std::move(unloaded_event));
 	}
 
 	bool CAssetRegistry::Load(const SAssetHandle& _handle)
@@ -144,6 +155,12 @@ namespace pulvis::fs::assets
 		}
 
 		entry.State = EAssetState::Ready;
+
+		SAssetLoadedEvent loaded_event;
+		loaded_event.Handle = entry.Handle;
+		loaded_event.VirtualPath = entry.VirtualPath;
+		loaded_event.Type = entry.Type;
+		m_EventDispatcher.Submit<SAssetLoadedEvent>(std::move(loaded_event));
 		return true;
 	}
 
@@ -157,13 +174,34 @@ namespace pulvis::fs::assets
 		return Process(_handle);
 	}
 
+	bool CAssetRegistry::ReloadAsset(const SAssetHandle& _handle)
+	{
+		if (!IsHandleValid(_handle)) { return false; }
+		SAssetEntry& entry = m_Entries[_handle.Index];
+
+		IAssetLoader* loader = GetLoader(entry.Type);
+		if (loader && entry.Payload) { loader->Unload(entry); }
+		entry.Payload = nullptr;
+		entry.RawData.Clear();
+		entry.State = EAssetState::Registered;
+
+		if (!LoadAndProcess(_handle)) { return false; }
+
+		SAssetReloadedEvent reloaded_event;
+		reloaded_event.Handle = entry.Handle;
+		reloaded_event.VirtualPath = entry.VirtualPath;
+		reloaded_event.Type = entry.Type;
+		m_EventDispatcher.Submit<SAssetReloadedEvent>(std::move(reloaded_event));
+		return true;
+	}
+
 	uint32_t CAssetRegistry::LoadDirectory(EDomain _domain, const std::string& _virtual_directory, bool _recursive)
 	{
 		CMountSystem::SResolvedPath resolved = m_MountSystem.Resolve(_domain, CFilePath(_virtual_directory), false);
 
 		if (!resolved)
 		{
-			PULVIS_ERROR_LOG("Failed to load directory '{}': Directory not found.", _virtual_directory);
+			PULVIS_DEBUG_LOG("LoadDirectory: '{}' not present, skipping.", _virtual_directory);
 			return 0;
 		}
 
@@ -245,6 +283,29 @@ namespace pulvis::fs::assets
 		return m_Entries[it->second].Handle;
 	}
 
+	std::vector<SAssetHandle> CAssetRegistry::EnumerateByPrefix(EAssetType _type, std::string_view _virtual_prefix) const
+	{
+		std::vector<SAssetHandle> result;
+		result.reserve(16);
+
+		for (const SAssetEntry& entry : m_Entries)
+		{
+			if (entry.Type != _type) { continue; }
+			if (entry.State != EAssetState::Ready) { continue; }
+			if (entry.VirtualPath.size() < _virtual_prefix.size()) { continue; }
+			if (std::string_view(entry.VirtualPath).substr(0, _virtual_prefix.size()) != _virtual_prefix) { continue; }
+			result.push_back(entry.Handle);
+		}
+
+		std::sort(result.begin(), result.end(),
+			[this](const SAssetHandle& _a, const SAssetHandle& _b)
+			{
+				return m_Entries[_a.Index].VirtualPath < m_Entries[_b.Index].VirtualPath;
+			});
+
+		return result;
+	}
+
 	bool CAssetRegistry::IsHandleValid(const SAssetHandle& _handle) const
 	{
 		if (_handle.Index >= m_Entries.size())
@@ -265,6 +326,7 @@ namespace pulvis::fs::assets
 
 		return it->second.get();
 	}
+
 	void CAssetRegistry::LoadDirectoryRecursive(EDomain _domain, const CFilePath& _virtual_path, IFileSource* _source, const CFilePath& _local_dir, bool _recursive, uint32_t& _out_count)
 	{
 		std::vector<SFileInfo> files;
@@ -272,7 +334,8 @@ namespace pulvis::fs::assets
 
 		if (result != EFileResult::Success)
 		{
-			PULVIS_ERROR_LOG("Failed to list directory '{}': Error listing directory ({}).", _virtual_path.Str(), static_cast<int>(result));
+			// Quiet: missing/empty subtrees are a normal condition (optional content dirs).
+			PULVIS_DEBUG_LOG("LoadDirectory: cannot list '{}' ({}), skipping.", _virtual_path.Str(), static_cast<int>(result));
 			return;
 		}
 
@@ -282,7 +345,8 @@ namespace pulvis::fs::assets
 			{
 				if (_recursive)
 				{
-					LoadDirectoryRecursive(_domain, CFilePath(_virtual_path), _source, file_info.Path, _recursive, _out_count);
+					const std::string child_virtual = _virtual_path.Str() + "/" + std::string(file_info.Path.Filename());
+					LoadDirectoryRecursive(_domain, CFilePath(child_virtual), _source, file_info.Path, _recursive, _out_count);
 				}
 
 				continue;

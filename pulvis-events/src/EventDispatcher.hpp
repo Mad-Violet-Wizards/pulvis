@@ -17,8 +17,12 @@ namespace pulvis::events
 		uint64_t DispatchFrame;
 		uint64_t DispatchTime;
 	};
+	//////////////////////////////////////////////////////////////////////////
+	using script_hook_listener_t = std::function<void(const IEvent&)>;
 
-//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	class CEventScriptBridge;
+	//////////////////////////////////////////////////////////////////////////
 	class CEventDispatcher
 	{
 		public:
@@ -86,11 +90,15 @@ namespace pulvis::events
 				m_EventQueue.push_back(std::move(queued));
 			}
 
+			void RegisterScriptHookListener(event_id_t _event_id, script_hook_listener_t _listener);
+
 			void Unsubscribe(listener_id_t _listenerId);
 
 			void ClearAll();
 
 		private:
+			
+			friend class CEventScriptBridge;
 
 			void Dispatch(const IEvent& _event);
 
@@ -100,6 +108,7 @@ namespace pulvis::events
 				std::function<void(const IEvent&)> Callback;
 			};
 
+			std::unordered_map<event_id_t, script_hook_listener_t> m_ScriptHookListeners;
 			std::unordered_map<event_id_t, std::vector<SListenerEntry>> m_Listeners;
 			std::vector<SQueuedEvent> m_EventQueue;
 

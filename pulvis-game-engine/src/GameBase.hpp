@@ -3,7 +3,7 @@
 #include "IGame.hpp"
 #include "EngineConfig.hpp"
 #include "GameStateMachine.hpp"
-
+#include "input/InputService.hpp"
 #include <memory>
 #include <chrono>
 
@@ -37,11 +37,17 @@ namespace pulvis::threads
 namespace pulvis::events
 {
   class CEventDispatcher;
+  class CEventScriptBridge;
 }
 
 namespace pulvis::scriptable
 {
 	class CScriptableService;
+}
+
+namespace pulvis::ecs
+{
+  class CEcsService;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,14 +67,17 @@ namespace pulvis::game_engine
 
   public:
 
-    pulvis::fs::CDomainRoots& GetDomainRoots() const;
-    pulvis::fs::CMountSystem& GetMountSystem() const;
-    pulvis::fs::assets::CAssetRegistry& GetAssetRegistry() const;
-    pulvis::rendering::CRenderService& GetRenderService() const;
-    pulvis::level::CLevelService& GetLevelService() const;
-		pulvis::scriptable::CScriptableService& GetScriptableService() const;
-    pulvis::threads::CMessageBus& GetMessageBus() const;
-    pulvis::events::CEventDispatcher& GetEventDispatcher() const;
+    [[nodiscard]] pulvis::fs::CDomainRoots& GetDomainRoots() const;
+    [[nodiscard]] pulvis::fs::CMountSystem& GetMountSystem() const;
+    [[nodiscard]] pulvis::fs::assets::CAssetRegistry& GetAssetRegistry() const;
+    [[nodiscard]] pulvis::rendering::CRenderService& GetRenderService() const;
+    [[nodiscard]] pulvis::level::CLevelService& GetLevelService() const;
+	  [[nodiscard]] pulvis::scriptable::CScriptableService& GetScriptableService() const;
+    [[nodiscard]] pulvis::ecs::CEcsService& GetEcsService() const;
+    [[nodiscard]] pulvis::threads::CMessageBus& GetMessageBus() const;
+    [[nodiscard]] pulvis::events::CEventDispatcher& GetEventDispatcher() const;
+		[[nodiscard]] pulvis::events::CEventScriptBridge& GetEventScriptBridge() const;
+    [[nodiscard]] pulvis::systems::input::CInputService& GetInputService() const;
 
     CGameStateMachine& GetStateMachine();
 
@@ -99,8 +108,11 @@ namespace pulvis::game_engine
     std::unique_ptr<pulvis::rendering::CRenderService> m_RenderService;
     std::unique_ptr<pulvis::level::CLevelService> m_LevelService;
 		std::unique_ptr<pulvis::scriptable::CScriptableService> m_ScriptableService;
+		std::unique_ptr<pulvis::ecs::CEcsService> m_EcsService;
     std::unique_ptr<pulvis::threads::CMessageBus> m_MessageBus;
     std::unique_ptr<pulvis::events::CEventDispatcher> m_EventDispatcher;
+		std::unique_ptr<pulvis::events::CEventScriptBridge> m_EventScriptBridge;
+		std::unique_ptr<pulvis::systems::input::CInputService> m_InputService;
 
     CGameStateMachine m_StateMachine;
 

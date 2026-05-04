@@ -42,6 +42,10 @@ project "pulvis-rtti-tests"
         PULVIS_ROOT .. "/pulvis-template-library/src",
         PULVIS_ROOT .. "/pulvis-rtti/tests",
         PULVIS_ROOT .. "/pulvis-rtti/src",
+        PULVIS_ROOT .. "/pulvis-scriptable/src",
+        PULVIS_ROOT .. "/pulvis-filesystem/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-events/src",
         PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
@@ -53,5 +57,5 @@ project "pulvis-rtti-tests"
     prebuildcommands {
         GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests")
     }
-    links { "pulvis-template-library", "pulvis-rtti" }
-    dependson { "pulvis-template-library", "pulvis-rtti" }
+    links { "pulvis-template-library", "pulvis-rtti", "pulvis-scriptable", "pulvis-filesystem", "pulvis-core", "pulvis-events" }
+    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-scriptable", "pulvis-filesystem", "pulvis-core", "pulvis-events" }

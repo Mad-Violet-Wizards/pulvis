@@ -59,6 +59,11 @@ namespace pulvis::events
 		}
 	}
 
+	void CEventDispatcher::RegisterScriptHookListener(event_id_t _event_id, script_hook_listener_t _listener)
+	{
+		m_ScriptHookListeners[_event_id] = std::move(_listener);
+	}
+
 	void CEventDispatcher::Unsubscribe(listener_id_t _listenerId)
 	{
 		for (auto& [event_id, listeners] : m_Listeners)
@@ -90,6 +95,12 @@ namespace pulvis::events
 		for (const auto& entry : it->second)
 		{
 			entry.Callback(_event);
+		}
+
+		auto hook_it = m_ScriptHookListeners.find(_event.GetEventId());
+		if (hook_it != m_ScriptHookListeners.end() && hook_it->second)
+		{
+			hook_it->second(_event);
 		}
 	}
 }

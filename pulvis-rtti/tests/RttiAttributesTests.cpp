@@ -110,18 +110,6 @@ TEST_CASE("RTTI Attributes -- Methods", "[RTTI][Attributes][Fields]")
 		REQUIRE(editor_callable_method != nullptr);
 		CHECK(editor_callable_method->HasAttribute(ERTTIMethodAttribute::EditorCallable));
 
-		const CRTTIMethod* event_method = cls->FindConstMethodByName("EventMethod");
-		REQUIRE(event_method != nullptr);
-		CHECK(event_method->HasAttribute(ERTTIMethodAttribute::Event));
-
-		const CRTTIMethod* signal_method = cls->FindConstMethodByName("SignalMethod");
-		REQUIRE(signal_method != nullptr);
-		CHECK(signal_method->HasAttribute(ERTTIMethodAttribute::Signal));
-
-		const CRTTIMethod* slot_method = cls->FindConstMethodByName("SlotMethod");
-		REQUIRE(slot_method != nullptr);
-		CHECK(slot_method->HasAttribute(ERTTIMethodAttribute::Slot));
-
 		const CRTTIMethod* command_method = cls->FindConstMethodByName("CommandMethod");
 		REQUIRE(command_method != nullptr);
 		CHECK(command_method->HasAttribute(ERTTIMethodAttribute::Command));
@@ -135,21 +123,6 @@ TEST_CASE("RTTI Attributes -- Methods", "[RTTI][Attributes][Fields]")
 		CHECK(scriptable_editor_callable_method->HasAttribute(ERTTIMethodAttribute::Scriptable));
 		CHECK(scriptable_editor_callable_method->HasAttribute(ERTTIMethodAttribute::EditorCallable));
 
-		const CRTTIMethod* editor_callable_event_method = cls->FindConstMethodByName("EditorCallableEventMethod");
-		REQUIRE(editor_callable_event_method != nullptr);
-		CHECK(editor_callable_event_method->HasAttribute(ERTTIMethodAttribute::EditorCallable));
-		CHECK(editor_callable_event_method->HasAttribute(ERTTIMethodAttribute::Event));
-
-		const CRTTIMethod* event_signal_method = cls->FindConstMethodByName("EventSignalMethod");
-		REQUIRE(event_signal_method != nullptr);
-		CHECK(event_signal_method->HasAttribute(ERTTIMethodAttribute::Event));
-		CHECK(event_signal_method->HasAttribute(ERTTIMethodAttribute::Signal));
-
-		const CRTTIMethod* signal_slot_method = cls->FindConstMethodByName("SignalSlotMethod");
-		REQUIRE(signal_slot_method != nullptr);
-		CHECK(signal_slot_method->HasAttribute(ERTTIMethodAttribute::Signal));
-		CHECK(signal_slot_method->HasAttribute(ERTTIMethodAttribute::Slot));
-
 		const CRTTIMethod* command_pure_method = cls->FindConstMethodByName("CommandPureVirtualMethod");
 		REQUIRE(command_pure_method != nullptr);
 		CHECK(command_pure_method->HasAttribute(ERTTIMethodAttribute::Command));
@@ -159,9 +132,6 @@ TEST_CASE("RTTI Attributes -- Methods", "[RTTI][Attributes][Fields]")
 		REQUIRE(all_attributes_method != nullptr);
 		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Scriptable));
 		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::EditorCallable));
-		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Event));
-		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Signal));
-		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Slot));
 		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Command));
 		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Pure));
 	}

@@ -85,15 +85,6 @@ namespace pulvis::rtti::tests
 		[[Reflection::Method("EditorCallable")]]
 		void EditorCallableMethod() {}
 
-		[[Reflection::Method("Event")]]
-		void EventMethod() {}
-
-		[[Reflection::Method("Signal")]]
-		void SignalMethod() {}
-
-		[[Reflection::Method("Slot")]]
-		void SlotMethod() {}
-
 		[[Reflection::Method("Command")]]
 		void CommandMethod() {}
 
@@ -103,22 +94,10 @@ namespace pulvis::rtti::tests
 		[[Reflection::Method("Scriptable", "EditorCallable")]]
 		void ScriptableEditorCallableMethod() {}
 
-		[[Reflection::Method("EditorCallable", "Event")]]
+		[[Reflection::Method("EditorCallable")]]
 		void EditorCallableEventMethod() {}
-
-		[[Reflection::Method("Event", "Signal")]]
-		void EventSignalMethod() {}
-
-		[[Reflection::Method("Signal", "Slot")]]
-		void SignalSlotMethod() {}
-
-		[[Reflection::Method("Slot", "Command")]]
-		void SlotCommandMethod() {}
 
 		[[Reflection::Method("Command", "Pure")]]
 		virtual void CommandPureVirtualMethod() = 0;
-
-		[[Reflection::Method("Scriptable", "EditorCallable", "Event", "Signal", "Slot", "Command", "Pure")]]
-		virtual void AllAttributesMethod() = 0;
 		};
 }

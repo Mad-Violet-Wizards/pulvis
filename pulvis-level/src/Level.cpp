@@ -1,6 +1,7 @@
 #include "Level.hpp"
 
 #include "assets/AssetRegistry.hpp"
+#include <algorithm>
 #include <cmath>
 
 namespace pulvis::level
@@ -8,22 +9,13 @@ namespace pulvis::level
 	SChunk* CLevel::GetChunk(const SChunkCoord& _coord)
 	{
 		auto it = m_Chunks.find(_coord);
-		if (it == m_Chunks.end())
-		{
-			return nullptr;
-		}
-
-		return it->second.get();
+		return it == m_Chunks.end() ? nullptr : it->second.get();
 	}
 
 	const SChunk* CLevel::GetChunk(const SChunkCoord& _coord) const
 	{
 		auto it = m_Chunks.find(_coord);
-		if (it == m_Chunks.end())
-		{
-			return nullptr;
-		}
-		return it->second.get();
+		return it == m_Chunks.end() ? nullptr : it->second.get();
 	}
 
 	SChunk* CLevel::GetOrCreateChunk(const SChunkCoord& _coord)
@@ -84,12 +76,7 @@ namespace pulvis::level
 		WorldToLocalTile(_worldX, _worldY, _tileSize, chunk_coord, lx, ly);
 
 		SChunk* chunk = GetChunk(chunk_coord);
-		if (!chunk || _layer >= chunk->LayerCount)
-		{
-			return nullptr;
-		}
-
-		return &chunk->GetTile(_layer, lx, ly);
+		return chunk ? chunk->TryGetTileMutable(_layer, lx, ly) : nullptr;
 	}
 
 	const STile* CLevel::GetTileAtWorld(float _worldX, float _worldY, float _tileSize, uint32_t _layer) const
@@ -99,12 +86,7 @@ namespace pulvis::level
 		WorldToLocalTile(_worldX, _worldY, _tileSize, chunk_coord, lx, ly);
 
 		const SChunk* chunk = GetChunk(chunk_coord);
-		if (!chunk || _layer >= chunk->LayerCount)
-		{
-			return nullptr;
-		}
-
-		return &chunk->GetTile(_layer, lx, ly);
+		return chunk ? chunk->TryGetTile(_layer, lx, ly) : nullptr;
 	}
 
 	void CLevel::SetTileAtWorld(float _worldX, float _worldY, float _tileSize, uint32_t _layer, const STile& _tile)
@@ -114,15 +96,8 @@ namespace pulvis::level
 		WorldToLocalTile(_worldX, _worldY, _tileSize, chunk_coord, lx, ly);
 
 		SChunk* chunk = GetOrCreateChunk(chunk_coord);
-
-		if (_layer >= chunk->LayerCount)
-		{
-			chunk->LayerCount = _layer + 1;
-		}
-
 		chunk->SetTile(_layer, lx, ly, _tile);
 	}
-
 
 	bool CLevel::IsSolidAtWorld(float _worldX, float _worldY, float _tileSize) const
 	{
@@ -131,12 +106,7 @@ namespace pulvis::level
 		WorldToLocalTile(_worldX, _worldY, _tileSize, chunk_coord, lx, ly);
 
 		const SChunk* chunk = GetChunk(chunk_coord);
-		if (!chunk)
-		{
-			return false;
-		}
-
-		return chunk->IsSolid(lx, ly);
+		return chunk ? chunk->IsSolid(lx, ly) : false;
 	}
 
 	void CLevel::AddRegion(SRegion _region)
@@ -154,6 +124,11 @@ namespace pulvis::level
 			}
 		}
 		return nullptr;
+	}
+
+	const std::vector<SRegion>& CLevel::GetRegions() const
+	{
+		return m_Regions;
 	}
 
 	std::vector<SChunkCoord> CLevel::GetDirtyChunkCoords() const
@@ -186,25 +161,15 @@ namespace pulvis::level
 	{
 		const std::deque<pulvis::fs::assets::SAssetEntry>& entries = _registry.GetEntries();
 
-		// Collect all ready tileset paths
 		std::vector<std::string> tileset_paths;
 
 		for (const auto& entry : entries)
 		{
-			if (entry.Type != pulvis::fs::EAssetType::Tileset)
-			{
-				continue;
-			}
-
-			if (entry.State != pulvis::fs::assets::EAssetState::Ready)
-			{
-				continue;
-			}
-
+			if (entry.Type != pulvis::fs::EAssetType::Tileset) { continue; }
+			if (entry.State != pulvis::fs::assets::EAssetState::Ready) { continue; }
 			tileset_paths.push_back(entry.VirtualPath);
 		}
 
-		// Sort for deterministic index assignment
 		std::stable_sort(tileset_paths.begin(), tileset_paths.end());
 
 		for (uint16_t i = 0; i < static_cast<uint16_t>(tileset_paths.size()); ++i)
@@ -219,10 +184,54 @@ namespace pulvis::level
 	{
 		static const std::string empty;
 		auto it = m_TilesetPaths.find(_index);
-		if (it == m_TilesetPaths.end())
+		return it == m_TilesetPaths.end() ? empty : it->second;
+	}
+
+	uint32_t CLevel::AddLayer(SLevelLayerDesc _desc)
+	{
+		const uint32_t index = static_cast<uint32_t>(m_Layers.size());
+		m_Layers.push_back(std::move(_desc));
+		return index;
+	}
+
+	void CLevel::SetLayer(uint32_t _layerIndex, SLevelLayerDesc _desc)
+	{
+		if (_layerIndex >= m_Layers.size())
 		{
-			return empty;
+			m_Layers.resize(_layerIndex + 1);
 		}
-		return it->second;
+		m_Layers[_layerIndex] = std::move(_desc);
+	}
+
+	void CLevel::RemoveLastLayer()
+	{
+		if (!m_Layers.empty())
+		{
+			m_Layers.pop_back();
+		}
+	}
+
+	void CLevel::ClearLayers()
+	{
+		m_Layers.clear();
+	}
+
+	const SLevelLayerDesc* CLevel::GetLayer(uint32_t _layerIndex) const
+	{
+		return _layerIndex >= m_Layers.size() ? nullptr : &m_Layers[_layerIndex];
+	}
+
+	SLevelLayerDesc* CLevel::GetLayerMutable(uint32_t _layerIndex)
+	{
+		return _layerIndex >= m_Layers.size() ? nullptr : &m_Layers[_layerIndex];
+	}
+
+	pulvis::rendering::SRenderLayerHandle CLevel::GetRenderLayerMapping(uint32_t _layerIndex) const
+	{
+		if (_layerIndex >= m_Layers.size())
+		{
+			return {};
+		}
+		return m_Layers[_layerIndex].Render;
 	}
 }

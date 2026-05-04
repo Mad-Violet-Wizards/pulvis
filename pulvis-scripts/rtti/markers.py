@@ -30,3 +30,8 @@ RTTI_METHOD_ATTRIBUTE_MAP = {
     "Command": "pulvis::rtti::ERTTIMethodAttribute::Command",
     "Pure" : "pulvis::rtti::ERTTIMethodAttribute::Pure",
 }
+
+# ScriptableHook event detection
+EVENT_BASE_QUALIFIED_NAMES = [
+    "pulvis::events::IEvent"
+]

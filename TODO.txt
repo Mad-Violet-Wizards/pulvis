@@ -4,9 +4,12 @@ Features:
 * Add error system for RTTI
 * Pak filesystem
 * Introduce tests for each serialize trait type
-* Move assertions to separate library(?)
 * RTTI produces .inl with direct set/get methods.
-* Integrate imgui with project
-* Add UI librar
+* Fix "user/imgui.ini"
+* Log Service should dump files as soon as filesystem is mounted
+* Template/Preset/Inputs are in EAssetType -- they shouldn't, figure out way to load them as "Script" and filter later
+* Components should be registered automatically via RTTI
+* Multiple InstantiateTemplate methods & WrapEntity in CWorld -- it should disappear, as it makes the code harder to understand.
+* Imgui initialized in game-engine?
 Bugs:
 * pulvis-rtti_rtti_autogen what is this?

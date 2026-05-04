@@ -18,6 +18,7 @@ project "pulvis-filesystem"
         PULVIS_ROOT .. "/pulvis-rtti/src",
         PULVIS_ROOT .. "/pulvis-template-library/src",
         PULVIS_ROOT .. "/pulvis-core/src",
+        PULVIS_ROOT .. "/pulvis-events/src",
         PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
@@ -26,8 +27,8 @@ project "pulvis-filesystem"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
-    links { "pulvis-rtti", "pulvis-template-library" }
-    dependson { "pulvis-rtti", "pulvis-template-library" }
+    links { "pulvis-rtti", "pulvis-template-library", "pulvis-core", "pulvis-events" }
+    dependson { "pulvis-rtti", "pulvis-template-library", "pulvis-core", "pulvis-events" }
 
 project "pulvis-filesystem-tests"
     kind "ConsoleApp"
@@ -59,5 +60,5 @@ project "pulvis-filesystem-tests"
         GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests"),
     }
 
-    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-filesystem" }
-    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-filesystem" }
+    links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-filesystem", "pulvis-events" }
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-filesystem", "pulvis-events" }

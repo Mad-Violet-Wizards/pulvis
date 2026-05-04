@@ -3,6 +3,7 @@
 #include "RTTIBase.hpp"
 #include "RTTIMethod.hpp"
 #include "RTTIField.hpp"
+#include "RTTIAttributes.hpp"
 
 #include <vector>
 
@@ -15,13 +16,23 @@ namespace pulvis::rtti
 	public:
 
 		CRTTIClass() = default;
-		CRTTIClass(const char* _name);
+		CRTTIClass(const char* _name, ERTTIClassAttribute _attributes = ERTTIClassAttribute::None);
 		~CRTTIClass();
 
 		const std::string& GetName() const;
 		type_id_t GetTypeId() const;
 
 		void AttachParent(CRTTIClass* _parent);
+
+		[[nodiscard]] bool HasAttribute(ERTTIClassAttribute _attribute) const
+		{
+			return (m_Attributes & _attribute) == _attribute;
+		}
+
+		[[nodiscard]] ERTTIClassAttribute GetAttributes() const
+		{
+			return m_Attributes;
+		}
 
 		void AddMethod(CRTTIMethod* _method);
 		CRTTIMethod* FindMethodByName(const char* _method_name);
@@ -43,6 +54,7 @@ namespace pulvis::rtti
 
 		std::string m_Name;
 		type_id_t m_TypeId;
+		ERTTIClassAttribute m_Attributes = ERTTIClassAttribute::None;
 		std::vector<CRTTIMethod*> m_Methods;
 		std::vector<CRTTIField*> m_Fields;
 		std::vector<CRTTIClass*> m_Parents;

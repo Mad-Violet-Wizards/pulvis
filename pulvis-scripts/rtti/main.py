@@ -7,7 +7,6 @@ from scanner import find_cpp_headers, find_autogen_files
 from parser import parse_file
 from models import Model
 from generate import generate_rtti_code, generate_project_register_script
-from generate_lua_bindings import generate_lua_bindings
 from file_changes_cache import file_changes_cache
 from file_content_cache import file_content_cache
 from log import verbose_log
@@ -128,7 +127,6 @@ if __name__ == "__main__":
                         all_files_data[path].extend(parse_file(path))
                 
                 generate_project_register_script(root_path, all_files_data)
-                generate_lua_bindings(root_path, all_files_data)
 
                 file_changes_cache.save()
                 
@@ -149,7 +147,6 @@ if __name__ == "__main__":
                 for path in find_cpp_headers(root_path):
                     if file_contains_rtti_marker(path):
                         data_to_autogen[path].extend(parse_file(path))
-                        # Aktualizuj cache dla przyszłych uruchomień
                         content = file_content_cache.find_or_add(path)
                         file_changes_cache.update_file_info(path, content)
                 
@@ -158,7 +155,6 @@ if __name__ == "__main__":
                 
                 models_count = sum(len(models) for models in data_to_autogen.values())
                 generate_project_register_script(root_path, data_to_autogen)
-                generate_lua_bindings(root_path, data_to_autogen)
                 file_changes_cache.save()
                 
                 verbose_log(f"Force regeneration complete. Found {models_count} rtti attributes.")

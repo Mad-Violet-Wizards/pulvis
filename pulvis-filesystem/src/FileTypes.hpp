@@ -100,60 +100,6 @@ namespace pulvis::fs
 		Generic
 	};
 
-	inline static EAssetType FromExtension(std::string_view _extension)
-	{
-		if (_extension == ".png" || _extension == ".jpg" || _extension == ".jpeg" || _extension == ".bmp" || _extension == ".tga")
-		{
-			return EAssetType::Texture;
-		}
-		else if (_extension == ".dds")
-		{
-			return EAssetType::TextureDDS;
-		}
-		else if (_extension == ".wav" || _extension == ".ogg" || _extension == ".mp3")
-		{
-			return EAssetType::Audio;
-		}
-		else if (_extension == ".vert" || _extension == ".frag" || _extension == ".geom" || _extension == ".glsl")
-		{
-			return EAssetType::Shader;
-		}
-		else if (_extension == ".lua")
-		{
-			return EAssetType::Script;
-		}
-		else if (_extension == ".ttf" || _extension == ".otf")
-		{
-			return EAssetType::Font;
-		}
-		else if (_extension == ".json" || _extension == ".xml" || _extension == ".ini")
-		{
-			return EAssetType::Config;
-		}
-		else if (_extension == ".lvl" || _extension == ".map")
-		{
-			return EAssetType::Level;
-		}
-		else if (_extension == ".anim" || _extension == ".aseprite")
-		{
-			return EAssetType::Animation;
-		}
-		else if (_extension == ".obj" || _extension == ".fbx" || _extension == ".gltf")
-		{
-			return EAssetType::Mesh;
-		}
-		else if (_extension == ".mat")
-		{
-			return EAssetType::Material;
-		}
-		else if (_extension == ".tileset")
-		{
-			return EAssetType::Tileset;
-		}
-
-		ASSERT(false, "Unknown mapping to asset type from extension: {} " + std::string(_extension));
-		return EAssetType::Unknown;
-	}
 
 	enum class ECompressionType : uint8_t
 	{
@@ -162,4 +108,23 @@ namespace pulvis::fs
 		LZ4,
 		Zstd
 	};
+
+	inline static EAssetType FromExtension(std::string_view _extension)
+	{
+		if (_extension == ".png" || _extension == ".jpg" || _extension == ".jpeg" || _extension == ".bmp" || _extension == ".tga") { return EAssetType::Texture; }
+		if (_extension == ".dds") { return EAssetType::TextureDDS; }
+		if (_extension == ".wav" || _extension == ".ogg" || _extension == ".mp3") { return EAssetType::Audio; }
+		if (_extension == ".vert" || _extension == ".frag" || _extension == ".geom" || _extension == ".glsl") { return EAssetType::Shader; }
+		if (_extension == ".lua") { return EAssetType::Script; }
+		if (_extension == ".ttf" || _extension == ".otf") { return EAssetType::Font; }
+		if (_extension == ".json" || _extension == ".xml" || _extension == ".ini") { return EAssetType::Config; }
+		if (_extension == ".lvl" || _extension == ".map") { return EAssetType::Level; }
+		if (_extension == ".anim" || _extension == ".aseprite") { return EAssetType::Animation; }
+		if (_extension == ".obj" || _extension == ".fbx" || _extension == ".gltf") { return EAssetType::Mesh; }
+		if (_extension == ".mat") { return EAssetType::Material; }
+		if (_extension == ".tileset") { return EAssetType::Tileset; }
+
+		ASSERT(false, "Unknown mapping to asset type from extension: {} " + std::string(_extension));
+		return EAssetType::Unknown;
+	}
 }

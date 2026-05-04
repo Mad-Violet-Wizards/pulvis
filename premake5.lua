@@ -1,12 +1,12 @@
-local scriptPath = debug.getinfo(1, "S").source:match("@?(.*[/\\])") or "./"
-package.path = package.path .. ";" .. scriptPath .. "?.lua"
+local scriptPath = path.getabsolute(path.getdirectory(_MAIN_SCRIPT))
+package.path = package.path .. ";" .. scriptPath .. "/?.lua"
 
 require "pulvis-scripts.build-tools.common.cache"
 require "pulvis-scripts.build-tools.common.filepath"
 
-PROJECT_ABSOLUTE_PATH = GetScriptPath()
+PROJECT_ABSOLUTE_PATH = scriptPath .. "/"
 RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH = PROJECT_ABSOLUTE_PATH .. "pulvis-scripts/rtti/main.py"
-PULVIS_ROOT = path.getabsolute(".")
+PULVIS_ROOT = scriptPath
 
 ---------------------------------------------------------------
 -- PREMAKE
@@ -24,7 +24,7 @@ workspace "pulvis"
 
     filter "system:windows"
         defines { "WINDOWS_OS" }
-        architecture { "x86_64" }
+        architecture "x86_64"
         buildoptions { 
             "/wd5030"   -- Disable warning C5030: attribute not recognized
         }
@@ -43,6 +43,9 @@ workspace "pulvis"
     include "pulvis-threads/premake5.lua"
     include "pulvis-scriptable/premake5.lua"
     include "pulvis-filesystem/premake5.lua"
+    include "pulvis-systems/premake5.lua"
+    include "pulvis-ecs/premake5.lua"
     include "pulvis-rendering/premake5.lua"
+    include "pulvis-imgui/premake5.lua"
     include "pulvis-level/premake5.lua"
     include "pulvis-game-engine/premake5.lua"

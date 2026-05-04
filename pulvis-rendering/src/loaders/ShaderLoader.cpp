@@ -1,6 +1,6 @@
 #include "ShaderLoader.hpp"
 #include "assets/AssetLoader.hpp"
-#include "assets/payloads/ShaderPayload.hpp"
+#include "payloads/ShaderPayload.hpp"
 #include "Logger.hpp"
 
 #include <memory>
@@ -16,7 +16,7 @@ namespace pulvis::rendering
 		}
 
 		std::string_view shader_code = _entry.RawData.ToStringView();
-		std::unique_ptr<pulvis::fs::assets::SShaderPayload> payload = std::make_unique<pulvis::fs::assets::SShaderPayload>();
+		std::unique_ptr<pulvis::rendering::SShaderPayload> payload = std::make_unique<pulvis::rendering::SShaderPayload>();
 
 		_entry.Payload = std::move(payload);
 		return true;

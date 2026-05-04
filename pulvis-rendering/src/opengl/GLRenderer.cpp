@@ -20,13 +20,14 @@ namespace pulvis::rendering::gl
 		, m_Camera(800.f, 600.f)
 		, m_SpriteRenderer(m_Device, _asset_registry)
 		, m_TileRenderer(m_Device, _asset_registry)
+		, m_CurrentBlend(ERenderLayerBlend::AlphaBlend)
 	{
 	}
 
 	void CGLRenderer::Initialize()
 	{
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		ApplyBlendMode(m_CurrentBlend);
 	}
 
 	void CGLRenderer::BeginFrame()
@@ -40,33 +41,45 @@ namespace pulvis::rendering::gl
 
 		const SFrameRenderState& frame_state = m_RenderQueue.GetFrameState();
 
-		const std::vector<STileDrawCmd>& tile_batches = m_RenderQueue.GetTileDraws();
-
-		if (!tile_batches.empty())
+		for (SRenderLayerHandle layer : m_LayerCache.GetSortedLayers())
 		{
-			// For now -- Lazy init
-			if (!m_TileRenderer.IsInitialized())
+			const SRenderLayerDesc& desc = m_LayerCache.Get(layer);
+
+			const auto& tile_batches = m_RenderQueue.GetTilesForLayer(layer);
+			const auto& sprite_draws = m_RenderQueue.GetSpritesForLayer(layer);
+
+			if (tile_batches.empty() && sprite_draws.empty())
 			{
-				m_TileRenderer.Initialize();
+				continue;
 			}
 
-			m_TileRenderer.Draw(tile_batches, m_Camera, frame_state);
+			ApplyBlendMode(desc.Blend);
+
+			if (!tile_batches.empty())
+			{
+				if (!m_TileRenderer.IsInitialized())
+				{
+					m_TileRenderer.Initialize();
+				}
+
+				m_TileRenderer.Draw(tile_batches, m_Camera, frame_state);
+			}
+
+			if (!sprite_draws.empty())
+			{
+				if (!m_SpriteRenderer.IsInitialized())
+				{
+					m_SpriteRenderer.Initialize();
+				}
+
+				for (const SSpriteDrawCmd& cmd : sprite_draws)
+				{
+					m_SpriteRenderer.Draw(m_Camera, cmd, frame_state);
+				}
+			}
 		}
 
-		const std::vector<SSpriteDrawCmd>& sprite_draws = m_RenderQueue.GetSpriteDraws();
-		if (!sprite_draws.empty())
-		{
-			// For now -- lazy init.
-			if (!m_SpriteRenderer.IsInitialized())
-			{
-				m_SpriteRenderer.Initialize();
-			}
-
-			for (const SSpriteDrawCmd& cmd : sprite_draws)
-			{
-				m_SpriteRenderer.Draw(m_Camera, cmd, frame_state);
-			}
-		}
+		m_RenderQueue.Clear();
 	}
 
 	void CGLRenderer::EndFrame()
@@ -79,10 +92,39 @@ namespace pulvis::rendering::gl
 	{
 		m_SpriteRenderer.Shutdown();
 		m_TileRenderer.Shutdown();
+		m_LayerCache.Clear();
 	}
 
 	bool CGLRenderer::GetShouldClose()
 	{
 		return m_Window.GetShouldClose();
+	}
+
+	void CGLRenderer::ApplyBlendMode(ERenderLayerBlend _blend)
+	{
+		if (_blend == m_CurrentBlend)
+		{
+			return;
+		}
+		switch (_blend)
+		{
+			case ERenderLayerBlend::Opaque:
+				glBlendFunc(GL_ONE, GL_ZERO);
+				break;
+			case ERenderLayerBlend::AlphaBlend:
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				break;
+			case ERenderLayerBlend::Additive:
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				break;
+			case ERenderLayerBlend::Multiply:
+				glBlendFunc(GL_DST_COLOR, GL_ZERO);
+				break;
+			default:
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				break;
+		}
+
+		m_CurrentBlend = _blend;
 	}
 }

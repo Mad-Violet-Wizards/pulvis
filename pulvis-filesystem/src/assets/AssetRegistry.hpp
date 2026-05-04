@@ -9,13 +9,15 @@
 #include <string>
 #include <memory>
 
+namespace pulvis::events { class CEventDispatcher; }
+
 namespace pulvis::fs::assets
 {
 	class CAssetRegistry
 	{
 		public:
 
-			explicit CAssetRegistry(CMountSystem& _mount_system);
+			explicit CAssetRegistry(CMountSystem& _mount_system, pulvis::events::CEventDispatcher& _event_dispatcher);
 			~CAssetRegistry() = default;
 
 			CAssetRegistry(const CAssetRegistry&) = delete;
@@ -29,6 +31,8 @@ namespace pulvis::fs::assets
 			bool Load(const SAssetHandle& _handle);
 			bool Process(const SAssetHandle& _handle);
 			bool LoadAndProcess(const SAssetHandle& _handle);
+			bool ReloadAsset(const SAssetHandle& _handle);
+
 			uint32_t LoadDirectory(EDomain _domain, const std::string& _virtual_directory, bool _recursive = true);
 			std::vector<SAssetHandle> LoadBatch(EDomain _domain, const std::vector<std::string>& _virtual_paths);
 
@@ -38,6 +42,7 @@ namespace pulvis::fs::assets
 			SAssetEntry* Get(const SAssetHandle& _handle);
 			SAssetHandle Find(const std::string& _virtual_path) const;
 
+			[[nodiscard]] std::vector<SAssetHandle> EnumerateByPrefix(EAssetType _type, std::string_view _virtual_prefix) const;
 			const std::deque<SAssetEntry>& GetEntries() const { return m_Entries; }
 
 		private:
@@ -49,6 +54,7 @@ namespace pulvis::fs::assets
 		private:
 
 			CMountSystem& m_MountSystem;
+			pulvis::events::CEventDispatcher& m_EventDispatcher;
 			std::deque<SAssetEntry> m_Entries;
 			std::vector<uint32_t> m_FreeList;
 			std::unordered_map<std::string, uint32_t> m_PathIndex;

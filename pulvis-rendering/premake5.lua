@@ -23,7 +23,7 @@ project "pulvis-rendering"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
         libdirs { PULVIS_ROOT .. "/pulvis-vendor/windows/bin/" }
         defines { "GLFW_DLL" }
-        links { "pulvis-core","pulvis-events","pulvis-filesystem","pulvis-rtti","glfw3dll"}
+        links { "pulvis-template-library", "pulvis-core","pulvis-events","pulvis-filesystem","pulvis-rtti","glfw3dll"}
         postbuildcommands {
             "{COPY} " .. PULVIS_ROOT .. "/pulvis-vendor/windows/bin/glfw3.dll %{cfg.targetdir}"
         }
@@ -31,11 +31,11 @@ project "pulvis-rendering"
     filter "system:macosx"
         includedirs { "/opt/homebrew/include" }
         libdirs { "/opt/homebrew/lib" }
-        links { "pulvis-core","pulvis-events","pulvis-filesystem","pulvis-rtti","glfw" }
+        links { "pulvis-template-library", "pulvis-core","pulvis-events","pulvis-filesystem","pulvis-rtti","glfw" }
         links { "Cocoa.framework", "IOKit.framework", "CoreVideo.framework" }
 
     filter {}
-    dependson { "pulvis-core", "pulvis-rtti", "pulvis-events", "pulvis-filesystem" }
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-events", "pulvis-filesystem" }
 
 project "pulvis-rendering-playground"
     kind "ConsoleApp"

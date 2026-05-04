@@ -1,6 +1,9 @@
 #pragma once
 
+#include "RenderLayer.hpp"
+
 #include <vector>
+#include <unordered_map>
 #include <cstdint>
 #include <glm/glm.hpp>
 
@@ -15,8 +18,8 @@ namespace pulvis::rendering
 
 		glm::vec4 UVRect = { 0.f, 0.f, 1.f, 1.f };
 		glm::vec4 Color = { 1.f, 1.f, 1.f, 1.f };
-
-		int32_t Layer = 0;
+	
+		SRenderLayerHandle Layer;
 		int32_t SortOrder = 0;
 	};
 
@@ -29,7 +32,7 @@ namespace pulvis::rendering
 
 		float AnimationTime = 0.f;
 		glm::vec4 AmbientColor = { 1.f, 1.f, 1.f, 1.f };
-		int32_t Layer = 0;
+		SRenderLayerHandle Layer;
 	};
 
 	struct SFrameRenderState
@@ -42,16 +45,8 @@ namespace pulvis::rendering
 //////////////////////////////////////////////////////////////////////////
 	/*
 		Acumulates draw commands from any system during the frame.
-		Commands are sorted by layer before rendering.
-
-		Layer convention:
-			-100 - Parallax
-			0 - Ground tiles
-			10 - Detail/decoration tiles
-			20 - Entites/sprites
-			30 - Foreground tiles (roofs, treetops), has opacity to allow sprites to be visible behind them.
-			50 - Particles/effects
-			100 - UI overlay
+		Commands are put in buckets based on their render layer.
+		Layer and respective render targets sorting are performed by CRenderLayerCache.
 	*/
 	class CRenderQueue
 	{
@@ -63,18 +58,18 @@ namespace pulvis::rendering
 			void SetFrameState(const SFrameRenderState& _state) { m_FrameState = _state; }
 			const SFrameRenderState& GetFrameState() const { return m_FrameState; }
 
-			const std::vector<SSpriteDrawCmd>& GetSpriteDraws() const { return m_SpriteDrawCommands; }
-			const std::vector<STileDrawCmd>& GetTileDraws() const { return m_TileDrawCommands; }
+			const std::vector<SSpriteDrawCmd>& GetSpritesForLayer(SRenderLayerHandle _layer) const;
+			const std::vector<STileDrawCmd>& GetTilesForLayer(SRenderLayerHandle _layer) const;
 
 			void SortAll();
 			void Clear();
 
-			bool Empty() const { return m_SpriteDrawCommands.empty() && m_TileDrawCommands.empty(); }
+			bool Empty() const { return m_SpriteBuckets.empty() && m_TileBuckets.empty(); }
 
 		private:
 
-			std::vector<SSpriteDrawCmd> m_SpriteDrawCommands;
-			std::vector<STileDrawCmd> m_TileDrawCommands;
+			std::unordered_map<SRenderLayerHandle, std::vector<SSpriteDrawCmd>> m_SpriteBuckets;
+			std::unordered_map<SRenderLayerHandle, std::vector<STileDrawCmd>> m_TileBuckets;
 			SFrameRenderState m_FrameState;
 	};
 }

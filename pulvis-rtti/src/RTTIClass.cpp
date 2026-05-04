@@ -6,7 +6,8 @@
 namespace pulvis::rtti
 {
   //////////////////////////////////////////////////////////////////////////
-	CRTTIClass::CRTTIClass(const char* _name)
+	CRTTIClass::CRTTIClass(const char* _name, ERTTIClassAttribute _attributes)
+		: m_Attributes(_attributes)
 	{
 		m_Name = _name;
 		m_TypeId = pulvis::tl::hash::fnv1a<type_id_t>(_name);

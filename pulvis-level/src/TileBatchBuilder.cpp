@@ -3,8 +3,8 @@
 
 #include "assets/AssetRegistry.hpp"
 #include "assets/AssetEntry.hpp"
-#include "assets/payloads/TilesetPayload.hpp"
-#include "assets/payloads/TexturePayload.hpp"
+#include "payloads/TilesetPayload.hpp"
+#include "payloads/TexturePayload.hpp"
 #include "RenderQueue.hpp"
 #include "opengl/GLRenderDevice.hpp"
 #include "opengl/GLTileRenderer.hpp"
@@ -38,7 +38,6 @@ namespace pulvis::level
 
 			chunk_ptr->LastAccessTime = m_FrameCounter;
 
-			// Rebuild VBOs if chunk is dirty or not yet cached
 			auto cache_it = m_VBOCache.find(coord);
 			if (cache_it == m_VBOCache.end() || chunk_ptr->IsDirty)
 			{
@@ -46,7 +45,6 @@ namespace pulvis::level
 				chunk_ptr->IsDirty = false;
 			}
 
-			// Submit cached VBOs as draw commands
 			cache_it = m_VBOCache.find(coord);
 			if (cache_it == m_VBOCache.end())
 			{
@@ -62,12 +60,18 @@ namespace pulvis::level
 					continue;
 				}
 
+				const SLevelLayerDesc* layer_desc = _level.GetLayer(static_cast<uint32_t>(vbo.Layer));
+				if (!layer_desc || !layer_desc->Visible || !layer_desc->Render.IsValid())
+				{
+					continue;
+				}
+
 				pulvis::rendering::STileDrawCmd cmd;
 				cmd.TextureID = vbo.TextureID;
 				cmd.VboID = vbo.VboID;
 				cmd.VertexCount = vbo.VertexCount;
 				cmd.TextureSize = { vbo.AtlasW, vbo.AtlasH };
-				cmd.Layer = vbo.Layer;
+				cmd.Layer = layer_desc->Render;
 
 				if (region)
 				{
@@ -85,7 +89,6 @@ namespace pulvis::level
 
 	void CTileBatchBuilder::RebuildChunkVBOs(const CLevel& _level, const SChunk& _chunk)
 	{
-		// Destroy old VBOs for this chunk
 		InvalidateChunk(_chunk.Coord);
 
 		std::vector<SCachedChunkVBO> new_vbos;
@@ -110,30 +113,28 @@ namespace pulvis::level
 		const float chunk_origin_x = static_cast<float>(_chunk.Coord.X) * static_cast<float>(CHUNK_SIZE) * m_TileSize;
 		const float chunk_origin_y = static_cast<float>(_chunk.Coord.Y) * static_cast<float>(CHUNK_SIZE) * m_TileSize;
 
-		for (uint32_t layer = 0; layer < _chunk.LayerCount; ++layer)
+		const uint32_t level_layer_count = _level.GetLayerCount();
+
+		for (uint32_t layer = 0; layer < MAX_TILE_LAYERS; ++layer)
 		{
+			if (!_chunk.HasLayer(layer)) { continue; }
+			if (layer >= level_layer_count) { continue; }
+
 			for (uint32_t y = 0; y < CHUNK_SIZE; ++y)
 			{
 				for (uint32_t x = 0; x < CHUNK_SIZE; ++x)
 				{
-					const STile& tile = _chunk.GetTile(layer, x, y);
+					const STile* tile_ptr = _chunk.TryGetTile(layer, x, y);
+					if (!tile_ptr) { continue; }
 
-					if (tile.TilesetIndex == 0xFFFF)
-					{
-						continue;
-					}
+					const STile& tile = *tile_ptr;
+					if (tile.TilesetIndex == 0xFFFF) { continue; }
 
 					const std::string& tileset_path = _level.GetTilesetPath(tile.TilesetIndex);
-					if (tileset_path.empty())
-					{
-						continue;
-					}
+					if (tileset_path.empty()) { continue; }
 
 					auto tileset_handle = m_Registry.Find(tileset_path);
-					if (!tileset_handle.IsValid())
-					{
-						continue;
-					}
+					if (!tileset_handle.IsValid()) { continue; }
 
 					const auto* tileset_entry = m_Registry.Get(tileset_handle);
 					if (!tileset_entry || tileset_entry->State != pulvis::fs::assets::EAssetState::Ready)
@@ -141,12 +142,8 @@ namespace pulvis::level
 						continue;
 					}
 
-					const auto* tileset = tileset_entry->GetPayload<pulvis::fs::assets::STilesetPayload>();
-
-					if (tile.TileIndex >= tileset->Tiles.size())
-					{
-						continue;
-					}
+					const auto* tileset = tileset_entry->GetPayload<pulvis::level::STilesetPayload>();
+					if (tile.TileIndex >= tileset->Tiles.size()) { continue; }
 
 					const auto& tile_info = tileset->Tiles[tile.TileIndex];
 
@@ -159,10 +156,8 @@ namespace pulvis::level
 					const float v1 = tile_info.UV_Y + tile_info.UV_H;
 
 					SBatchKey key{ tile.TilesetIndex, layer };
-
 					auto& verts = vertex_groups[key];
 
-					// Two triangles per tile (6 vertices)
 					verts.push_back({ { px,              py },              { u0, v0 } });
 					verts.push_back({ { px + m_TileSize, py },              { u1, v0 } });
 					verts.push_back({ { px + m_TileSize, py + m_TileSize }, { u1, v1 } });
@@ -174,13 +169,9 @@ namespace pulvis::level
 			}
 		}
 
-		// Upload each group as a VBO
 		for (auto& [key, vertices] : vertex_groups)
 		{
-			if (vertices.empty())
-			{
-				continue;
-			}
+			if (vertices.empty()) { continue; }
 
 			auto vbo = m_Device.CreateVertexBuffer(
 				vertices.data(),
@@ -188,7 +179,6 @@ namespace pulvis::level
 				pulvis::rendering::gl::EBufferUsage::Dynamic
 			);
 
-			// Resolve texture GPU handle
 			uint32_t gpu_tex_id = 0;
 			float atlas_w = 0.f;
 			float atlas_h = 0.f;
@@ -200,13 +190,13 @@ namespace pulvis::level
 				const auto* tileset_entry = m_Registry.Get(tileset_handle);
 				if (tileset_entry)
 				{
-					const auto* tileset = tileset_entry->GetPayload<pulvis::fs::assets::STilesetPayload>();
+					const auto* tileset = tileset_entry->GetPayload<pulvis::level::STilesetPayload>();
 
 					auto tex_handle = tileset->TextureHandle;
 					const auto* tex_entry = m_Registry.Get(tex_handle);
 					if (tex_entry && tex_entry->State == pulvis::fs::assets::EAssetState::Ready)
 					{
-						const auto* tex = tex_entry->GetPayload<pulvis::fs::assets::STexturePayload>();
+						const auto* tex = tex_entry->GetPayload<pulvis::rendering::STexturePayload>();
 						gpu_tex_id = tex->GPUHandle;
 						atlas_w = static_cast<float>(tex->Width);
 						atlas_h = static_cast<float>(tex->Height);
@@ -220,7 +210,7 @@ namespace pulvis::level
 			cached.TextureID = gpu_tex_id;
 			cached.AtlasW = atlas_w;
 			cached.AtlasH = atlas_h;
-			cached.Layer = static_cast<int32_t>(key.Layer) * 10; // Scale to match render queue layer convention
+			cached.Layer = key.Layer;
 
 			new_vbos.push_back(cached);
 		}
@@ -239,7 +229,6 @@ namespace pulvis::level
 		const float half_vp_w = _vpW * 0.5f;
 		const float half_vp_h = _vpH * 0.5f;
 
-		// Camera centered - check AABB overlap
 		return !(chunk_x + chunk_world_size < _camX - half_vp_w
 			|| chunk_x > _camX + half_vp_w
 			|| chunk_y + chunk_world_size < _camY - half_vp_h
@@ -249,10 +238,7 @@ namespace pulvis::level
 	void CTileBatchBuilder::InvalidateChunk(const SChunkCoord& _coord)
 	{
 		auto it = m_VBOCache.find(_coord);
-		if (it == m_VBOCache.end())
-		{
-			return;
-		}
+		if (it == m_VBOCache.end()) { return; }
 
 		for (SCachedChunkVBO& vbo : it->second)
 		{

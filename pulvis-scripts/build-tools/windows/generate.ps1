@@ -1,6 +1,4 @@
-param(
-    [string]$VisualInstanceName
-)
+param([string]$VisualInstanceName)
 
 $validInstances = @("vs2017", "vs2019", "vs2022")
 
@@ -18,4 +16,19 @@ if ($validInstances -notcontains $VisualInstanceName)
 }
 
 Write-Output "[Generate] Starting to generate project files for $VisualInstanceName."
-../../../premake5 $VisualInstanceName --file=../../../premake5.lua
+
+$originalLocation = Get-Location
+
+try {
+    Set-Location "../../../"
+    ./premake5 $VisualInstanceName --file=./premake5.lua
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Output "[Generate] Project files generated successfully."
+    } else {
+        Write-Error "[Generate] Failed to generate project files."
+    }
+}
+finally {
+    Set-Location $originalLocation
+}
