@@ -17,8 +17,10 @@ namespace pulvis::rendering::gl
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		GLenum format = (desc.Channels == 4) ? GL_RGBA : GL_RGB;
+		const GLint internal_format = (desc.Channels == 4) ? GL_RGBA : GL_RGB;
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, desc.Width, desc.Height, 0, format, GL_UNSIGNED_BYTE, data);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, (desc.Channels == 4) ? 4 : 1);
+		glTexImage2D(GL_TEXTURE_2D, 0, internal_format, desc.Width, desc.Height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		if (desc.GenerateMipmaps)
 		{

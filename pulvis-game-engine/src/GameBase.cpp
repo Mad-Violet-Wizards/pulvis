@@ -15,7 +15,24 @@
 #include "EventScriptBridge.hpp"
 #include "EcsService.hpp"
 #include "input/InputService.hpp"
+#include "animation/AnimationService.hpp"
 #include "opengl/GLRenderer.hpp"
+
+#include "components/LogicComponent.hpp"
+#include "components/HierarchyComponent.hpp"
+#include "components/TagComponent.hpp"
+#include "components/TransformComponent.hpp"
+#include "components/SpriteComponent.hpp"
+#include "components/DirectionComponent.hpp"
+#include "animation/components/AnimationComponent.hpp"
+#include "animation/components/AnimationStateComponent.hpp"
+
+#include "systems/LogicSystem.hpp"
+#include "systems/HierarchySystem.hpp"
+#include "systems/TransformSystem.hpp"
+#include "systems/SpriteRenderSystem.hpp"
+#include "animation/systems/AnimationSystem.hpp"
+
 
 namespace pulvis::game_engine
 {
@@ -47,6 +64,8 @@ namespace pulvis::game_engine
 		InitializeFilesystem();
 		InitializeMessageBus();
 		InitializeServices();
+		InitializeEcs();
+		LoadScripts();
 		PULVIS_INFO_LOG("Core systems initialized.");
 	}
 
@@ -80,15 +99,15 @@ namespace pulvis::game_engine
 		m_LevelService->Initialize(*m_MessageBus, m_IOChannelID, m_MainChannelID);
 
 		m_EcsService = std::make_unique<pulvis::ecs::CEcsService>(*m_ScriptableService, *m_AssetRegistry, *m_EventDispatcher);
-		pulvis::rendering::CRenderService& render_service = GetRenderService();
-		pulvis::rendering::gl::CGLRenderer* gl_renderer = static_cast<pulvis::rendering::gl::CGLRenderer*>(render_service.GetRenderer());
-
-		m_EcsService->Initialize(gl_renderer->GetRenderQueue(), gl_renderer->GetLayerCache());
+		m_EcsService->Initialize();
 
 		m_EventScriptBridge = std::make_unique<pulvis::events::CEventScriptBridge>(*m_EventDispatcher, m_ScriptableService->GetLuaState());
 
 		m_InputService = std::make_unique<pulvis::systems::input::CInputService>(*m_EventDispatcher, *m_ScriptableService, *m_RenderService, *m_AssetRegistry);
 		m_InputService->Initialize();
+
+		m_AnimationService = std::make_unique<pulvis::systems::animation::CAnimationService>();
+		m_AnimationService->Initialize(*m_AssetRegistry);
 
 		m_AssetRegistry->RegisterLoader(pulvis::fs::EAssetType::Script,
 			std::make_unique<pulvis::scriptable::CScriptLoader>());
@@ -96,6 +115,33 @@ namespace pulvis::game_engine
 		InitializeGameServices();
 
 		m_ScriptableService->Initialize();
+	}
+
+	void CGameBase::InitializeEcs()
+	{
+		m_EcsService->RegisterComponent<pulvis::ecs::SLogicComponent>("SLogicComponent");
+		m_EcsService->RegisterComponent<pulvis::ecs::SHierarchyComponent>("SHierarchyComponent");
+		m_EcsService->RegisterComponent<pulvis::ecs::STagComponent>("STagComponent");
+		m_EcsService->RegisterComponent<pulvis::ecs::STransformComponent>("STransformComponent");
+		m_EcsService->RegisterComponent<pulvis::ecs::SSpriteComponent>("SSpriteComponent");
+		m_EcsService->RegisterComponent<pulvis::ecs::SDirectionComponent>("SDirectionComponent");
+		m_EcsService->RegisterComponent<pulvis::systems::animation::SAnimationComponent>("SAnimationComponent");
+		m_EcsService->RegisterComponent<pulvis::systems::animation::SAnimationStateComponent>("SAnimationStateComponent");
+
+		m_EcsService->RegisterSystem<pulvis::ecs::CLogicSystem>(*m_ScriptableService, m_EcsService->GetSignalBridge());
+		m_EcsService->RegisterSystem<pulvis::ecs::CHierarchySystem>();
+
+		m_EcsService->RegisterSystem<pulvis::ecs::CTransformSystem>();
+
+		pulvis::rendering::CRenderService& render_service = GetRenderService();
+		pulvis::rendering::gl::CGLRenderer* gl_renderer = static_cast<pulvis::rendering::gl::CGLRenderer*>(render_service.GetRenderer());
+		m_EcsService->RegisterSystem<pulvis::ecs::CSpriteRenderSystem>(gl_renderer->GetRenderQueue(), gl_renderer->GetLayerCache());
+
+		m_EcsService->RegisterSystem<pulvis::systems::animation::CAnimationSystem>(m_AnimationService->GetEventManager());
+	}
+
+	void CGameBase::LoadScripts()
+	{
 		m_EcsService->LoadAndExecuteScripts();
 		m_InputService->LoadAndExecuteScripts();
 	}
@@ -153,6 +199,7 @@ namespace pulvis::game_engine
 	pulvis::events::CEventDispatcher& CGameBase::GetEventDispatcher() const { ASSERT(m_EventDispatcher, "EventDispatcher not initialized.");   return *m_EventDispatcher; }
 	pulvis::events::CEventScriptBridge& CGameBase::GetEventScriptBridge() const { ASSERT(m_EventScriptBridge, "EventScriptBridge not initialized."); return *m_EventScriptBridge; }
 	pulvis::systems::input::CInputService& CGameBase::GetInputService() const { ASSERT(m_InputService, "InputService not initialized."); return *m_InputService; }
+	pulvis::systems::animation::CAnimationService& CGameBase::GetAnimationService() const { ASSERT(m_AnimationService, "AnimationService not initialized."); return *m_AnimationService; }
 
 	CGameStateMachine& CGameBase::GetStateMachine() { return m_StateMachine; }
 

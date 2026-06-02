@@ -5,6 +5,7 @@
 #include "components/TagComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/SpriteComponent.hpp"
+#include "components/DirectionComponent.hpp"
 
 #include "systems/LogicSystem.hpp"
 #include "systems/HierarchySystem.hpp"
@@ -43,7 +44,7 @@ namespace pulvis::ecs
 		if (m_Initialized) { Shutdown(); }
 	}
 
-	void CEcsService::Initialize(pulvis::rendering::CRenderQueue& _render_queue, pulvis::rendering::CRenderLayerCache& _render_layer_cache)
+	void CEcsService::Initialize()
 	{
 		if (m_Initialized) { return; }
 
@@ -59,9 +60,6 @@ namespace pulvis::ecs
 
 		m_SystemManager = std::make_unique<CSystemManager>();
 		m_SystemManager->SetJobSystem(m_JobSystem);
-
-		RegisterBuiltinComponents();
-		RegisterBuiltinSystems(_render_queue, _render_layer_cache);
 
 		m_EcsNode = std::make_shared<CEcsScriptableNode>(*m_World, *m_TemplateCache);
 		m_Scriptable.RegisterScriptableNode(m_EcsNode);
@@ -120,29 +118,5 @@ namespace pulvis::ecs
 
 			PULVIS_INFO_LOG("EcsService: executed {} script(s) under '{}'.", executed, dir);
 		}
-	}
-
-	void CEcsService::RegisterBuiltinComponents()
-	{
-		auto register_component = [&]<typename T>(std::string _name)
-		{
-			SComponentTraits traits;
-			traits.TypeName = std::move(_name);
-			m_World->RegisterComponent<T>(std::move(traits));
-		};
-
-		register_component.template operator() <SLogicComponent> ("SLogicComponent");
-		register_component.template operator() <SHierarchyComponent> ("SHierarchyComponent");
-		register_component.template operator() <STagComponent> ("STagComponent");
-		register_component.template operator() <STransformComponent> ("STransformComponent");
-		register_component.template operator() < SSpriteComponent > ("SSpriteComponent");
-	}
-
-	void CEcsService::RegisterBuiltinSystems(pulvis::rendering::CRenderQueue& _render_queue, pulvis::rendering::CRenderLayerCache& _render_layer_cache)
-	{
-		m_SystemManager->Register(std::make_unique<CLogicSystem>(m_Scriptable, *m_SignalBridge));
-		m_SystemManager->Register(std::make_unique<CHierarchySystem>());
-		m_SystemManager->Register(std::make_unique<CTransformSystem>());
-		m_SystemManager->Register(std::make_unique<CSpriteRenderSystem>(_render_queue, _render_layer_cache));
 	}
 } // namespace pulvis::ecs

@@ -10,6 +10,10 @@ out vec2 vUV;
 
 void main()
 {
-    vUV = uUVRect.xy + aUV * uUVRect.zw;
+    // Engine texture space is top-left; GL samples bottom-left.
+    // Flip the per-quad UV (0..1) BEFORE mapping into the atlas sub-rect,
+    // so the flip happens inside the frame and does not permute atlas rows.
+    vec2 base_uv = vec2(aUV.x, 1.0 - aUV.y);
+    vUV = uUVRect.xy + base_uv * uUVRect.zw;
     gl_Position = uMVP * vec4(aPos, 0.0, 1.0);
 }

@@ -8,6 +8,8 @@ namespace pulvis::systems::input
   using action_id_t = uint32_t;
   using input_code_t = int32_t;
 
+	constexpr action_id_t INVALID_ACTION = 0;
+
   enum class EInputDevice : uint8_t
   {
     Keyboard = 0,

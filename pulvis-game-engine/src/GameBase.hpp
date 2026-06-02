@@ -3,7 +3,6 @@
 #include "IGame.hpp"
 #include "EngineConfig.hpp"
 #include "GameStateMachine.hpp"
-#include "input/InputService.hpp"
 #include <memory>
 #include <chrono>
 
@@ -49,6 +48,19 @@ namespace pulvis::ecs
 {
   class CEcsService;
 }
+
+namespace pulvis::systems
+{
+  namespace input
+  {
+    class CInputService;
+  }
+
+  namespace animation
+  {
+    class CAnimationService;
+  }
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace pulvis::game_engine
@@ -78,6 +90,7 @@ namespace pulvis::game_engine
     [[nodiscard]] pulvis::events::CEventDispatcher& GetEventDispatcher() const;
 		[[nodiscard]] pulvis::events::CEventScriptBridge& GetEventScriptBridge() const;
     [[nodiscard]] pulvis::systems::input::CInputService& GetInputService() const;
+    [[nodiscard]] pulvis::systems::animation::CAnimationService& GetAnimationService() const;
 
     CGameStateMachine& GetStateMachine();
 
@@ -94,6 +107,8 @@ namespace pulvis::game_engine
     void InitializeFilesystem();
     void InitializeMessageBus();
     void InitializeServices();
+    void InitializeEcs();
+    void LoadScripts();
 
     void Shutdown();
     void MainLoop();
@@ -113,6 +128,7 @@ namespace pulvis::game_engine
     std::unique_ptr<pulvis::events::CEventDispatcher> m_EventDispatcher;
 		std::unique_ptr<pulvis::events::CEventScriptBridge> m_EventScriptBridge;
 		std::unique_ptr<pulvis::systems::input::CInputService> m_InputService;
+		std::unique_ptr<pulvis::systems::animation::CAnimationService> m_AnimationService;
 
     CGameStateMachine m_StateMachine;
 
@@ -121,7 +137,6 @@ namespace pulvis::game_engine
     uint32_t m_RenderChannelID;
     uint32_t m_AudioChannelID;
     uint32_t m_IOChannelID;
-
 
     using Clock = std::chrono::high_resolution_clock;
     Clock::time_point m_LastFrameTime;

@@ -20,8 +20,7 @@ namespace pulvis::rendering
 		}
 
 		int w = 0, h = 0, ch = 0;
-		unsigned char* pixels = stbi_load_from_memory(
-_entry.RawData.Data(),
+		unsigned char* pixels = stbi_load_from_memory(_entry.RawData.Data(),
 			static_cast<int>(_entry.RawData.Size()),
 			&w, &h, &ch, 0
 		);

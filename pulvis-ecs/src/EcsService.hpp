@@ -32,9 +32,23 @@ namespace pulvis::ecs
 		CEcsService(const CEcsService&) = delete;
 		CEcsService& operator=(const CEcsService&) = delete;
 
-		void Initialize(pulvis::rendering::CRenderQueue& _render_queue, pulvis::rendering::CRenderLayerCache& _render_layer_cache);
+		void Initialize();
 		void Shutdown();
 		void Frame(float _delta_time);
+
+		template<typename C>
+		void RegisterComponent(std::string&& _name)
+		{
+			SComponentTraits traits;
+			traits.TypeName = std::move(_name);
+			m_World->RegisterComponent<C>(std::move(traits));
+		}
+
+		template<typename C, typename... Args>
+		void RegisterSystem(Args&&... _args)
+		{
+			m_SystemManager->Register(std::make_unique<C>(std::forward<Args>(_args)...));
+		}
 
 		void LoadAndExecuteScripts();
 
@@ -48,11 +62,6 @@ namespace pulvis::ecs
 		[[nodiscard]] const CSignalCache& GetSignalCache() const { return *m_SignalCache; }
 		[[nodiscard]] CSignalScriptBridge& GetSignalBridge() { return *m_SignalBridge; }
 		[[nodiscard]] const CSignalScriptBridge& GetSignalBridge() const { return *m_SignalBridge; }
-
-	private:
-
-		void RegisterBuiltinComponents();
-		void RegisterBuiltinSystems(pulvis::rendering::CRenderQueue& _render_queue, pulvis::rendering::CRenderLayerCache& _render_layer_cache);
 
 	private:
 

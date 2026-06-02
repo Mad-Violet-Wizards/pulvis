@@ -10,6 +10,7 @@ project "pulvis-systems"
     }
 
     includedirs {
+        PULVIS_ROOT .. "/pulvis-systems/src",
         PULVIS_ROOT .. "/pulvis-template-library/src",
         PULVIS_ROOT .. "/pulvis-core/src",
         PULVIS_ROOT .. "/pulvis-rtti/src",
@@ -18,6 +19,7 @@ project "pulvis-systems"
         PULVIS_ROOT .. "/pulvis-rendering/src",
         PULVIS_ROOT .. "/pulvis-scriptable/src",
         PULVIS_ROOT .. "/pulvis-filesystem/src",
+        PULVIS_ROOT .. "/pulvis-ecs/src",
         PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
 
@@ -26,6 +28,10 @@ project "pulvis-systems"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
-    links { "pulvis-template-library", "pulvis-core", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events", "pulvis-scriptable", "pulvis-filesystem" }
+    prebuildcommands {
+        GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "src")
+    }
 
-    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events", "pulvis-scriptable", "pulvis-filesystem" }
+    links { "pulvis-template-library", "pulvis-core", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events", "pulvis-scriptable", "pulvis-filesystem", "pulvis-ecs" }
+
+    dependson { "pulvis-template-library", "pulvis-core", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events", "pulvis-scriptable", "pulvis-filesystem", "pulvis-ecs" }
