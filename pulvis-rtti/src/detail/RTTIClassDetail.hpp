@@ -1,11 +1,12 @@
 #pragma once
 
+#include "RTTIExport.hpp"
 #include "RTTITypeTraits.hpp"
 #include "RTTIClass.hpp"
 
 namespace pulvis::rtti::detail
 {
-	class CRTTIClassStorage
+	class PULVIS_RTTI_API CRTTIClassStorage
 	{
 	public:
 

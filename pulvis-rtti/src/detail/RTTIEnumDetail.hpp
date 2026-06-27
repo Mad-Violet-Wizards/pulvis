@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RTTIExport.hpp"
 #include "RTTITypeName.hpp"
 #include <vector>
 
@@ -23,7 +24,7 @@ namespace pulvis::rtti::detail
 		bool m_Valid = false;
 	};
 	//////////////////////////////////////////////////////////////////////////
-	class CRTTIEnumStorage
+	class PULVIS_RTTI_API CRTTIEnumStorage
 	{
 		public:
 

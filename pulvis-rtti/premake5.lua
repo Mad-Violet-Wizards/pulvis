@@ -3,11 +3,15 @@ require "pulvis-scripts.build-tools.common.commands"
 require "pulvis-scripts.build-tools.common.filepath"
 
 project "pulvis-rtti"
-    kind "StaticLib"
+    kind "SharedLib"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
-    
+
+    -- Built as a DLL so the global RTTI registries are a single shared
+    -- instance across the engine and any future editor/game/plugin DLLs.
+    defines { "PULVIS_RTTI_EXPORTS" }
+
     files {
         PULVIS_ROOT .. "/pulvis-rtti/src/**.hpp",
         PULVIS_ROOT .. "/pulvis-rtti/src/**.cpp"
@@ -57,5 +61,5 @@ project "pulvis-rtti-tests"
     prebuildcommands {
         GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests")
     }
-    links { "pulvis-template-library", "pulvis-rtti", "pulvis-scriptable", "pulvis-filesystem", "pulvis-core", "pulvis-events" }
-    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-scriptable", "pulvis-filesystem", "pulvis-core", "pulvis-events" }
+    links { "pulvis-template-library", "pulvis-rtti", "pulvis-engine" }
+    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-engine" }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RTTIExport.hpp"
 #include "RTTIBase.hpp"
 #include "RTTIMethod.hpp"
 #include "RTTIField.hpp"
@@ -11,7 +12,7 @@ namespace pulvis::rtti
 {
 	constexpr static const char* s_RttiInvalidClass = "INVALID_CLASS";
 
-	class CRTTIClass
+	class PULVIS_RTTI_API CRTTIClass
 	{
 	public:
 

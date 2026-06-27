@@ -1,29 +1,5 @@
-project "pulvis-threads"
-    kind "StaticLib"
-    language "C++"
-    cppdialect "C++latest"
-    targetdir "%{wks.location}/build/%{cfg.buildcfg}"
-
-    files {
-        PULVIS_ROOT .. "/pulvis-threads/src/**.hpp",
-        PULVIS_ROOT .. "/pulvis-threads/src/**.cpp"
-    }
-
-    includedirs {
-        PULVIS_ROOT .. "/pulvis-template-library/src",
-        PULVIS_ROOT .. "/pulvis-core/src",
-        PULVIS_ROOT .. "/pulvis-threads/src",
-        PULVIS_ROOT .. "/pulvis-vendor/common/include/"
-    }
-
-    filter "system:windows"
-        buildoptions { "/utf-8" }
-        includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
-
-    filter {}
-    links { "pulvis-template-library", "pulvis-core" }
-    dependson { "pulvis-template-library", "pulvis-core" }
-
+-- The pulvis-threads library has been merged into the consolidated
+-- pulvis-engine target. Only the standalone test app remains here.
 project "pulvis-threads-tests"
     kind "ConsoleApp"
     language "C++"
@@ -48,5 +24,5 @@ project "pulvis-threads-tests"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
-    links { "pulvis-template-library", "pulvis-core", "pulvis-threads" }
-    dependson { "pulvis-template-library", "pulvis-core", "pulvis-threads" }
+    links { "pulvis-template-library", "pulvis-rtti", "pulvis-engine" }
+    dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-engine" }
