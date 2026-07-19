@@ -23,7 +23,7 @@ namespace pulvis::events
 	//////////////////////////////////////////////////////////////////////////
 	class CEventScriptBridge;
 	//////////////////////////////////////////////////////////////////////////
-	class CEventDispatcher
+	class CEventDispatcher : public std::enable_shared_from_this<CEventDispatcher>
 	{
 		public:
 
@@ -45,7 +45,7 @@ namespace pulvis::events
 				};
 
 				m_Listeners[event_id].push_back({ listener_id, std::move(type_erased) });
-				return CEventHandle(this, listener_id);
+				return CEventHandle(weak_from_this(), listener_id);
 			}
 
 			template<typename TEvent, typename... Args>

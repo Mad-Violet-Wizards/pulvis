@@ -1,7 +1,12 @@
 #pragma once
 
-#include "RTTITypeName.hpp"
 #include <vector>
+#include <unordered_map>
+
+#include "RTTITypeName.hpp"
+#include "RTTITypeTraits.hpp"
+#include "Hash.hpp"
+#include "DynamicLibraryExport.hpp"
 
 namespace pulvis::rtti::detail
 {
@@ -23,61 +28,53 @@ namespace pulvis::rtti::detail
 		bool m_Valid = false;
 	};
 	//////////////////////////////////////////////////////////////////////////
-	class CRTTIEnumStorage
+#pragma warning(push)
+#pragma warning(disable: 4251)
+	class PULVIS_DLL_EXPORT CRTTIEnumStorage
 	{
 		public:
 
-			static void RegisterEnum(const SEnumDataBuffer& _enum_data_buffer);
-			static SEnumDataBuffer& GetEnumDataBufferRef(int _index);
-			static const SEnumDataBuffer& GetEnumDataBufferConstRef(int _index);
+			static void RegisterEnum(pulvis::rtti::type_id_t _id, SEnumDataBuffer _enum_data_buffer);
+			static SEnumDataBuffer* GetEnumData(pulvis::rtti::type_id_t _index);
 
-			static int GetCurrentIndex();
-			static constexpr int inline s_CheckValuesLimit = 256;
-			static constexpr int inline s_MapperBufferLimit = 2048;
+			static constexpr int inline CHECK_VALUES_LIMIT = 256;
 
 		private:
 
-			static inline int s_EnumMapperIndex = 0;
-			static inline SEnumDataBuffer s_EnumDataStorage[s_MapperBufferLimit];
+			static std::unordered_map<pulvis::rtti::type_id_t, SEnumDataBuffer> ENUMS;
 	};
+#pragma warning(pop)
 //////////////////////////////////////////////////////////////////////////
-	template<typename E>
-	struct SEnumIndex
-	{
-		static inline int s_Index = -1;
-
-		bool IsValid()
-		{
-			return s_Index != -1;
-		}
-	};
-
-	template<typename E>
-	static int GetEnumIndex()
-	{
-		return SEnumIndex<E>::s_Index;
-	}
-
 	template<typename E>
 	static int GetEnumCount()
 	{
-		const int index = GetEnumIndex<E>();			
-		if (index == -1)
-		return -1;
+		constexpr std::string_view enum_name = CRTTITypeName::GetTypename<E>();
+		constexpr pulvis::rtti::type_id_t id = tl::hash::fnv1a<type_id_t>(enum_name);
+		const SEnumDataBuffer* enum_data = CRTTIEnumStorage::GetEnumData(id);
 
-		return CRTTIEnumStorage::GetEnumDataBufferConstRef(index).m_EnumData.size();
+		if (!enum_data)
+		{
+			return 0;
+		}
+
+		return static_cast<int>(enum_data->m_EnumData.size());
 	}
 
 	template<typename E>
 	static std::string_view ToString(E _value)
 	{
-		const int index = GetEnumIndex<E>();
-
-		for (const SEnumValues& data : CRTTIEnumStorage::GetEnumDataBufferConstRef(index).m_EnumData)
+		constexpr std::string_view enum_name = CRTTITypeName::GetTypename<E>();
+		constexpr pulvis::rtti::type_id_t id = tl::hash::fnv1a<type_id_t>(enum_name);
+		const SEnumDataBuffer* enum_data = CRTTIEnumStorage::GetEnumData(id);
+		
+		if (enum_data)
 		{
-			if (data.m_EnumValueInt == static_cast<int>(_value))
+			for (const SEnumValues& data : enum_data->m_EnumData)
 			{
-				return data.m_EnumValueStr;
+				if (data.m_EnumValueInt == static_cast<int>(_value))
+				{
+					return data.m_EnumValueStr;
+				}
 			}
 		}
 
@@ -87,13 +84,18 @@ namespace pulvis::rtti::detail
 	template<typename E>
 	static E FromString(std::string_view _value)
 	{
-		const int index = GetEnumIndex<E>();
-		
-		for (const SEnumValues& data : CRTTIEnumStorage::GetEnumDataBufferConstRef(index).m_EnumData)
+		constexpr std::string_view enum_name = CRTTITypeName::GetTypename<E>();
+		constexpr pulvis::rtti::type_id_t id = tl::hash::fnv1a<type_id_t>(enum_name);
+		const SEnumDataBuffer* enum_data = CRTTIEnumStorage::GetEnumData(id);
+
+		if (enum_data)
 		{
-			if (data.m_EnumValueStr == _value)
+			for (const SEnumValues& data : enum_data->m_EnumData)
 			{
-				return static_cast<E>(data.m_EnumValueInt);
+				if (data.m_EnumValueStr == _value)
+				{
+					return static_cast<E>(data.m_EnumValueInt);
+				}
 			}
 		}
 
@@ -109,6 +111,7 @@ namespace pulvis::rtti::detail
 		constexpr std::string_view function_signature = __PRETTY_FUNCTION__;
 #endif
 		constexpr std::string_view enum_name = CRTTITypeName::GetTypename<E>();
+		constexpr pulvis::rtti::type_id_t id = tl::hash::fnv1a<type_id_t>(enum_name);
 
 		constexpr size_t start = function_signature.rfind(enum_name) + enum_name.size();
 
@@ -123,24 +126,18 @@ namespace pulvis::rtti::detail
 			std::string_view enum_value_str = function_signature.substr(enum_value_start, enum_value_end);
 			constexpr int enum_value_int = static_cast<int>(EnumValue);
 
-			if (!SEnumIndex<E>().IsValid())
-			{
-				SEnumIndex<E>::s_Index = CRTTIEnumStorage::GetCurrentIndex();
-			}
+			SEnumDataBuffer* buffer = CRTTIEnumStorage::GetEnumData(id);
 
-			SEnumDataBuffer& buffer = CRTTIEnumStorage::GetEnumDataBufferRef(GetEnumIndex<E>());
-
-			if (buffer.m_Valid)
+			if (buffer)
 			{
-				buffer.m_EnumData.push_back({ enum_value_str, enum_value_int });
+				buffer->m_EnumData.push_back({ enum_value_str, enum_value_int });
 				return;
 			}
 
 			SEnumDataBuffer new_buffer;
 			new_buffer.m_EnumName = enum_name;
 			new_buffer.m_EnumData.push_back({ enum_value_str, enum_value_int });
-			new_buffer.m_Valid = true;
-			CRTTIEnumStorage::RegisterEnum(new_buffer);
+			CRTTIEnumStorage::RegisterEnum(id, new_buffer);
 		}
 	}
 
@@ -153,6 +150,6 @@ namespace pulvis::rtti::detail
 	template<typename E>
 	static constexpr void RegisterEnum()
 	{
-		RegisterEnumImpl<E>(std::make_integer_sequence<int, CRTTIEnumStorage::s_CheckValuesLimit>());
+		RegisterEnumImpl<E>(std::make_integer_sequence<int, CRTTIEnumStorage::CHECK_VALUES_LIMIT>());
 	}
 }

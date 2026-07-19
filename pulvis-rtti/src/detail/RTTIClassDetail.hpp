@@ -1,25 +1,25 @@
 #pragma once
+#pragma warning(push)
+#pragma warning(disable: 4251)
 
 #include "RTTITypeTraits.hpp"
 #include "RTTIClass.hpp"
+#include "DynamicLibraryExport.hpp"
 
 namespace pulvis::rtti::detail
 {
-	class CRTTIClassStorage
+	class PULVIS_DLL_API CRTTIClassStorage
 	{
 	public:
 
 		static void RegisterClass(CRTTIClass* _class);
 
-		static CRTTIClass* FindClassById(type_id_t _id);
-		static const CRTTIClass* FindConstClassById(type_id_t _type_id);
+		[[nodiscard]] static CRTTIClass* FindClassById(type_id_t _id);
+		[[nodiscard]] static const CRTTIClass* FindConstClassById(type_id_t _type_id);
 
 	private:
 
-		static inline int s_CurrentStorageIndex = 0;
-		constexpr static inline int s_ClassBufferLimit = 2048;
-		static inline CRTTIClass* s_ClassesStorage[s_ClassBufferLimit];
-
+		static std::unordered_map<type_id_t, CRTTIClass*> CLASSES;
 	};
 
 	static void AttachParent(const char* _class_name, const char* _parent_name);
@@ -30,3 +30,4 @@ namespace pulvis::rtti::detail
 		(AttachParent(_classname, std::string(pulvis::rtti::CRTTITypeName::GetTypename<Parents>()).c_str()), ...);
 	}
 }
+#pragma warning(pop)

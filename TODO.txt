@@ -1,4 +1,4 @@
-Features:
+Ideas:
 * Workspace clean should also clear rtti cache
 * Add check for exclusive tags in RTTI
 * Add error system for RTTI

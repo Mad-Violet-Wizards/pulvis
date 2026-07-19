@@ -2,24 +2,16 @@
 
 namespace pulvis::rtti::detail
 {
-	void CRTTIEnumStorage::RegisterEnum(const SEnumDataBuffer& _enum_data_buffer)
+	std::unordered_map<pulvis::rtti::type_id_t, SEnumDataBuffer> CRTTIEnumStorage::ENUMS;
+
+	void CRTTIEnumStorage::RegisterEnum(pulvis::rtti::type_id_t _id, SEnumDataBuffer _enum_data_buffer)
 	{
-		s_EnumDataStorage[s_EnumMapperIndex] = _enum_data_buffer;
-		s_EnumMapperIndex++;
+		CRTTIEnumStorage::ENUMS.try_emplace(_id, _enum_data_buffer);
 	}
 
-	SEnumDataBuffer& CRTTIEnumStorage::GetEnumDataBufferRef(int _index)
+	SEnumDataBuffer* CRTTIEnumStorage::GetEnumData(pulvis::rtti::type_id_t _index)
 	{
-		return s_EnumDataStorage[_index];
-	}
-
-	const SEnumDataBuffer& CRTTIEnumStorage::GetEnumDataBufferConstRef(int _index)
-	{
-		return s_EnumDataStorage[_index];
-	}
-
-	int CRTTIEnumStorage::GetCurrentIndex()
-	{
-		return s_EnumMapperIndex;
+		auto it = CRTTIEnumStorage::ENUMS.find(_index);
+		return it != CRTTIEnumStorage::ENUMS.end() ? &it->second : nullptr;
 	}
 }

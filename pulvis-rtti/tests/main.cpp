@@ -1,6 +1,6 @@
 #include <catch2/catch2.hpp>
 
-#include "tests_rtti_autogen.hpp"
+#include "PulvisRttiTests_rtti_autogen.hpp"
 
 #include "ScriptableService.hpp"
 #include "EventDispatcher.hpp"
@@ -9,7 +9,7 @@
 
 int main(int argc, const char* argv[])
 {
-  RegisterRTTI_tests();
+  RegisterRTTI_PulvisRttiTests();
 
   pulvis::events::CEventDispatcher eventDispatcher;
   pulvis::fs::CMountSystem            mountSystem;
@@ -17,7 +17,7 @@ int main(int argc, const char* argv[])
   pulvis::scriptable::CScriptableService scriptableService(assetRegistry);
 
   scriptableService.Initialize();
-  RegisterLuaBindings_tests(scriptableService);
+  RegisterLuaBindings_PulvisRttiTests(scriptableService);
 
   const int result = Catch::Session().run(argc, argv);
 

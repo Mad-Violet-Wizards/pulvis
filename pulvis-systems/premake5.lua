@@ -29,7 +29,7 @@ project "pulvis-systems"
 
     filter {}
     prebuildcommands {
-        GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "src")
+        GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "src/animation", "PulvisAnimations")
     }
 
     links { "pulvis-template-library", "pulvis-core", "pulvis-rendering", "pulvis-threads", "pulvis-rtti", "pulvis-events", "pulvis-scriptable", "pulvis-filesystem", "pulvis-ecs" }

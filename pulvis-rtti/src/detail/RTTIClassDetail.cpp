@@ -3,33 +3,23 @@
 
 namespace pulvis::rtti::detail
 {
+	std::unordered_map<type_id_t, CRTTIClass*> CRTTIClassStorage::CLASSES;
+
 	void CRTTIClassStorage::RegisterClass(CRTTIClass* _class)
 	{
-		s_ClassesStorage[s_CurrentStorageIndex++] = _class;
+		CRTTIClassStorage::CLASSES.try_emplace(_class->GetTypeId(), _class);
 	}
 
 	CRTTIClass* CRTTIClassStorage::FindClassById(type_id_t _id)
 	{
-		for (CRTTIClass* c : s_ClassesStorage)
-		{
-			if (c && c->GetTypeId() == _id)
-			{
-				return c;
-			}
-		}
-		return nullptr;
+		auto it = CRTTIClassStorage::CLASSES.find(_id);
+		return it != CRTTIClassStorage::CLASSES.end() ? it->second : nullptr;
 	}
 
 	const CRTTIClass* CRTTIClassStorage::FindConstClassById(type_id_t _type_id)
 	{
-		for (const CRTTIClass* c : s_ClassesStorage)
-		{
-			if (c && c->GetTypeId() == _type_id)
-			{
-				return c;
-			}
-		}
-		return nullptr;
+		const auto it = CRTTIClassStorage::CLASSES.find(_type_id);
+		return it != CRTTIClassStorage::CLASSES.end() ? it->second : nullptr;
 	}
 
 	void AttachParent(const char* _class_name, const char* _parent_name)

@@ -118,7 +118,10 @@ namespace pulvis::systems::animation
 					{
 						if (auto* dir = dir_storage->TryGet(_entity))
 						{
-							if (dir->Direction != pulvis::ecs::INVALID_DIRECTION) { direction = dir->Direction; }
+							if (dir->Direction != pulvis::ecs::INVALID_DIRECTION) 
+							{ 
+								direction = dir->Direction;
+							}
 						}
 					}
 
@@ -153,7 +156,10 @@ namespace pulvis::systems::animation
 		for (frame_id_t i = 0; i < count; ++i)
 		{
 			acc += _seq.Frames[i].Duration;
-			if (_t_ms < acc) { return i; }
+			if (_t_ms < acc) 
+			{ 
+				return i; 
+			}
 		}
 		return count > 0 ? static_cast<frame_id_t>(count - 1) : 0;
 	}

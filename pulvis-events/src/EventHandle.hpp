@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <memory>
 
 namespace pulvis::events
 {
@@ -16,7 +17,7 @@ namespace pulvis::events
 		public:
 
 			CEventHandle() = default;
-			CEventHandle(CEventDispatcher* _dispatcher, listener_id_t _listenerId);
+			CEventHandle(std::weak_ptr<CEventDispatcher> _dispatcher, listener_id_t _listenerId);
 			~CEventHandle();
 
 			CEventHandle(CEventHandle&& _other) noexcept;
@@ -30,7 +31,7 @@ namespace pulvis::events
 
 		private:
 
-			CEventDispatcher* m_Dispatcher = nullptr;
+			std::weak_ptr<CEventDispatcher> m_Dispatcher;
 			listener_id_t m_ListenerId = 0;
 	};
 }

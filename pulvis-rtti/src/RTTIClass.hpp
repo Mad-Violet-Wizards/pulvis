@@ -1,17 +1,19 @@
 #pragma once
+#pragma warning(push)
+#pragma warning(disable: 4251)
 
 #include "RTTIBase.hpp"
 #include "RTTIMethod.hpp"
 #include "RTTIField.hpp"
 #include "RTTIAttributes.hpp"
 
+#include "DynamicLibraryExport.hpp"
+
 #include <vector>
 
 namespace pulvis::rtti
 {
-	constexpr static const char* s_RttiInvalidClass = "INVALID_CLASS";
-
-	class CRTTIClass
+	class PULVIS_DLL_API CRTTIClass
 	{
 	public:
 
@@ -60,3 +62,4 @@ namespace pulvis::rtti
 		std::vector<CRTTIClass*> m_Parents;
 	};
 }
+#pragma warning(pop)

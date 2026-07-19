@@ -3,10 +3,12 @@ require "pulvis-scripts.build-tools.common.commands"
 require "pulvis-scripts.build-tools.common.filepath"
 
 project "pulvis-rtti"
-    kind "StaticLib"
+    kind "SharedLib"
     language "C++"
     cppdialect "C++latest"
     targetdir "%{wks.location}/build/%{cfg.buildcfg}"
+
+    defines { "PULVIS_RTTI_EXPORTS" }
     
     files {
         PULVIS_ROOT .. "/pulvis-rtti/src/**.hpp",
@@ -15,6 +17,7 @@ project "pulvis-rtti"
 
     includedirs {
         PULVIS_ROOT .. "/pulvis-template-library/src",
+        PULVIS_ROOT .. "/pulvis-core/src",
         PULVIS_ROOT .. "/pulvis-rtti/src",
         PULVIS_ROOT .. "/pulvis-vendor/common/include/"
     }
@@ -24,8 +27,8 @@ project "pulvis-rtti"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
-    links { "pulvis-template-library" }
-    dependson { "pulvis-template-library" }
+    links { "pulvis-template-library", "pulvis-core" }
+    dependson { "pulvis-template-library", "pulvis-core" }
 
 project "pulvis-rtti-tests"
     kind "ConsoleApp"
@@ -55,7 +58,7 @@ project "pulvis-rtti-tests"
 
     filter {}
     prebuildcommands {
-        GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests")
+        GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests", "PulvisRttiTests")
     }
     links { "pulvis-template-library", "pulvis-rtti", "pulvis-scriptable", "pulvis-filesystem", "pulvis-core", "pulvis-events" }
     dependson { "pulvis-template-library", "pulvis-rtti", "pulvis-scriptable", "pulvis-filesystem", "pulvis-core", "pulvis-events" }

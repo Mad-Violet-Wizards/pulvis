@@ -125,10 +125,11 @@ namespace pulvis::game_engine
 		std::unique_ptr<pulvis::scriptable::CScriptableService> m_ScriptableService;
 		std::unique_ptr<pulvis::ecs::CEcsService> m_EcsService;
     std::unique_ptr<pulvis::threads::CMessageBus> m_MessageBus;
-    std::unique_ptr<pulvis::events::CEventDispatcher> m_EventDispatcher;
 		std::unique_ptr<pulvis::events::CEventScriptBridge> m_EventScriptBridge;
 		std::unique_ptr<pulvis::systems::input::CInputService> m_InputService;
 		std::unique_ptr<pulvis::systems::animation::CAnimationService> m_AnimationService;
+
+    std::shared_ptr<pulvis::events::CEventDispatcher> m_EventDispatcher;
 
     CGameStateMachine m_StateMachine;
 

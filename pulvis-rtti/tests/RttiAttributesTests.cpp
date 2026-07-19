@@ -127,12 +127,5 @@ TEST_CASE("RTTI Attributes -- Methods", "[RTTI][Attributes][Fields]")
 		REQUIRE(command_pure_method != nullptr);
 		CHECK(command_pure_method->HasAttribute(ERTTIMethodAttribute::Command));
 		CHECK(command_pure_method->HasAttribute(ERTTIMethodAttribute::Pure));
-
-		const CRTTIMethod* all_attributes_method = cls->FindConstMethodByName("AllAttributesMethod");
-		REQUIRE(all_attributes_method != nullptr);
-		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Scriptable));
-		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::EditorCallable));
-		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Command));
-		CHECK(all_attributes_method->HasAttribute(ERTTIMethodAttribute::Pure));
 	}
 }

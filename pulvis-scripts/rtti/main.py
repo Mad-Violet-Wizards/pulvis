@@ -72,7 +72,9 @@ if __name__ == "__main__":
     if not validate_filesystem_path(root_path):
         sys.exit(1)
 
-    arguments = sys.argv[2:]
+    output_name = sys.argv[2]
+
+    arguments = sys.argv[3:]
     if not validate_arguments(arguments):
         sys.exit(1)
     
@@ -126,7 +128,7 @@ if __name__ == "__main__":
                     if file_contains_rtti_marker(path):
                         all_files_data[path].extend(parse_file(path))
                 
-                generate_project_register_script(root_path, all_files_data)
+                generate_project_register_script(root_path, output_name, all_files_data)
 
                 file_changes_cache.save()
                 
@@ -154,7 +156,7 @@ if __name__ == "__main__":
                     generate_rtti_code(root_path, key, data_to_autogen[key])
                 
                 models_count = sum(len(models) for models in data_to_autogen.values())
-                generate_project_register_script(root_path, data_to_autogen)
+                generate_project_register_script(root_path, output_name, data_to_autogen)
                 file_changes_cache.save()
                 
                 verbose_log(f"Force regeneration complete. Found {models_count} rtti attributes.")

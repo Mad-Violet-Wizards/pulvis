@@ -32,6 +32,7 @@
 #include "systems/TransformSystem.hpp"
 #include "systems/SpriteRenderSystem.hpp"
 #include "animation/systems/AnimationSystem.hpp"
+#include "EngineRtti.hpp"
 
 
 namespace pulvis::game_engine
@@ -49,6 +50,7 @@ namespace pulvis::game_engine
 
 	void CGameBase::Run()
 	{
+		RegisterRTTI_Engine();
 		Configure(m_Config);
 		Initialize();
 		OnInitialize();
@@ -60,7 +62,7 @@ namespace pulvis::game_engine
 	void CGameBase::Initialize()
 	{
 		PULVIS_INFO_LOG("Initializing core systems...");
-		m_EventDispatcher = std::make_unique<pulvis::events::CEventDispatcher>();
+		m_EventDispatcher = std::make_shared<pulvis::events::CEventDispatcher>();
 		InitializeFilesystem();
 		InitializeMessageBus();
 		InitializeServices();
@@ -153,13 +155,14 @@ namespace pulvis::game_engine
 		m_EventScriptBridge.reset();
 		m_EcsService.reset();
 		m_LevelService.reset();
-		m_RenderService.reset();
 		m_ScriptableService.reset();
 		m_AssetRegistry.reset();
 		m_MessageBus.reset();
 		m_EventDispatcher.reset();
 		m_MountSystem.reset();
 		m_DomainRoots.reset();
+		m_AnimationService.reset();
+		m_RenderService.reset();
 		PULVIS_INFO_LOG("Core systems shut down.");
 	}
 

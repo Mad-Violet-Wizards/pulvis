@@ -211,8 +211,8 @@ def _models_need_script_hooks(models: list[Model]) -> bool:
 ###############################################################################
 # Project-level aggregator (one file per project)
 ###############################################################################
-def generate_project_register_script(root_path: str, autogen_data: defaultdict[str, list[Model]]):
-    autogen_filename_hpp: str = f"{root_path.name}_rtti_autogen.hpp"
+def generate_project_register_script(root_path: str, output_name: str, autogen_data: defaultdict[str, list[Model]]):
+    autogen_filename_hpp: str = f"{output_name}_rtti_autogen.hpp"
 
     include_paths: set[str] = set()
     register_methods: str = ""
@@ -240,20 +240,21 @@ def generate_project_register_script(root_path: str, autogen_data: defaultdict[s
     hpp_code = "#pragma once\n"
     for include_path in include_paths:
         hpp_code += f"#include \"{include_path}\"\n"
+        verbose_log(f"Included header: {include_path}")
 
-    hpp_code += f"\ninline void RegisterRTTI_{root_path.name}()\n{{\n"
+    hpp_code += f"\ninline void RegisterRTTI_{output_name}()\n{{\n"
     hpp_code += f"{register_methods}"
     hpp_code += "}\n"
 
     if has_any_lua:
         hpp_code += "\nnamespace pulvis::scriptable { class CScriptableService; }\n"
-        hpp_code += f"inline void RegisterLuaBindings_{root_path.name}(pulvis::scriptable::CScriptableService& _service)\n{{\n"
+        hpp_code += f"inline void RegisterLuaBindings_{output_name}(pulvis::scriptable::CScriptableService& _service)\n{{\n"
         hpp_code += f"{lua_register_methods}"
         hpp_code += "}\n"
 
     # Add ScriptableHook aggregator function
     hpp_code += "\nnamespace pulvis::events { class CEventScriptBridge; }\n"
-    hpp_code += f"inline void RegisterScriptHooks_{root_path.name}(pulvis::events::CEventScriptBridge& _bridge)\n{{\n"
+    hpp_code += f"inline void RegisterScriptHooks_{output_name}(pulvis::events::CEventScriptBridge& _bridge)\n{{\n"
     if has_any_script_hooks:
         hpp_code += f"{script_hook_methods}"
     else:

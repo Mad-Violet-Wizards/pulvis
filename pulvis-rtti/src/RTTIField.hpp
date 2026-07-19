@@ -1,6 +1,10 @@
 #pragma once
+#pragma warning(push)
+#pragma warning(disable: 4251)
+
 #include "RTTITypeInfo.hpp"
 #include "RTTIAttributes.hpp"
+#include "DynamicLibraryExport.hpp"
 
 #include <string>
 #include <memory>
@@ -9,14 +13,12 @@
 
 namespace pulvis::rtti
 {
-	constexpr static const char* s_RttiInvalidField = "INVALID_FIELD";
-
-	class CRTTIField
+	class PULVIS_DLL_API CRTTIField
 	{
 	public:
 
 		CRTTIField()
-			: m_Name(s_RttiInvalidField)
+			: m_Name("INVALID_FIELD")
 			, m_FieldType(ERTTIFieldType::Unknown)
 			, m_FieldAccess(ERTTIFieldAccess::Unknown)
 			, m_Attributes(ERTTIFieldAttribute::None)
@@ -118,3 +120,5 @@ namespace pulvis::rtti
 		std::function<std::any(const void*)>                 m_GetByAny;
 	};
 } // namespace pulvis::rtti
+
+#pragma warning(pop)

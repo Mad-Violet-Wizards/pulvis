@@ -1,9 +1,9 @@
 #include <catch2/catch2.hpp>
 
-#include "tests_rtti_autogen.hpp"
+#include "PulvisFilesystemTests_rtti_autogen.hpp"
 
 int main(int argc, const char* argv[])
 {
-		RegisterRTTI_tests();
+		RegisterRTTI_PulvisFilesystemTests();
 		return Catch::Session().run(argc, argv);
 }

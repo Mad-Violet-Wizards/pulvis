@@ -1,19 +1,20 @@
 #pragma once
+#pragma warning(push)
+#pragma warning(disable: 4251)
 
 #include "FastFunction.hpp"
 #include "RTTIAttributes.hpp"
 #include <string>
+#include "DynamicLibraryExport.hpp"
 
 namespace pulvis::rtti
 {
-	constexpr static const char* s_RttiInvalidMethod = "INVALID_METHOD";
-
-	class CRTTIMethod
+	class PULVIS_DLL_API CRTTIMethod
 	{
 	public:
 
 		CRTTIMethod()
-			: m_Name(s_RttiInvalidMethod)
+			: m_Name("INVALID_METHOD")
 			, m_Attributes(ERTTIMethodAttribute::None)
 		{
 		}
@@ -68,3 +69,5 @@ namespace pulvis::rtti
 		ERTTIMethodAttribute m_Attributes;
 	};
 }
+
+#pragma warning(pop)

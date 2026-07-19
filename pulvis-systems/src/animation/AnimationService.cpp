@@ -6,18 +6,18 @@
 #include "EcsWorld.hpp"
 #include "Logger.hpp"
 
-#include "src_rtti_autogen.hpp"
-
 namespace pulvis::systems::animation
 {
 	CAnimationService::CAnimationService()
 	{
-		RegisterRTTI_src();
 	}
 
 	CAnimationService::~CAnimationService()
 	{
-		if (m_Initialized) { Shutdown(); }
+		if (m_Initialized) 
+		{ 
+			Shutdown(); 
+		}
 	}
 
 	void CAnimationService::Initialize(pulvis::fs::assets::CAssetRegistry& /*_asset_registry*/)

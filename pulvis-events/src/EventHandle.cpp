@@ -3,7 +3,7 @@
 
 namespace pulvis::events
 {
-	CEventHandle::CEventHandle(CEventDispatcher* _dispatcher, listener_id_t _listenerId)
+	CEventHandle::CEventHandle(std::weak_ptr<CEventDispatcher> _dispatcher, listener_id_t _listenerId)
 		: m_Dispatcher(_dispatcher)
 		, m_ListenerId(_listenerId)
 	{
@@ -18,7 +18,7 @@ namespace pulvis::events
 		: m_Dispatcher(_other.m_Dispatcher)
 		, m_ListenerId(_other.m_ListenerId)
 	{
-		_other.m_Dispatcher = nullptr;
+		_other.m_Dispatcher.reset();
 		_other.m_ListenerId = 0;
 	}
 
@@ -27,9 +27,9 @@ namespace pulvis::events
 		if (this != &_other)
 		{
 			Reset();
-			m_Dispatcher = _other.m_Dispatcher;
+			m_Dispatcher = std::move(_other.m_Dispatcher);
 			m_ListenerId = _other.m_ListenerId;
-			_other.m_Dispatcher = nullptr;
+			_other.m_Dispatcher.reset();
 			_other.m_ListenerId = 0;
 		}
 		return *this;
@@ -37,16 +37,17 @@ namespace pulvis::events
 
 	void CEventHandle::Reset()
 	{
-		if (IsValid())
+		if (auto dispatcher = m_Dispatcher.lock())
 		{
-			m_Dispatcher->Unsubscribe(m_ListenerId);
-			m_Dispatcher = nullptr;
-			m_ListenerId = 0;
+			dispatcher->Unsubscribe(m_ListenerId);
 		}
+
+		m_Dispatcher.reset();
+		m_ListenerId = 0;
 	}
 
 	bool CEventHandle::IsValid() const
 	{
-		return m_Dispatcher != nullptr && m_ListenerId != 0;
+		return !m_Dispatcher.expired() && m_ListenerId != 0;
 	}
 }

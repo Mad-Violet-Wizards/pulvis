@@ -57,7 +57,7 @@ project "pulvis-filesystem-tests"
 
     filter {}
     prebuildcommands {
-        GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests"),
+        GenerateRttiCommand(RTTI_GENERATION_SCRIPT_ABSOLUTE_PATH, GetScriptPath() .. "tests", "PulvisFilesystemTests"),
     }
 
     links { "pulvis-template-library", "pulvis-core", "pulvis-rtti", "pulvis-filesystem", "pulvis-events" }

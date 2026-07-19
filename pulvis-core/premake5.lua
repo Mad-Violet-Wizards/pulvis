@@ -20,4 +20,5 @@ project "pulvis-core"
         includedirs { PULVIS_ROOT .. "/pulvis-vendor/windows/include/" }
 
     filter {}
+    links { "pulvis-template-library" }
     dependson { "pulvis-template-library" }
