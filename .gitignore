@@ -6,7 +6,6 @@ build
 *.user
 *.vcxproj
 *.vcxproj.filters
-imgui.ini
 .DS_Store
 *.make
 Makefile
@@ -15,6 +14,7 @@ __pycache__
 *.pyo
 *.pyd
 .github
+*.ini
 
 *_rtti_autogen.hpp
 *_rtti_autogen.cpp

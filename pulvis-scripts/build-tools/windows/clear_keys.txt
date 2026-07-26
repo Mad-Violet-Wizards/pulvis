@@ -6,3 +6,4 @@ build
 .filters
 .user
 .ini
+.slnx

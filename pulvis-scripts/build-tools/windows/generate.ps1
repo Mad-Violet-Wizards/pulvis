@@ -1,6 +1,6 @@
 param([string]$VisualInstanceName)
 
-$validInstances = @("vs2017", "vs2019", "vs2022")
+$validInstances = @("vs2017", "vs2019", "vs2022", "vs2026")
 
 if (-Not $VisualInstanceName)
 {
