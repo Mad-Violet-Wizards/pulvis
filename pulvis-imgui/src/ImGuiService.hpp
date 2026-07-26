@@ -19,6 +19,7 @@ namespace pulvis::imgui
 	{
 		bool EnableKeyboardNavigation = true;
 		bool EnableGamepadNavigation = true;
+		bool EnableDocking = false;
 		std::string_view IniFilename = {};
 		std::string_view FontPath = {};
 		float FontSize = 16.f; // [px]

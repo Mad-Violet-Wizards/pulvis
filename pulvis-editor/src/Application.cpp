@@ -8,6 +8,7 @@
 #include "ImGuiBackend_GLFW_GL3.hpp"
 #include "widgets/PanelManager.hpp"
 #include "widgets/LogPanel.hpp"
+#include "widgets/DockSpacePanel.hpp"
 
 #include "Logger.hpp"
 
@@ -108,6 +109,7 @@ namespace pulvis::editor
 
 		pulvis::imgui::SImGuiServiceConfig imgui_config;
 		imgui_config.IniFilename = "editor.ini";
+		imgui_config.EnableDocking = true;
 
 		std::unique_ptr<pulvis::imgui::CImGuiBackend_GLFW_GL3> imgui_backend = std::make_unique<pulvis::imgui::CImGuiBackend_GLFW_GL3>(native_window, "#version 330");
 

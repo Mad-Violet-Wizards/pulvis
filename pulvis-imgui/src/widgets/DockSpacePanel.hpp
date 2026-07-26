@@ -9,7 +9,7 @@ namespace pulvis::imgui::widgets
 		public:
 
 			[[nodiscard]] std::string_view GetName() const override { return "DockSpace"; }
-			[[nodiscard]] std::string_view GetMenuName() const override { return "None"; }
+			[[nodiscard]] std::string_view GetMenuName() const override { return ""; }
 
 			void OnAttach() override {};
 			void OnDetach() override {};

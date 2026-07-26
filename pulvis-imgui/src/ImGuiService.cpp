@@ -35,10 +35,9 @@ namespace pulvis::imgui
 
 		ImGuiIO& io = ImGui::GetIO();
 
-		if (_config.EnableKeyboardNavigation)
-			io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		if (_config.EnableGamepadNavigation)
-			io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+		if (_config.EnableKeyboardNavigation) io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		if (_config.EnableGamepadNavigation) io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+		if (_config.EnableDocking) io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		if (!_config.IniFilename.empty())
 		{
@@ -116,6 +115,12 @@ namespace pulvis::imgui
 
 		if (m_State != EImGuiState::Hidden)
 		{
+
+			if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable)
+			{
+				ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+			}
+
 			RenderMainMenuBar();
 			m_PanelManager->Render();
 		}
@@ -212,7 +217,10 @@ namespace pulvis::imgui
 		m_PanelManager->ForEach(
 			[&grouped](widgets::panel_id_t /*_id*/, widgets::IPanel& _panel)
 			{
-				grouped[_panel.GetMenuName()].push_back(&_panel);
+				if (_panel.GetRenderInMenu())
+				{
+					grouped[_panel.GetMenuName()].push_back(&_panel);
+				}
 			});
 
 		for (auto& [menu_name, panels] : grouped)

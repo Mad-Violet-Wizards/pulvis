@@ -15,16 +15,22 @@ namespace pulvis::imgui::widgets
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
 		constexpr ImGuiWindowFlags windowFlags =
+			ImGuiWindowFlags_NoDocking |
 			ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
-			ImGuiWindowFlags_NoNavFocus;
+			ImGuiWindowFlags_NoNavFocus |
+			ImGuiWindowFlags_NoBackground;
 
 		bool open = true;
 		ImGui::Begin("##PulvisDockSpaceHost", &open, windowFlags);
 		ImGui::PopStyleVar(3);
+
+		const ImGuiID dockspace_id = ImGui::GetID("PulvisDockSpace");
+		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
 		ImGui::End();
 	}
 }
