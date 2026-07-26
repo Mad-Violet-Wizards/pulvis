@@ -73,11 +73,13 @@ namespace pulvis::game_engine
 
 	void CGameBase::InitializeFilesystem()
 	{
-		m_DomainRoots = std::make_unique<pulvis::fs::CDomainRoots>(m_Config.AppName, m_Config.GameAssetsPath);
-		m_MountSystem = std::make_unique<pulvis::fs::CMountSystem>();
-		m_MountSystem->BootstrapDomains(*m_DomainRoots);
+		m_FileSystem = std::make_unique<pulvis::fs::CFileSystem>(m_Config.AppName, m_Config.AssetsPath);
+		ConfigureDomainsRoots();
+		m_FileSystem->BootstrapDomains();
 		InitializeGameFilesystems();
-		m_AssetRegistry = std::make_unique<pulvis::fs::assets::CAssetRegistry>(*m_MountSystem, *m_EventDispatcher);
+		m_AssetRegistry = std::make_unique<pulvis::fs::assets::CAssetRegistry>(*m_FileSystem, *m_EventDispatcher);
+		m_FileLogSink = std::make_unique<CFileLogSink>(*m_FileSystem);
+		m_FileLogSink->Initialize(GetDomainRoots());
 	}
 
 	void CGameBase::InitializeMessageBus()
@@ -97,7 +99,7 @@ namespace pulvis::game_engine
 		m_ScriptableService = std::make_unique<pulvis::scriptable::CScriptableService>(*m_AssetRegistry);
 		m_ScriptableService->Initialize();
 
-		m_LevelService = std::make_unique<pulvis::level::CLevelService>(*m_AssetRegistry, *m_MountSystem, *m_ScriptableService);
+		m_LevelService = std::make_unique<pulvis::level::CLevelService>(*m_AssetRegistry, *m_FileSystem, *m_ScriptableService);
 		m_LevelService->Initialize(*m_MessageBus, m_IOChannelID, m_MainChannelID);
 
 		m_EcsService = std::make_unique<pulvis::ecs::CEcsService>(*m_ScriptableService, *m_AssetRegistry, *m_EventDispatcher);
@@ -159,8 +161,7 @@ namespace pulvis::game_engine
 		m_AssetRegistry.reset();
 		m_MessageBus.reset();
 		m_EventDispatcher.reset();
-		m_MountSystem.reset();
-		m_DomainRoots.reset();
+		m_FileSystem.reset();
 		m_AnimationService.reset();
 		m_RenderService.reset();
 		PULVIS_INFO_LOG("Core systems shut down.");
@@ -191,8 +192,9 @@ namespace pulvis::game_engine
 		}
 	}
 
-	pulvis::fs::CDomainRoots& CGameBase::GetDomainRoots() const { ASSERT(m_DomainRoots, "DomainRoots not initialized.");           return *m_DomainRoots; }
-	pulvis::fs::CMountSystem& CGameBase::GetMountSystem() const { ASSERT(m_MountSystem, "MountSystem not initialized.");           return *m_MountSystem; }
+	pulvis::fs::CFileSystem& CGameBase::GetFileSystem() const { ASSERT(m_FileSystem, "FileSystem not initialized.");           return *m_FileSystem; }
+	pulvis::fs::CDomainRoots& CGameBase::GetDomainRoots() const { return m_FileSystem->GetDomainRoots(); }
+	pulvis::fs::CMountSystem& CGameBase::GetMountSystem() const { return m_FileSystem->GetMountSystem(); }
 	pulvis::fs::assets::CAssetRegistry& CGameBase::GetAssetRegistry() const { ASSERT(m_AssetRegistry, "AssetRegistry not initialized.");       return *m_AssetRegistry; }
 	pulvis::rendering::CRenderService& CGameBase::GetRenderService() const { ASSERT(m_RenderService, "RenderService not initialized.");       return *m_RenderService; }
 	pulvis::level::CLevelService& CGameBase::GetLevelService() const { ASSERT(m_LevelService, "LevelService not initialized.");         return *m_LevelService; }

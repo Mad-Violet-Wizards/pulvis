@@ -24,7 +24,13 @@ namespace pulvis::core
 			template<typename Fn>
 			[[nodiscard]] Fn GetSymbolAs(std::string_view _symbol_name) const noexcept
 			{
-				return reinterpret_cast<Fn>(GetSymbol(_symbol_name));
+				void* fn = GetSymbol(_symbol_name);
+				if (!fn)
+				{
+					return nullptr;
+				}
+
+				return reinterpret_cast<Fn>(fn);
 			}
 
 			void Unload() noexcept;

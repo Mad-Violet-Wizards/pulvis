@@ -18,8 +18,8 @@
 #include <functional>
 #include <iostream>
 #include <mutex>
-#include <queue>
 #include <vector>
+#include <array>
 
 #include "FastFunction.hpp"
 
@@ -29,6 +29,7 @@ namespace pulvis::core
 ///////////////////////////////////////////////////////////////////////////////////////////////////
   enum class ELogLevel
   {
+      Unknown = -1,
       Fatal = 0,
       Error = 1,
       Warning,
@@ -66,6 +67,11 @@ inline static std::string ToString(ELogLevel _log_level)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	struct SLogInfo
 	{
+    SLogInfo()
+      : m_LogLevel(ELogLevel::Unknown)
+      , m_Message("")
+    { }
+
 		SLogInfo(ELogLevel _log_level, const std::string& _msg)
 			: m_LogLevel(_log_level)
 			, m_Message(_msg)
@@ -83,7 +89,7 @@ inline static std::string ToString(ELogLevel _log_level)
 
 		std::string FileDump() const
 		{
-			return "";
+			return std::format("{} {}\n", ToString(m_LogLevel), m_Message);
 		}
 	};
 
@@ -114,7 +120,7 @@ constexpr static log_sink_id_t INVALID_LOG_SINK_ID = 0;
 	      LogImpl(log_info);
       }
 
-      [[nodiscard]] log_sink_id_t RegisterSink(pulvis::tl::FastFunction _sink);
+      [[nodiscard]] log_sink_id_t RegisterSink(pulvis::tl::FastFunction _sink, bool dump_history = false);
       bool UnregisterSink(log_sink_id_t _sink_id);
 
     private:
@@ -128,11 +134,18 @@ constexpr static log_sink_id_t INVALID_LOG_SINK_ID = 0;
         log_sink_id_t ID;
         pulvis::tl::FastFunction Sink;
       };
-            
-      std::queue<SLogInfo> m_LogFileDumpQueue;
-			std::vector<SSinkEntry> m_Sinks;
-			std::mutex m_SinksMutex;
-			log_sink_id_t m_NextSinkID = 1;
+      
+      std::vector<SSinkEntry> m_Sinks;
+      std::mutex m_SinksMutex;
+      log_sink_id_t m_NextSinkID = 1;
+
+    private:
+
+      void CacheLog(SLogInfo _log_info);
+
+      constexpr static size_t CACHE_MAX_LOGS = 8192;
+      size_t m_CacheCount = 0;
+      std::array<SLogInfo, CACHE_MAX_LOGS> m_LogCache;
   };
 }
 

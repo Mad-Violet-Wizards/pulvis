@@ -12,6 +12,7 @@ namespace pulvis::game_engine
 
             /* Called before any system is allocated. */
             virtual void Configure(SEngineConfig& _config) = 0;
+            virtual void ConfigureDomainsRoots() = 0;
 
             virtual void InitializeGameFilesystems() = 0;
             virtual void InitializeGameServices() = 0;

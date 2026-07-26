@@ -16,7 +16,7 @@ namespace pulvis::fs
 	{
 		public:
 
-			CDomainRoots(const std::string& _app_name, const std::string& _game_assets_path = "");
+			CDomainRoots(const std::string& _app_name, const std::string& _assets_path = "");
 			CDomainRoots(const CDomainRoots&) = delete;
 			CDomainRoots& operator=(const CDomainRoots&) = delete;
 
@@ -27,7 +27,7 @@ namespace pulvis::fs
 
 		private:
 
-			static std::filesystem::path ResolveUserDataPath(const std::string& _app_name);
+			static std::filesystem::path ResolveUserDataPath();
 
 		private:
 

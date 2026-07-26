@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 
+namespace	pulvis::fs { class CFileSystem; }
 namespace pulvis::rendering { class CRenderLayerCache; }
 
 namespace pulvis::level
@@ -15,7 +16,7 @@ namespace pulvis::level
 	{
 	public:
 
-		CLevelService(pulvis::fs::assets::CAssetRegistry& _asset_registry, pulvis::fs::CMountSystem& _mount_system, pulvis::scriptable::CScriptableService& _scriptable_service);
+		CLevelService(pulvis::fs::assets::CAssetRegistry& _asset_registry, pulvis::fs::CFileSystem& _file_system, pulvis::scriptable::CScriptableService& _scriptable_service);
 		~CLevelService() = default;
 
 		CLevelService(const CLevelService&) = delete;
@@ -56,7 +57,7 @@ namespace pulvis::level
 	private:
 
 		pulvis::fs::assets::CAssetRegistry& m_AssetRegistry;
-		pulvis::fs::CMountSystem& m_MountSystem;
+		pulvis::fs::CFileSystem& m_FileSystem;
 		pulvis::scriptable::CScriptableService& m_ScriptableService;
 
 		std::unique_ptr<CLevel> m_ActiveLevel;

@@ -6,10 +6,12 @@
 #include "FileBuffer.hpp"
 #include "RenderLayerCache.hpp"
 #include "Logger.hpp"
+#include "FileSystem.hpp"
 
 #include "ScriptableService.hpp"
 #include "ScriptHost.hpp"
 #include "TableView.hpp"
+#include "serialization/BinaryArchiveBackend.hpp"
 
 #include <format>
 
@@ -24,17 +26,22 @@ namespace pulvis::level
 	}
 
 	CLevelService::CLevelService(pulvis::fs::assets::CAssetRegistry& _asset_registry,
-		pulvis::fs::CMountSystem& _mount_system,
+		pulvis::fs::CFileSystem& _file_system,
 		pulvis::scriptable::CScriptableService& _scriptable_service)
 		: m_AssetRegistry(_asset_registry)
-		, m_MountSystem(_mount_system)
+		, m_FileSystem(_file_system)
 		, m_ScriptableService(_scriptable_service)
 	{
 	}
 
 	void CLevelService::Initialize(pulvis::threads::CMessageBus& _messageBus, uint32_t _ioChannelId, uint32_t _mainChannelId)
 	{
-		m_ChunkIO = std::make_unique<CChunkIO>(m_MountSystem, _messageBus, _ioChannelId, _mainChannelId);
+		m_FileSystem.RegisterBackend(".chunk", +[]() -> std::unique_ptr<pulvis::fs::serialization::IArchiveBackend>
+		{
+			return std::make_unique<pulvis::fs::serialization::CBinaryArchiveBackend>();
+		});
+
+		m_ChunkIO = std::make_unique<CChunkIO>(m_FileSystem, _messageBus, _ioChannelId, _mainChannelId);
 		m_ChunkIO->RegisterHandlers();
 
 		PULVIS_INFO_LOG("LevelService initialized.");
@@ -153,17 +160,18 @@ namespace pulvis::level
 		const std::string script_path = MakeLayerScriptPath(m_ActiveLevelPath);
 		const pulvis::fs::CFilePath file_path(script_path);
 
-		auto resolved = m_MountSystem.Resolve(pulvis::fs::EDomain::Game, file_path, false);
-		if (!resolved)
+		pulvis::fs::CFileBuffer buffer;
+		const pulvis::fs::EFileResult result = m_FileSystem.ReadFile(pulvis::fs::EDomain::Game, file_path, buffer);
+
+		if (result == pulvis::fs::EFileResult::NotFound)
 		{
-			PULVIS_WARNING_LOG("LoadLayerScript - script not found: {}", script_path);
+			PULVIS_WARNING_LOG("LoadLayerScript script not found: {}", script_path);
 			return false;
 		}
 
-		pulvis::fs::CFileBuffer buffer;
-		if (resolved.Source->Read(resolved.LocalPath, buffer) != pulvis::fs::EFileResult::Success)
+		if (result != pulvis::fs::EFileResult::Success)
 		{
-			PULVIS_ERROR_LOG("LoadLayerScript - failed to read: {}", script_path);
+			PULVIS_ERROR_LOG("LoadLayerScript failed to read: {}", script_path);
 			return false;
 		}
 
@@ -232,7 +240,7 @@ namespace pulvis::level
 		const std::string script_path = MakeLayerScriptPath(m_ActiveLevelPath);
 		const pulvis::fs::CFilePath file_path(script_path);
 
-		auto resolved = m_MountSystem.Resolve(pulvis::fs::EDomain::Game, file_path, true);
+		const pulvis::fs::CMountSystem::SResolvedPath resolved = m_FileSystem.GetMountSystem().Resolve(pulvis::fs::EDomain::Game, file_path, true);
 		if (!resolved)
 		{
 			PULVIS_ERROR_LOG("SaveLayerScript - no writable mount for: {}", script_path);
@@ -260,11 +268,10 @@ namespace pulvis::level
 		out += "    }\n";
 		out += "end\n";
 
-		pulvis::fs::CFileBuffer buffer;
-		buffer.Resize(out.size());
-		std::memcpy(buffer.Data(), out.data(), out.size());
+		const pulvis::fs::CFileBuffer buffer(out.data(), static_cast<pulvis::fs::file_size_t>(out.size()));
+		const pulvis::fs::EFileResult result = m_FileSystem.WriteFile(pulvis::fs::EDomain::Game, file_path, buffer);
 
-		if (resolved.Source->Write(resolved.LocalPath, buffer) != pulvis::fs::EFileResult::Success)
+		if (result != pulvis::fs::EFileResult::Success)
 		{
 			PULVIS_ERROR_LOG("SaveLayerScript - failed to write: {}", script_path);
 			return false;

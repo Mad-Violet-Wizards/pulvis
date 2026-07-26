@@ -11,7 +11,8 @@ project "pulvis-imgui"
     files {
         PULVIS_ROOT .. "/pulvis-imgui/src/**.hpp", 
         PULVIS_ROOT .. "/pulvis-imgui/src/**.cpp", 
-        PULVIS_ROOT .. "/pulvis-imgui/src/**.c"
+        PULVIS_ROOT .. "/pulvis-imgui/src/**.c",
+        PULVIS_ROOT .. "/pulvis-imgui/src/**.h"
     }
 
     includedirs {

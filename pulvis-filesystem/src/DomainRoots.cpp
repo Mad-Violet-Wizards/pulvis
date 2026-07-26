@@ -7,23 +7,23 @@
 
 namespace pulvis::fs
 {
-	CDomainRoots::CDomainRoots(const std::string& _app_name, const std::string& _game_assets_path)
+	CDomainRoots::CDomainRoots(const std::string& _app_name, const std::string& _assets_path)
 	{
-		m_Roots[static_cast<uint8_t>(EDomain::User)] = ResolveUserDataPath(_app_name);
+		m_Roots[static_cast<uint8_t>(EDomain::User)] = ResolveUserDataPath();
 
 
 #if defined(DEBUG)
-		const std::string game_assets_dir = _game_assets_path.empty()
+		const std::string assets_path = _assets_path.empty()
 			? std::format("{}-assets", _app_name)
-			: _game_assets_path;
+			: _assets_path;
 
 
 		const std::filesystem::path engine_workspace = std::filesystem::current_path().parent_path();
 		const std::filesystem::path game_workspace = std::filesystem::current_path();
 
-		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = engine_workspace / "pulvis-assets/engine/";
-		m_Roots[static_cast<uint8_t>(EDomain::Game)] = game_workspace / game_assets_dir / "game/";
-		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = game_workspace / game_assets_dir / "dev/";
+		m_Roots[static_cast<uint8_t>(EDomain::Engine)] = engine_workspace / "pulvis-assets" / "engine";
+		m_Roots[static_cast<uint8_t>(EDomain::Game)] = game_workspace / assets_path / "game";
+		m_Roots[static_cast<uint8_t>(EDomain::Dev)] = game_workspace / assets_path / "dev";
 
 		PULVIS_INFO_LOG("Domain roots initialized:");
 		PULVIS_INFO_LOG("Engine: {}", m_Roots[static_cast<uint8_t>(EDomain::Engine)].string());
@@ -57,7 +57,7 @@ namespace pulvis::fs
 		m_Roots[static_cast<uint8_t>(_domain)] = std::move(_new_root);
 	}
 
-	std::filesystem::path CDomainRoots::ResolveUserDataPath(const std::string& _app_name)
+	std::filesystem::path CDomainRoots::ResolveUserDataPath()
 	{
 #if defined(WINDOWS_OS)
 		char* appdata_buffer = nullptr;
@@ -78,7 +78,7 @@ namespace pulvis::fs
 
 		std::filesystem::path user_data_path(appdata_buffer);
 		free(appdata_buffer);
-		return user_data_path / _app_name;
+		return user_data_path / "pulvis" / "user";
 #elif defined(MAC_OS)
 		const char* home = std::getenv("HOME");
 		
@@ -89,7 +89,7 @@ namespace pulvis::fs
 		}
 
 		std::filesystem::path user_data_path(home);
-		return user_data_path / "Library" / "Application Support" / _app_name;
+		return user_data_path / "Library" / "Application Support" / "pulvis";
 #endif
 
 		return {};

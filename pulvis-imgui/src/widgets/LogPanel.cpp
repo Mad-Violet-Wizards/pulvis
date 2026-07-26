@@ -50,7 +50,7 @@ namespace pulvis::imgui::widgets
 		};
 
     pulvis::tl::FastFunction sink = pulvis::tl::FastFunction::Make<void, const pulvis::core::SLogInfo&>(sink_fn);
-    m_SinkId = pulvis::core::CLogService::Get().RegisterSink(std::move(sink));
+    m_SinkId = pulvis::core::CLogService::Get().RegisterSink(std::move(sink), true);
   }
 
   void CLogPanel::OnDetach()

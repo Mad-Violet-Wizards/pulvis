@@ -10,7 +10,7 @@
 #include <mutex>
 #include <memory>
 
-namespace pulvis::fs { class CMountSystem; }
+namespace pulvis::fs { class CFileSystem; }
 namespace pulvis::threads { class CMessageBus; }
 
 namespace pulvis::level
@@ -40,40 +40,39 @@ namespace pulvis::level
 
     class CChunkIO
     {
-        public:
+      public:
 
-			CChunkIO(pulvis::fs::CMountSystem& _mountSystem, pulvis::threads::CMessageBus& _messageBus,
-				uint32_t _ioChannelId, uint32_t _mainChannelId);
-			~CChunkIO() = default;
+			  CChunkIO(pulvis::fs::CFileSystem& _file_system, pulvis::threads::CMessageBus& _message_bus, uint32_t _ioChannelId, uint32_t _mainChannelId);
+			  ~CChunkIO() = default;
 
-            void RegisterHandlers();
+        void RegisterHandlers();
 
-            bool LoadChunkSync(const std::string& _levelPath, SChunkCoord _coord, SChunk& _outChunk);
-			bool SaveChunkSync(const std::string& _levelPath, const SChunk& _chunk);
-			bool ChunkExistsOnDisk(const std::string& _levelPath, SChunkCoord _coord);
+        bool LoadChunkSync(const std::string& _levelPath, SChunkCoord _coord, SChunk& _outChunk);
+			  bool SaveChunkSync(const std::string& _levelPath, const SChunk& _chunk);
+			  bool ChunkExistsOnDisk(const std::string& _levelPath, SChunkCoord _coord);
 
 		    uint32_t LoadChunkBatchSync(const std::string& _levelPath, const std::vector<SChunkCoord>& _coords, CLevel& _level);
 		    uint32_t SaveDirtyChunksSync(const std::string& _levelPath, CLevel& _level);
 
-		    // Async
+		      // Async
 		    void RequestLoadChunk(const std::string& _levelPath, SChunkCoord _coord);
 		    void RequestLoadChunks(const std::string& _levelPath, const std::vector<SChunkCoord>& _coords);
 
 		    uint32_t ApplyPendingChunks(CLevel& _level);
 		    size_t PendingCount() const { return m_PendingChunks.size(); }
 
-        private:
+      private:
 
-            static std::string MakeChunkFileName(const std::string& _levelPath, SChunkCoord _coord);
+        static std::string MakeChunkFileName(const std::string& _levelPath, SChunkCoord _coord);
 
-        private:
+      private:
 
-            pulvis::fs::CMountSystem& m_MountSystem;
-            pulvis::threads::CMessageBus& m_MessageBus;
-            uint32_t m_IOChannelId;
-            uint32_t m_MainChannelId;
+          pulvis::fs::CFileSystem& m_FileSystem;
+          pulvis::threads::CMessageBus& m_MessageBus;
+          uint32_t m_IOChannelId;
+          uint32_t m_MainChannelId;
 
-            std::vector<std::unique_ptr<SChunk>> m_PendingChunks;
-            std::mutex m_PendingMutex;
+          std::vector<std::unique_ptr<SChunk>> m_PendingChunks;
+          std::mutex m_PendingMutex;
     };
 }

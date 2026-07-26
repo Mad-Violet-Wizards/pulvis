@@ -2,13 +2,14 @@
 #include "AssetEvents.hpp"
 #include "EventDispatcher.hpp"
 
+#include "MountSystem.hpp"
 #include "Logger.hpp"
 
 
 namespace pulvis::fs::assets
 {
-	CAssetRegistry::CAssetRegistry(CMountSystem& _mount_system, pulvis::events::CEventDispatcher& _event_dispatcher)
-		: m_MountSystem(_mount_system)
+	CAssetRegistry::CAssetRegistry(CFileSystem& _file_system, pulvis::events::CEventDispatcher& _event_dispatcher)
+		: m_FileSystem(_file_system)
 		, m_EventDispatcher(_event_dispatcher)
 	{
 	}
@@ -100,21 +101,12 @@ namespace pulvis::fs::assets
 		ASSERT(entry.State == EAssetState::Registered, "Trying to load asset that is not in Registered state.");
 		entry.State = EAssetState::Loading;
 
-		CMountSystem::SResolvedPath resolved = m_MountSystem.Resolve(entry.Domain, CFilePath(entry.VirtualPath), false);
-
-		if (!resolved)
-		{
-			PULVIS_ERROR_LOG("Failed to load asset '{}': File not found.", entry.VirtualPath);
-			entry.State = EAssetState::Failed;
-			return false;
-		}
-
 		CFileBuffer buffer;
-		EFileResult result = resolved.Source->Read(resolved.LocalPath, buffer);
+		const EFileResult result = m_FileSystem.ReadFile(entry.Domain, CFilePath(entry.VirtualPath), buffer);
 
 		if (result != EFileResult::Success)
 		{
-			PULVIS_ERROR_LOG("Failed to load asset '{}': Error reading file ({}).", entry.VirtualPath, static_cast<int>(result));
+			PULVIS_ERROR_LOG("Failed to load asset '{}': ({}).", entry.VirtualPath, static_cast<int>(result));
 			entry.State = EAssetState::Failed;
 			return false;
 		}
@@ -197,7 +189,7 @@ namespace pulvis::fs::assets
 
 	uint32_t CAssetRegistry::LoadDirectory(EDomain _domain, const std::string& _virtual_directory, bool _recursive)
 	{
-		CMountSystem::SResolvedPath resolved = m_MountSystem.Resolve(_domain, CFilePath(_virtual_directory), false);
+		CMountSystem::SResolvedPath resolved = m_FileSystem.GetMountSystem().Resolve(_domain, CFilePath(_virtual_directory), false);
 
 		if (!resolved)
 		{

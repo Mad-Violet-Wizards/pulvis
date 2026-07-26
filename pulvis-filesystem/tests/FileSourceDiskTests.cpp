@@ -229,14 +229,19 @@ TEST_CASE("FileSourceDisk (write)", "[FS][FileSourceDisk]")
 		CHECK(read_buffer.Size() == 0);
 	}
 
-	SECTION("Write to non-existing file returns NotFound")
+	SECTION("Write to non-existing file creates it")
 	{
 		CFilePath path("does_not_exist.txt");
 		const std::string content = "test";
 		CFileBuffer buffer(content.data(), static_cast<file_size_t>(content.size()));
 
 		EFileResult result = source.Write(path, buffer);
-		CHECK(result == EFileResult::NotFound);
+		CHECK(result == EFileResult::Success);
+		CHECK(source.Exists(path));
+
+		CFileBuffer read_buffer(0);
+		source.Read(path, read_buffer);
+		CHECK(read_buffer.ToStringView() == content);
 	}
 
 	SECTION("Write binary data and read back")

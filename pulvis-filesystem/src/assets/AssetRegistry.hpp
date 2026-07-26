@@ -2,8 +2,7 @@
 
 #include "AssetEntry.hpp"
 #include "AssetLoader.hpp"
-#include "MountSystem.hpp"
-
+#include "FileSystem.hpp"
 #include <deque>
 #include <unordered_map>
 #include <string>
@@ -17,7 +16,7 @@ namespace pulvis::fs::assets
 	{
 		public:
 
-			explicit CAssetRegistry(CMountSystem& _mount_system, pulvis::events::CEventDispatcher& _event_dispatcher);
+			explicit CAssetRegistry(CFileSystem& _file_system, pulvis::events::CEventDispatcher& _event_dispatcher);
 			~CAssetRegistry() = default;
 
 			CAssetRegistry(const CAssetRegistry&) = delete;
@@ -53,7 +52,7 @@ namespace pulvis::fs::assets
 
 		private:
 
-			CMountSystem& m_MountSystem;
+			CFileSystem& m_FileSystem;
 			pulvis::events::CEventDispatcher& m_EventDispatcher;
 			std::deque<SAssetEntry> m_Entries;
 			std::vector<uint32_t> m_FreeList;

@@ -5,93 +5,108 @@
 
 namespace pulvis::fs
 {
-	//////////////////////////////////////////////////////////////////////////
-	namespace
+	CFileSystem::CFileSystem(const std::string& _app_name, const std::string& _assets_path /* = "" */)
+		: m_DomainRoots(_app_name, _assets_path)
 	{
-		CMountSystem g_MountSystem;
-		std::unordered_map<std::string, backend_factory_t> g_BackendSerializersRegistry;
+		RegisterDefaultBackends();
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-	void Initialize()
+	void CFileSystem::BootstrapDomains()
 	{
-		RegisterBackend(".json", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CJsonArchiveBackend>(); });
-		RegisterBackend(".bin", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CBinaryArchiveBackend>(); });
-		RegisterBackend(".dat", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CBinaryArchiveBackend>(); });
-		RegisterBackend(".sav", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CBinaryArchiveBackend>(); });
+		m_MountSystem.BootstrapDomains(m_DomainRoots);
 	}
 
-	void Shutdown()
+	void CFileSystem::Mount(EDomain _domain, const CFilePath& _virtual_prefix, std::shared_ptr<IFileSource> _source, EMountTag _tag)
 	{
+		m_MountSystem.Mount(_domain, _virtual_prefix, std::move(_source), _tag);
 	}
 
-	void Mount(EDomain _domain, const CFilePath& _virtual_prefix,
-		std::shared_ptr<IFileSource> _source, EMountTag _tag)
+	void CFileSystem::Unmount(EDomain _domain, const CFilePath& _virtual_prefix)
 	{
-		g_MountSystem.Mount(_domain, _virtual_prefix, std::move(_source), _tag);
+		m_MountSystem.Unmount(_domain, _virtual_prefix);
 	}
 
-	void Unmount(EDomain _domain, const CFilePath& _virtual_prefix)
+	EFileResult CFileSystem::ReadFile(EDomain _domain, const CFilePath& _path, CFileBuffer& _out_buffer) const
 	{
-		g_MountSystem.Unmount(_domain, _virtual_prefix);
-	}
-
-	EFileResult ReadFile(EDomain _domain, const CFilePath& _path, CFileBuffer& _out_buffer)
-	{
-		auto resolved = g_MountSystem.Resolve(_domain, _path, false);
+		const CMountSystem::SResolvedPath resolved = m_MountSystem.Resolve(_domain, _path, false);
 		if (!resolved)
 			return EFileResult::NotFound;
 
 		return resolved.Source->Read(resolved.LocalPath, _out_buffer);
 	}
 
-	EFileResult WriteFile(EDomain _domain, const CFilePath& _path, const CFileBuffer& _buffer)
+	EFileResult CFileSystem::ReadFile(const CFilePath& _path, CFileBuffer& _out_buffer) const
 	{
-		auto resolved = g_MountSystem.Resolve(_domain, _path, true);
+		const CMountSystem::SResolvedPath resolved = m_MountSystem.ResolveAny(_path);
 		if (!resolved)
+			return EFileResult::NotFound;
+
+		return resolved.Source->Read(resolved.LocalPath, _out_buffer);
+	}
+
+	EFileResult CFileSystem::WriteFile(EDomain _domain, const CFilePath& _path, const CFileBuffer& _buffer) const
+	{
+		const CMountSystem::SResolvedPath resolved = m_MountSystem.Resolve(_domain, _path, true);
+		if (!resolved)
+		{
 			return EFileResult::AccessDenied;
+		}
 
 		return resolved.Source->Write(resolved.LocalPath, _buffer);
 	}
 
-	bool FileExists(EDomain _domain, const CFilePath& _path)
+	bool CFileSystem::FileExists(EDomain _domain, const CFilePath& _path) const
 	{
-		return static_cast<bool>(g_MountSystem.Resolve(_domain, _path, false));
+		return static_cast<bool>(m_MountSystem.Resolve(_domain, _path, false));
 	}
 
-	EFileResult ReadFile(const CFilePath& _path, CFileBuffer& _out_buffer)
+	bool CFileSystem::FileExists(const CFilePath& _path) const
 	{
-		auto resolved = g_MountSystem.ResolveAny(_path);
-		if (!resolved)
-			return EFileResult::NotFound;
-
-		return resolved.Source->Read(resolved.LocalPath, _out_buffer);
+		return static_cast<bool>(m_MountSystem.ResolveAny(_path));
 	}
 
-	bool FileExists(const CFilePath& _path)
+	CMountSystem& CFileSystem::GetMountSystem()
 	{
-		return static_cast<bool>(g_MountSystem.ResolveAny(_path));
+		return m_MountSystem;
 	}
 
-	CMountSystem& GetMountSystem()
+	const CMountSystem& CFileSystem::GetMountSystem() const
 	{
-		return g_MountSystem;
+		return m_MountSystem;
+	}
+
+	CDomainRoots& CFileSystem::GetDomainRoots()
+	{
+		return m_DomainRoots;
+	}
+
+	const CDomainRoots& CFileSystem::GetDomainRoots() const
+	{
+		return m_DomainRoots;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	void RegisterBackend(const std::string& _file_extension, backend_factory_t _factory)
+	void CFileSystem::RegisterBackend(const std::string& _file_extension, backend_factory_t _factory)
 	{
-		g_BackendSerializersRegistry[_file_extension] = std::move(_factory);
+		m_BackendSerializersRegistry[_file_extension] = std::move(_factory);
 	}
 
-	std::unique_ptr<serialization::IArchiveBackend> CreateBackend(std::string_view _extension)
+	std::unique_ptr<serialization::IArchiveBackend> CFileSystem::FindBackend(std::string_view _extension)
 	{
-		auto it = g_BackendSerializersRegistry.find(std::string(_extension));
-		if (it != g_BackendSerializersRegistry.end())
+		auto it = m_BackendSerializersRegistry.find(std::string(_extension));
+		if (it != m_BackendSerializersRegistry.end())
 		{
 			return it->second();
 		}
 
 		return nullptr;
+	}
+
+	void CFileSystem::RegisterDefaultBackends()
+	{
+		RegisterBackend(".json", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CJsonArchiveBackend>(); });
+		RegisterBackend(".bin", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CBinaryArchiveBackend>(); });
+		RegisterBackend(".dat", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CBinaryArchiveBackend>(); });
+		RegisterBackend(".sav", +[]() -> std::unique_ptr<serialization::IArchiveBackend> { return std::make_unique<serialization::CBinaryArchiveBackend>(); });
 	}
 }

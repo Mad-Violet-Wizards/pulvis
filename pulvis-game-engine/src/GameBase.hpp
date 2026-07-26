@@ -3,6 +3,8 @@
 #include "IGame.hpp"
 #include "EngineConfig.hpp"
 #include "GameStateMachine.hpp"
+#include "FileLogSink.hpp"
+#include "FileSystem.hpp"
 #include <memory>
 #include <chrono>
 
@@ -79,6 +81,7 @@ namespace pulvis::game_engine
 
   public:
 
+    [[nodiscard]] pulvis::fs::CFileSystem& GetFileSystem() const;
     [[nodiscard]] pulvis::fs::CDomainRoots& GetDomainRoots() const;
     [[nodiscard]] pulvis::fs::CMountSystem& GetMountSystem() const;
     [[nodiscard]] pulvis::fs::assets::CAssetRegistry& GetAssetRegistry() const;
@@ -116,9 +119,10 @@ namespace pulvis::game_engine
   private:
 
     SEngineConfig m_Config;
+    CGameStateMachine m_StateMachine;
 
-    std::unique_ptr<pulvis::fs::CDomainRoots> m_DomainRoots;
-    std::unique_ptr<pulvis::fs::CMountSystem> m_MountSystem;
+    // Services
+    std::unique_ptr<pulvis::fs::CFileSystem> m_FileSystem;
     std::unique_ptr<pulvis::fs::assets::CAssetRegistry> m_AssetRegistry;
     std::unique_ptr<pulvis::rendering::CRenderService> m_RenderService;
     std::unique_ptr<pulvis::level::CLevelService> m_LevelService;
@@ -128,10 +132,7 @@ namespace pulvis::game_engine
 		std::unique_ptr<pulvis::events::CEventScriptBridge> m_EventScriptBridge;
 		std::unique_ptr<pulvis::systems::input::CInputService> m_InputService;
 		std::unique_ptr<pulvis::systems::animation::CAnimationService> m_AnimationService;
-
     std::shared_ptr<pulvis::events::CEventDispatcher> m_EventDispatcher;
-
-    CGameStateMachine m_StateMachine;
 
     // Cached MessageBus channel IDS.
     uint32_t m_MainChannelID;
@@ -139,7 +140,11 @@ namespace pulvis::game_engine
     uint32_t m_AudioChannelID;
     uint32_t m_IOChannelID;
 
+    // Time
     using Clock = std::chrono::high_resolution_clock;
     Clock::time_point m_LastFrameTime;
+   
+    // File log
+    std::unique_ptr<CFileLogSink> m_FileLogSink;
   };
 }
